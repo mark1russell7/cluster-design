@@ -59,6 +59,20 @@ The option `psuLoad` sets the load limit of a power supply, as a ratio of its ou
 | `sata-ports` | The SATA drives fit in the SATA ports of the board. |
 | `psu-load` | The most power of the parts is not more than the load limit of the power supply. |
 
+## The measures of a machine
+
+`measureDesign` gives the value of each measure at each machine, with its unit. Each measure is a Vex program too.
+
+| Measure | Unit | Value |
+| --- | --- | --- |
+| `power` | W | The most power of the parts: the sum of the count times the power of each line. |
+| `power-limit` | W | The load limit of the power supply: its output times `psuLoad`. |
+| `power-output` | W | The output of the power supply. |
+
+The rule `psu-load` reads the programs of `power` and `power-limit`. Thus the measures and the rule always agree. A test with random designs holds this.
+
+`evaluateDesign` evaluates other programs at each machine of a design, with the same tree and the same variables.
+
 ## Units
 
 Each amount field of `PART_CLASSES` names the unit that the rules read. `designTree` converts each amount to that unit with `valueIn` of `@mark1russell7/quantity`, before the evaluation. Thus a case with a cooler height of 16 cm and a cooler of 155 mm fit.
@@ -72,4 +86,4 @@ pnpm typecheck
 pnpm test
 ```
 
-The tests use the parts of `src/sample.ts`. The parts are generic, and no part names a maker.
+The tests use the parts of `src/sample.ts`. The parts are generic, and no part names a maker. The entry `@mark1russell7/cluster-design/sample` gives them to the demo of the site.

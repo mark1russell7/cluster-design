@@ -57,6 +57,15 @@ const exactlyOne = (name: PartClass, label: string): FitRule => ({
 /** The name of the variable that holds the load limit of the power supply, as a ratio of its output. */
 export const PSU_LOAD = "psuLoad";
 
+/** This program gives the most power of the parts of a machine in watts: the sum of the count times the power of each line. */
+export const POWER_DRAW: Expr = total(powered, app("multiply", ref("count"), ref("power")));
+
+/** This program gives the output of the power supply of a machine in watts. */
+export const POWER_OUTPUT: Expr = the("psu", "output");
+
+/** This program gives the load limit of the power supply of a machine in watts: its output times the variable `psuLoad`. */
+export const POWER_LIMIT: Expr = app("multiply", POWER_OUTPUT, v(PSU_LOAD));
+
 /** These are the fit rules of a machine, in the order of the check. */
 export const FIT_RULES: readonly FitRule[] = [
   exactlyOne("board", "board"),
@@ -168,10 +177,6 @@ export const FIT_RULES: readonly FitRule[] = [
     id: "psu-load",
     sentence: "The most power of the parts is not more than the load limit of the power supply.",
     classes: [...POWERED_CLASSES, "psu"],
-    program: app(
-      "lte",
-      total(powered, app("multiply", ref("count"), ref("power"))),
-      app("multiply", the("psu", "output"), v(PSU_LOAD)),
-    ),
+    program: app("lte", POWER_DRAW, POWER_LIMIT),
   },
 ];
