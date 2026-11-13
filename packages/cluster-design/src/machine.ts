@@ -39,16 +39,17 @@ export type DesignTreeResult =
   | { readonly ok: true; readonly value: DesignTree }
   | { readonly ok: false; readonly problems: readonly string[] };
 
-const fieldValue = (spec: FieldSpec, value: unknown): unknown =>
+/** This function gives the value of a field in the tree. An amount becomes a number in the unit of its field spec. */
+export const fieldValue = (spec: FieldSpec, value: unknown): unknown =>
   spec.kind === "amount" ? valueIn(value as Parameters<typeof valueIn>[0], spec.unit) : value;
 
 /**
- * This function gives the record of a part line in the tree. The record has the class, the count and each field of
- * the part. An amount becomes a number in the unit that its field spec names, with an exact conversion.
+ * This function gives the record of a part line in the tree. The record has the kind `line`, the class, the count and
+ * each field of the part. An amount becomes a number in the unit that its field spec names, with an exact conversion.
  */
 export function lineRecord(part: Part, count: number): Readonly<Record<string, unknown>> {
   const fields: Readonly<Record<string, FieldSpec>> = PART_CLASSES[part.class];
-  const record: Record<string, unknown> = { part: part.id, class: part.class, count };
+  const record: Record<string, unknown> = { kind: "line", part: part.id, class: part.class, count };
   for (const [name, spec] of Object.entries(fields)) record[name] = fieldValue(spec, (part as unknown as Record<string, unknown>)[name]);
   return record;
 }

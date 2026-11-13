@@ -117,7 +117,8 @@ export type PartOf<C extends PartClass> = {
 /** This type is a part of each class. */
 export type Part = { [C in PartClass]: PartOf<C> }[PartClass];
 
-const fieldSchema = (spec: FieldSpec): z.ZodType => {
+/** This function gives the schema of a field: a text, a list of texts, a count, a choice or an amount of its kind. */
+export const fieldSchema = (spec: FieldSpec): z.ZodType => {
   switch (spec.kind) {
     case "text":
       return z.string().trim().min(1);

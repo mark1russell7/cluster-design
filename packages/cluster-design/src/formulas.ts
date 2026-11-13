@@ -52,14 +52,19 @@ export const WALL_POWER: Expr = fromWall(POWER_DRAW, "efficiency");
 export const WALL_IDLE_POWER: Expr = fromWall(IDLE_DRAW, "idleEfficiency");
 
 /**
- * This program gives the sound level of all the parts of a machine, in dBA. It is 10 log10 of the sum, for each part,
- * of the count times 10 to the power of the level over 10. Two equal sources give 3 dB more than one source.
+ * This program gives the sound energy of the parts of a machine, relative to the level 0 dBA. It is the sum, for each
+ * part, of the count times 10 to the power of the level over 10. The sound energy of two machines is a sum.
  */
-export const NOISE: Expr = app(
-  "multiply",
-  lit(10),
-  app("log10", totalOfCount(linesOfAny(NOISY_CLASSES), app("pow", lit(10), app("divide", ref("noise"), lit(10))))),
-);
+export const NOISE_ENERGY: Expr = totalOfCount(linesOfAny(NOISY_CLASSES), app("pow", lit(10), app("divide", ref("noise"), lit(10))));
+
+/** This expression gives the sound level in dBA of a sound energy: 10 log10 of the energy. */
+export const levelOf = (energy: Expr): Expr => app("multiply", lit(10), app("log10", energy));
+
+/**
+ * This program gives the sound level of all the parts of a machine, in dBA: the level of its sound energy. Two equal
+ * sources give 3 dB more than one source.
+ */
+export const NOISE: Expr = levelOf(NOISE_ENERGY);
 
 /** This program gives the cores of the processors of a machine. */
 export const CORES: Expr = totalOfCount(linesOf("cpu"), ref("cores"));
