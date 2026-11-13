@@ -24,15 +24,72 @@
 </header>
 
 <main>
-  <h1>cluster-design</h1>
-  <p class="lead">The design of a computer cluster as formulas with units: the fit of the parts, the capacity, the watts, the heat, the noise and the load of each circuit.</p>
+  <section class="intro">
+    <h1>cluster-design</h1>
+    <p class="lead">The design of a computer cluster as formulas with units: the fit of the parts, the capacity, the watts, the heat, the noise and the load of each circuit.</p>
+  </section>
 
-  <h2>Install</h2>
-  <div class="command">
-    <code id="install">pnpm add @mark1russell7/cluster-design</code>
-    <button id="copy" type="button">Copy</button>
-  </div>
-  <p class="note">This package has no release on npm yet. <a href="./releases/">Releases</a> shows each version, and <a href="./status/">Status</a> shows the open work.</p>
+  <section class="demo" aria-labelledby="demo-title">
+    <div class="demo-head">
+      <h2 id="demo-title">Check a machine</h2>
+      <p class="note">Choose the parts of one machine. Each fit rule is a Vex program. The library checks the machine in your browser at each change.</p>
+      <div class="presets" id="presets" role="group" aria-label="Presets"></div>
+      <p class="preset-sentence" id="preset-sentence"></p>
+    </div>
+
+    <div class="board">
+      <section class="card summary" aria-live="polite" aria-labelledby="verdict">
+        <p class="verdict" id="verdict"></p>
+        <div class="meter" id="meter">
+          <div class="meter-bar" aria-hidden="true">
+            <span class="meter-fill" id="meter-fill"></span>
+            <span class="meter-limit" id="meter-limit"></span>
+          </div>
+          <p class="meter-text" id="meter-text"></p>
+        </div>
+        <label class="load">
+          <span>Load limit of the power supply: <strong id="load-value"></strong></span>
+          <input id="load" type="range" min="50" max="100" step="5">
+        </label>
+      </section>
+
+      <section class="card parts" aria-labelledby="parts-title">
+        <h3 id="parts-title">The parts</h3>
+        <div id="parts"></div>
+      </section>
+
+      <section class="card rules" aria-labelledby="rules-title">
+        <div class="rules-head">
+          <h3 id="rules-title">The fit rules</h3>
+          <label class="only"><input id="only" type="checkbox"> Only the problems</label>
+        </div>
+        <ol class="rule-list" id="rules"></ol>
+      </section>
+    </div>
+  </section>
+
+  <section class="how" aria-labelledby="how-title">
+    <h2 id="how-title">How it works</h2>
+    <ol class="steps">
+      <li><strong>Parts are data.</strong> A table gives the fields of each class. Each amount has a unit, so a cooler height of 16 cm and a cooler of 155 mm compare correctly.</li>
+      <li><strong>A design is a tree.</strong> The cluster has machines, and each machine has part lines. The tree holds each amount in the unit of its field.</li>
+      <li><strong>A rule is a program.</strong> Each fit rule is a Vex program at a machine. A rule that cannot read a part gives no read, not a pass.</li>
+    </ol>
+<pre class="code"><code>import { checkDesign, overall, readCatalog } from "@mark1russell7/cluster-design";
+
+const catalog = readCatalog(parts);
+const result = checkDesign([{ id: "node-1", lines }], catalog.value);
+overall(result.findings); // "fits", "breaks" or "unread"</code></pre>
+  </section>
+
+  <section aria-labelledby="install-title">
+    <h2 id="install-title">Install</h2>
+    <div class="command">
+      <code id="install">pnpm add @mark1russell7/cluster-design</code>
+      <button id="copy" type="button">Copy</button>
+    </div>
+    <p class="note">This package has no release on npm yet. <a href="./releases/">Releases</a> shows each version, and <a href="./status/">Status</a> shows the open work.</p>
+  </section>
 </main>
 
 <script type="module" src="./src/index.ts"></script>
