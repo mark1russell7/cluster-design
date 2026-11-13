@@ -72,7 +72,7 @@ describe("the fit rules", () => {
       swap("cpu-a", "cpu-hot").lines.map((line) => (line.part === "psu-550" ? { ...line, part: "psu-300" } : line)),
     );
     expect(notFitting(findingsOf([machine]))).toEqual({ "cooler-rating": "breaks", "psu-load": "breaks" });
-    // 88 + 30 + 12 + 8 + 18 + 3 = 159 W. The limit 0.8 x 300 W = 240 W fits, but 0.5 x 300 W = 150 W does not.
+    // 88 + 30 + 12 + 8 + 18 + 3 + 4 = 163 W. The limit 0.8 x 300 W = 240 W fits, but 0.5 x 300 W = 150 W does not.
     expect(notFitting(findingsOf([swap("psu-550", "psu-300")]))).toEqual({});
     expect(notFitting(findingsOf([swap("psu-550", "psu-300")], CATALOG, 0.5))).toEqual({ "psu-load": "breaks" });
   });
@@ -84,6 +84,7 @@ describe("the fit rules", () => {
       "cooler-height": "unread",
       "board-in-case": "unread",
       "psu-in-case": "unread",
+      "fan-slots": "unread",
     });
     expect(findings.find((f) => f.rule === "board-in-case")?.detail).toMatch(/^#N\/A/);
     expect(overall(findings)).toBe("breaks");

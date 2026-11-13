@@ -3,8 +3,10 @@
  * design. It reads the parts of the machine through the axis `children`, and it gives `true` when the parts fit.
  * A program that cannot read a part gives an error value, and the check then has no verdict for that rule.
  */
-import { app, axes, each, let_, lit, ref, v, type Axis, type Expr } from "@mark1russell7/vex";
-import { PART_CLASS_NAMES, PART_CLASSES, type PartClass } from "./parts.ts";
+import { app, each, let_, lit, ref, v, type Expr } from "@mark1russell7/vex";
+import { MEMORY, POWER_DRAW, POWER_LIMIT, POWERED_CLASSES } from "./formulas.ts";
+import type { PartClass } from "./parts.ts";
+import { contains, countOf, every, isClass, linesOf, linesOfAny, linesWhere, STRICT, the, total } from "./program.ts";
 
 /** This record is one fit rule: its id, the sentence that it holds, the classes that it reads, and its program. */
 export interface FitRule {
@@ -14,57 +16,12 @@ export interface FitRule {
   readonly program: Expr;
 }
 
-/** This option of a reduction gives the first error of a list, so a part with no value is not skipped. */
-const STRICT: Expr = lit({ strict: true });
-
-/** This axis gives the part lines of the machine that pass the test. */
-const linesWhere = (test: Expr): Axis => axes.where(axes.children, test);
-
-/** This expression tells if the line at the focus has the class `name`. */
-const isClass = (name: PartClass): Expr => app("eq", ref("class"), lit(name));
-
-/** This axis gives the part lines of one class. */
-const linesOf = (name: PartClass): Axis => linesWhere(isClass(name));
-
-/** This expression gives the sum of `body` over the lines of the axis. */
-const total = (axis: Axis, body: Expr): Expr => app("sum", each(axis, body), STRICT);
-
-/** This expression gives the count of the parts of one class: the sum of the counts of its lines. */
-const countOf = (name: PartClass): Expr => total(linesOf(name), ref("count"));
-
-/** This expression gives a field of the part of a class. The machine has one part of that class. */
-const the = (name: PartClass, field: string): Expr => app("first", each(linesOf(name), ref(field)));
-
-/** This expression tells if `test` holds for each line of a class. */
-const every = (name: PartClass, test: Expr): Expr => app("all", each(linesOf(name), test), STRICT);
-
-/** This expression tells if the list `list` has the text `value`. */
-const contains = (list: Expr, value: Expr): Expr =>
-  app("any", each(axes.list(list), app("eq", v("item"), value), undefined, ["item"]), STRICT);
-
-/** These classes have the field `power`. The load of the power supply is the sum of their power. */
-export const POWERED_CLASSES: readonly PartClass[] = PART_CLASS_NAMES.filter((name) => "power" in PART_CLASSES[name]);
-
-const powered: Axis = linesWhere(app("or", ...POWERED_CLASSES.map(isClass)));
-
 const exactlyOne = (name: PartClass, label: string): FitRule => ({
   id: `one-${name}`,
   sentence: `A machine has one ${label}.`,
   classes: [name],
   program: app("eq", countOf(name), lit(1)),
 });
-
-/** The name of the variable that holds the load limit of the power supply, as a ratio of its output. */
-export const PSU_LOAD = "psuLoad";
-
-/** This program gives the most power of the parts of a machine in watts: the sum of the count times the power of each line. */
-export const POWER_DRAW: Expr = total(powered, app("multiply", ref("count"), ref("power")));
-
-/** This program gives the output of the power supply of a machine in watts. */
-export const POWER_OUTPUT: Expr = the("psu", "output");
-
-/** This program gives the load limit of the power supply of a machine in watts: its output times the variable `psuLoad`. */
-export const POWER_LIMIT: Expr = app("multiply", POWER_OUTPUT, v(PSU_LOAD));
 
 /** These are the fit rules of a machine, in the order of the check. */
 export const FIT_RULES: readonly FitRule[] = [
@@ -129,11 +86,7 @@ export const FIT_RULES: readonly FitRule[] = [
     id: "memory-size",
     sentence: "The memory is not more than the most memory of the board.",
     classes: ["memory", "board"],
-    program: app(
-      "lte",
-      total(linesOf("memory"), app("multiply", app("multiply", ref("count"), ref("modules")), ref("moduleSize"))),
-      the("board", "maxMemory"),
-    ),
+    program: app("lte", MEMORY, the("board", "maxMemory")),
   },
   {
     id: "board-in-case",
@@ -146,6 +99,12 @@ export const FIT_RULES: readonly FitRule[] = [
     sentence: "The case takes the form factor of the power supply.",
     classes: ["psu", "case"],
     program: let_({ form: the("psu", "formFactor") }, contains(the("case", "psuFormFactors"), v("form"))),
+  },
+  {
+    id: "fan-slots",
+    sentence: "The fans fit in the fan slots of the case.",
+    classes: ["fan", "case"],
+    program: app("lte", countOf("fan"), the("case", "fanSlots")),
   },
   {
     id: "gpu-length",
@@ -171,6 +130,27 @@ export const FIT_RULES: readonly FitRule[] = [
       "lte",
       total(linesWhere(app("and", isClass("storage"), app("eq", ref("interface"), lit("sata")))), ref("count")),
       the("board", "sataPorts"),
+    ),
+  },
+  {
+    id: "idle-power",
+    sentence: "Each part takes less power at idle than its most power, or the same power.",
+    classes: POWERED_CLASSES,
+    program: app("all", each(linesOfAny(POWERED_CLASSES), app("lte", ref("idlePower"), ref("power"))), STRICT),
+  },
+  {
+    id: "psu-efficiency",
+    sentence: "The efficiencies of the power supply are more than 0 percent and not more than 100 percent.",
+    classes: ["psu"],
+    program: every(
+      "psu",
+      app(
+        "and",
+        app("gt", ref("efficiency"), lit(0)),
+        app("lte", ref("efficiency"), lit(100)),
+        app("gt", ref("idleEfficiency"), lit(0)),
+        app("lte", ref("idleEfficiency"), lit(100)),
+      ),
     ),
   },
   {
