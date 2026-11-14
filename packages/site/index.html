@@ -74,6 +74,45 @@
     </div>
   </section>
 
+  <section class="demo site" aria-labelledby="site-title">
+    <div class="demo-head">
+      <h2 id="site-title">Put copies of it on a site</h2>
+      <p class="note">The machine above goes to a site with two circuits and two rooms. Each rule of the site is a Vex program at a circuit or a room. A change of a part above changes the site too.</p>
+      <div class="presets" id="site-presets" role="group" aria-label="Presets of the site"></div>
+      <p class="preset-sentence" id="site-preset-sentence"></p>
+    </div>
+
+    <div class="site-board">
+      <section class="card site-summary" id="site-summary" aria-live="polite" aria-labelledby="site-verdict">
+        <p class="verdict" id="site-verdict"></p>
+        <dl class="tiles" id="site-tiles"></dl>
+      </section>
+
+      <section class="card copies-card" aria-labelledby="copies-title">
+        <div class="card-head">
+          <h3 id="copies-title">The machines</h3>
+          <div id="copies-count"></div>
+        </div>
+        <p class="tiles-note">Each copy has the parts of the machine above. Choose its circuit and its room.</p>
+        <ol class="copies" id="copies"></ol>
+        <p class="tiles-note" id="copies-empty">No machine is on the site.</p>
+      </section>
+
+      <section class="card place" id="circuit-0" aria-label="Circuit A"></section>
+      <section class="card place" id="circuit-1" aria-label="Circuit B"></section>
+      <section class="card place" id="room-0" aria-label="Room A"></section>
+      <section class="card place" id="room-1" aria-label="Room B"></section>
+
+      <section class="card site-rules" aria-labelledby="site-rules-title">
+        <div class="rules-head">
+          <h3 id="site-rules-title">The site rules</h3>
+          <label class="only"><input id="site-only" type="checkbox"> Only the problems</label>
+        </div>
+        <ol class="rule-list" id="site-rules"></ol>
+      </section>
+    </div>
+  </section>
+
   <section class="how" aria-labelledby="how-title">
     <h2 id="how-title">How it works</h2>
     <ol class="steps">
@@ -81,6 +120,7 @@
       <li><strong>A design is a tree.</strong> The cluster has machines, and each machine has part lines. The tree holds each amount in the unit of its field.</li>
       <li><strong>A rule is a program.</strong> Each fit rule is a Vex program at a machine. A rule that cannot read a part gives no read, not a pass.</li>
       <li><strong>A measure is a program too.</strong> The power, the heat, the noise and the CI runner slots are Vex programs over the same tree. The rule of the power supply reads the program of the power, so the two always agree.</li>
+      <li><strong>A site is input data.</strong> A site record gives the circuits, the rooms and the price of electricity. The rules of the site read the same programs of the power at each machine of a circuit or a room.</li>
     </ol>
 <pre class="code"><code>import { checkDesign, overall, readCatalog } from "@mark1russell7/cluster-design";
 

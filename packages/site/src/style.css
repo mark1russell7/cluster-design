@@ -511,6 +511,171 @@ main > section:last-child {
   background: var(--panel);
 }
 
+/* The site part: the copies of the machine on two circuits and in two rooms. */
+
+.site-board {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  align-items: start;
+  gap: 1rem;
+}
+
+.site-rules {
+  grid-column: 1 / -1;
+}
+
+.card-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.25rem 0.75rem;
+  margin-bottom: 0.5rem;
+}
+
+.card-head h3 {
+  margin: 0;
+}
+
+.badge {
+  padding: 0.05rem 0.6rem;
+  border-radius: 999px;
+  font-size: 0.8rem;
+  font-weight: 700;
+}
+
+.badge[data-verdict="fits"] {
+  background: var(--fits-bg);
+  color: var(--fits);
+}
+
+.badge[data-verdict="breaks"] {
+  background: var(--breaks-bg);
+  color: var(--breaks);
+}
+
+.badge[data-verdict="unread"] {
+  background: var(--unread-bg);
+  color: var(--unread);
+}
+
+.site-summary .tiles {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.site-summary .load {
+  margin-top: 0.75rem;
+}
+
+.fields {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem 1rem;
+  margin-bottom: 0.5rem;
+}
+
+.field {
+  display: grid;
+  gap: 0.15rem;
+  color: var(--quiet);
+  font-size: 0.85rem;
+}
+
+.field select {
+  min-height: 2.25rem;
+  padding: 0 0.5rem;
+  border: 1px solid var(--line);
+  border-radius: 0.375rem;
+  background: var(--page);
+  color: var(--ink);
+  font: inherit;
+  font-size: 1rem;
+}
+
+.place .load {
+  margin-bottom: 0.5rem;
+}
+
+.gauge-label {
+  margin: 0.5rem 0 0.35rem;
+  color: var(--quiet);
+  font-size: 0.8rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.gauge-text {
+  margin: 0.4rem 0 0;
+  color: var(--quiet);
+  font-size: 0.9rem;
+  font-variant-numeric: tabular-nums;
+}
+
+.gauge-text[data-over="true"] {
+  color: var(--breaks);
+  font-weight: 600;
+}
+
+.copies {
+  display: grid;
+  gap: 0.35rem;
+  margin: 0.5rem 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.copy {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.25rem 0.75rem;
+  padding: 0.35rem 0.5rem;
+  border: 1px solid var(--line);
+  border-radius: 0.5rem;
+  background: var(--page);
+}
+
+.copy[hidden] {
+  display: none;
+}
+
+.copy-name {
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+
+.copy-pairs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem 1rem;
+}
+
+.pair {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+.pair-label {
+  margin-right: 0.15rem;
+  color: var(--quiet);
+  font-size: 0.85rem;
+}
+
+.pair button {
+  min-width: 2.25rem;
+  padding: 0 0.5rem;
+}
+
+.pair button[aria-pressed="true"] {
+  border-color: var(--accent);
+  background: var(--accent);
+  color: var(--page);
+  font-weight: 700;
+}
+
 @media (max-width: 52rem) {
   .board {
     grid-template-columns: minmax(0, 1fr);
@@ -523,5 +688,9 @@ main > section:last-child {
 
   .rule-body {
     padding-left: 0.25rem;
+  }
+
+  .site-board {
+    grid-template-columns: minmax(0, 1fr);
   }
 }
