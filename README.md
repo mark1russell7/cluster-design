@@ -19,7 +19,7 @@ This repository has no prices and no site of its own. They are input data.
 
 | Package | What it has |
 | --- | --- |
-| [`@mark1russell7/cluster-design`](packages/cluster-design) | The part classes and the fit rules. The formulas of a machine, a site and a design come next. |
+| [`@mark1russell7/cluster-design`](packages/cluster-design) | The part classes, the fit rules, the formulas of a machine, and the rules and the measures of a site. The design space comes next. |
 
 Other packages give the general parts:
 

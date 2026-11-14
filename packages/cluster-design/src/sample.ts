@@ -4,6 +4,7 @@
 import { quantity } from "@mark1russell7/quantity";
 import type { Machine } from "./machine.ts";
 import type { Part } from "./parts.ts";
+import { SITE_FORMAT, type Site } from "./site.ts";
 
 /** The parts of the sample: one part of each class, and parts that break a rule. */
 export const SAMPLE_PARTS: readonly Part[] = [
@@ -95,5 +96,26 @@ export const SAMPLE_MACHINE: Machine = {
     { part: "case-a", count: 1 },
     { part: "cooler-a", count: 1 },
     { part: "fan-120", count: 2 },
+  ],
+};
+
+/**
+ * A site of the sample: two circuits of 120 V and 15 A, and two rooms. The machines `node-1` and `node-2` plug into
+ * the first circuit and stand in the first room. The values are generic, and they name no real site.
+ */
+export const SAMPLE_SITE: Site = {
+  format: SITE_FORMAT,
+  price: quantity(0.15, "USD/kWh"),
+  circuits: [
+    { id: "circuit-a", voltage: quantity(120, "V"), breaker: quantity(15, "A"), sockets: 4, otherLoad: quantity(200, "W") },
+    { id: "circuit-b", voltage: quantity(120, "V"), breaker: quantity(15, "A"), sockets: 2, otherLoad: quantity(0, "W") },
+  ],
+  rooms: [
+    { id: "room-a", places: 2, heatLimit: quantity(500, "W"), noiseLimit: quantity(45, "dBA") },
+    { id: "room-b", places: 2, heatLimit: quantity(1000, "W"), noiseLimit: quantity(35, "dBA") },
+  ],
+  places: [
+    { machine: "node-1", circuit: "circuit-a", room: "room-a" },
+    { machine: "node-2", circuit: "circuit-a", room: "room-a" },
   ],
 };

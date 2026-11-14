@@ -1,6 +1,6 @@
 # @mark1russell7/cluster-design
 
-The design of a computer cluster as math. This package has the records of the parts, the machines of a design, and the fit rules that tell which parts fit in one machine. It also has the formulas of a machine: its power, its heat, its noise and its capacity.
+The design of a computer cluster as math. This package has the records of the parts, the machines of a design, and the fit rules that tell which parts fit in one machine. It also has the formulas of a machine: its power, its heat, its noise and its capacity. A site holds the machines. Its rules and measures give the load of each circuit, the heat and the noise of each room, and the cost of the electricity.
 
 The package is private. It is not on npm.
 
@@ -110,6 +110,65 @@ const result = measureDesign(machines, catalog, { job: { threads: 2, memory: 7 }
 ```
 
 `evaluateDesign` evaluates other programs at each machine of a design, with the same tree and the same variables.
+
+## A site
+
+A **site** holds the machines of a design. It is input data: the price of electricity, the circuits, the rooms and the place of each machine. This package has no site of its own.
+
+| Record | Fields |
+| --- | --- |
+| site | `format` (`site/1`), `price` (a price of energy, for example `USD/kWh`), `circuits`, `rooms` and `places` |
+| circuit | `id`, `voltage` (V), `breaker` (A, the rating of the breaker), `sockets` (the free sockets) and `otherLoad` (W, the power of the other loads) |
+| room | `id`, `places` (the places for machines), `heatLimit` (W, the heat that the cooling of the room takes away) and `noiseLimit` (dBA) |
+| place | `machine`, `circuit` and `room`: the circuit that the machine plugs into, and the room that it stands in |
+
+`readSite` reads a site from data. An amount with a unit of a different kind is a problem, for example a breaker in watts.
+
+```ts
+import { checkSite, measureSite, readSite } from "@mark1russell7/cluster-design";
+
+const site = readSite(data); // the site as data, from a private file
+if (!site.ok) throw new Error(site.problems.join("\n"));
+
+const check = checkSite(site.value, machines, catalog); // the findings of each circuit and each room
+const measures = measureSite(site.value, machines, catalog); // the value of each measure, with its unit
+```
+
+`siteTree` makes the tree of the evaluation. The root is the site, and its children are the circuits and the rooms. The machines are the children of their circuits, and each machine has the id of its room. Each machine of the design has one place. A place that names a machine, a circuit or a room that is not in the input is a problem. A machine with no place is a problem too.
+
+The option `continuousLoad` sets the continuous load limit of a circuit, as a ratio of the rating of its breaker. The default is 0.8, the limit that the electrical code of the United States sets for a continuous load. A machine that runs CI jobs for hours is a continuous load.
+
+### The rules of a site
+
+| Rule | Level | The sentence that it holds |
+| --- | --- | --- |
+| `circuit-load` | circuit | The most power of a circuit is not more than its continuous load limit. |
+| `circuit-plugs` | circuit | The power supplies on a circuit are not more than its free sockets. |
+| `room-heat` | room | The most heat of the machines in a room is not more than the heat limit of the room. |
+| `room-noise` | room | The most sound level of the machines in a room is not more than the noise limit of the room. |
+| `room-places` | room | The machines in a room are not more than the places of the room. |
+
+A rule gives the verdict `unread` when it cannot read a value. For example, a machine with no power supply has no power from the wall. Thus its circuit and its room get `unread`, and not `fits`.
+
+### The measures of a site
+
+| Measure | Level | Unit | Value |
+| --- | --- | --- | --- |
+| `power` | site | W | The sum of the `wall-power` of the machines. |
+| `idle-power` | site | W | The sum of the `wall-idle-power` of the machines. |
+| `cost` | site | USD | The cost of a month when each machine takes its most power: `power` in kW, times 730.485 hours, times `price`. |
+| `idle-cost` | site | USD | The cost of a month when each machine is idle. |
+| `load` | circuit | W | The `wall-power` of the machines on the circuit, plus its `otherLoad`. |
+| `idle-load` | circuit | W | The `wall-idle-power` of the machines on the circuit, plus its `otherLoad`. |
+| `current` | circuit | A | `load` divided by `voltage`. |
+| `limit` | circuit | W | `voltage` times `breaker` times `continuousLoad`. |
+| `plugs` | circuit | count | The power supplies of the machines on the circuit. |
+| `heat` | room | W | The `wall-power` of the machines in the room. |
+| `idle-heat` | room | W | The `wall-idle-power` of the machines in the room. |
+| `noise` | room | dBA | The sound level of the machines in the room together, at 1 m from each machine. A room with no machine gives 0. |
+| `machines` | room | count | The machines in the room. |
+
+The programs of a site use the programs of a machine. Thus a site and its machines always agree. The rule `circuit-load` reads the programs of `load` and `limit`, and a property test holds that the rule and the measures agree. A month is a mean month of the Gregorian calendar: 730.485 hours, from the unit `mo` of `@mark1russell7/quantity`.
 
 ## Units
 
