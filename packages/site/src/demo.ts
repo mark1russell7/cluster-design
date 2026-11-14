@@ -167,9 +167,19 @@ export function resultOf(state: DemoState): DemoResult {
   };
 }
 
-/** This function gives the headline of a result, for the verdict card. */
-export function headlineOf(result: DemoResult): string {
-  if (result.verdict === "fits") return "The parts fit";
+/** The text of each verdict, for the chip of a rule. */
+export const VERDICT_TEXT: Readonly<Record<Verdict, string>> = { fits: "Fits", breaks: "Breaks", unread: "No read" };
+
+/**
+ * This function gives the headline of a result, for the verdict card. The result of a machine and the result of a site
+ * both have a verdict and the counts of their problems.
+ *
+ * @param result - The verdict and the counts of the rules that break and that have no read
+ * @param fits - The headline when each rule fits
+ * @returns The headline
+ */
+export function headlineOf(result: Pick<DemoResult, "verdict" | "breaks" | "unread">, fits = "The parts fit"): string {
+  if (result.verdict === "fits") return fits;
   const breaks = result.breaks === 1 ? "1 rule breaks" : `${String(result.breaks)} rules break`;
   const unread = result.unread === 1 ? "1 rule has no read" : `${String(result.unread)} rules have no read`;
   if (result.verdict === "breaks") return result.unread > 0 ? `${breaks}, ${unread}` : breaks;

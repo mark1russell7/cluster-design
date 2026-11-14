@@ -6,15 +6,19 @@ import {
   formatMeasure,
   hashOf,
   headlineOf,
+  machineOf,
   MAX_COUNT,
   partsByClass,
   PRESETS,
   resultOf,
   stateOf,
   TILE_LABELS,
+  VERDICT_TEXT,
   type DemoResult,
   type DemoState,
 } from "./demo.ts";
+import { siteHashOf, siteStateOf } from "./site-demo.ts";
+import { mountSite } from "./site-page.ts";
 
 setupTheme(byId<HTMLButtonElement>("theme"), "theme");
 
@@ -35,8 +39,6 @@ const el = <K extends keyof HTMLElementTagNameMap>(tag: K, className?: string, t
   if (text !== undefined) node.textContent = text;
   return node;
 };
-
-const VERDICT_TEXT = { fits: "Fits", breaks: "Breaks", unread: "No read" } as const;
 
 const programs = new Map(FIT_RULES.map((rule) => [rule.id, JSON.stringify(rule.program, null, 1)]));
 
@@ -171,10 +173,22 @@ function draw(result: DemoResult): void {
   byId("preset-sentence").textContent = PRESETS.find((preset) => preset.id === presetId)?.sentence ?? "Your own machine.";
 }
 
+// The site part follows the machine of the configurator. The hash holds the machine, then the site.
+const site = mountSite({
+  machine: () => machineOf(state),
+  initial: siteStateOf(location.hash),
+  changed: () => writeHash(),
+});
+
+function writeHash(): void {
+  history.replaceState(null, "", `${hashOf(state)}&${siteHashOf(site.state())}`);
+}
+
 function update(next: DemoState): void {
   state = next;
-  history.replaceState(null, "", hashOf(state));
+  writeHash();
   draw(resultOf(state));
+  site.draw();
 }
 
 window.addEventListener("hashchange", () => {
@@ -183,6 +197,7 @@ window.addEventListener("hashchange", () => {
   state = read;
   presetId = undefined;
   draw(resultOf(state));
+  site.draw(siteStateOf(location.hash));
 });
 
 draw(resultOf(state));

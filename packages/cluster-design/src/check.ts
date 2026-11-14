@@ -56,9 +56,10 @@ export function checkDesign(machines: readonly Machine[], catalog: ReadonlyMap<s
 
 /**
  * This function gives one verdict for a list of findings. A break comes first, then a finding with no read.
- * Thus a machine fits only when each of its findings fits.
+ * Thus a machine fits only when each of its findings fits. The function reads only the verdicts, so it also takes the
+ * findings of a site.
  */
-export function overall(findings: readonly Finding[]): Verdict {
+export function overall(findings: readonly Pick<Finding, "verdict">[]): Verdict {
   if (findings.some((finding) => finding.verdict === "breaks")) return "breaks";
   if (findings.some((finding) => finding.verdict === "unread")) return "unread";
   return "fits";

@@ -4,6 +4,8 @@ The design of a computer cluster as formulas with units. A design is data: the m
 
 The first package has the part classes and the fit rules. [`docs/ROADMAP.md`](docs/ROADMAP.md) has the plan.
 
+The [site](https://mark1russell7.github.io/cluster-design/) has a live demo. Choose the parts of a machine, then put copies of it on a site of two circuits and two rooms.
+
 ## The model
 
 - A **part** has a class and its attributes. The classes are the processor, the board, the memory, the drive, the power supply, the case, the cooler and the graphics card.
