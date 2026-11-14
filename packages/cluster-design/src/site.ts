@@ -34,7 +34,10 @@ export const SITE_FIELDS = {
     heatLimit: { kind: "amount", quantity: "power", unit: "W" },
     noiseLimit: { kind: "amount", quantity: "level", unit: "dBA" },
   },
-} as const satisfies Readonly<Record<"site" | "circuit" | "room", Readonly<Record<string, FieldSpec>>>>;
+} as const;
+
+// The type checker holds that each field of the table is a field spec. A declared type of the table loses its literal types.
+SITE_FIELDS satisfies Readonly<Record<"site" | "circuit" | "room", Readonly<Record<string, FieldSpec>>>>;
 
 /** This record is one circuit of a site: its id, its voltage, the rating of its breaker, its free sockets and its other load. */
 export interface Circuit {
