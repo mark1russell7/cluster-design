@@ -1,12 +1,12 @@
 # @mark1russell7/cluster-design
 
-The design of a computer cluster as math. This package has the records of the parts, the machines of a design, and the fit rules that tell which parts fit in one machine.
+The design of a computer cluster as math. This package has the records of the parts, the machines of a design, and the fit rules that tell which parts fit in one machine. It also has the formulas of a machine: its power, its heat, its noise and its capacity.
 
 The package is private. It is not on npm.
 
 ## The model
 
-- A **part** has a class and the fields of its class. `PART_CLASSES` is the table of the classes: `cpu`, `board`, `memory`, `storage`, `psu`, `case`, `cooler` and `gpu`.
+- A **part** has a class and the fields of its class. `PART_CLASSES` is the table of the classes: `cpu`, `board`, `memory`, `storage`, `psu`, `case`, `cooler`, `fan` and `gpu`.
 - A field is a text, a list of texts, a count, a choice, or an **amount** with a unit from `@mark1russell7/quantity`.
 - A **machine** has an id and part lines. A part line is the id of a part and its count.
 - A **fit rule** is a Vex program as data. It evaluates at one machine and reads the part lines of the machine.
@@ -54,9 +54,12 @@ The option `psuLoad` sets the load limit of a power supply, as a ratio of its ou
 | `memory-size` | The memory is not more than the most memory of the board. |
 | `board-in-case` | The case takes the form factor of the board. |
 | `psu-in-case` | The case takes the form factor of the power supply. |
+| `fan-slots` | The fans fit in the fan slots of the case. |
 | `gpu-length` | Each graphics card fits in the length of the case. |
 | `m2-slots` | The M.2 drives fit in the M.2 slots of the board. |
 | `sata-ports` | The SATA drives fit in the SATA ports of the board. |
+| `idle-power` | Each part takes less power at idle than its most power, or the same power. |
+| `psu-efficiency` | The efficiencies of the power supply are more than 0 percent and not more than 100 percent. |
 | `psu-load` | The most power of the parts is not more than the load limit of the power supply. |
 
 ## The measures of a machine
@@ -68,8 +71,43 @@ The option `psuLoad` sets the load limit of a power supply, as a ratio of its ou
 | `power` | W | The most power of the parts: the sum of the count times the power of each line. |
 | `power-limit` | W | The load limit of the power supply: its output times `psuLoad`. |
 | `power-output` | W | The output of the power supply. |
+| `idle-power` | W | The power of the parts at idle: the sum of the count times the `idlePower` of each line. |
+| `wall-power` | W | The most power from the wall: `power` divided by the `efficiency` of the power supply. |
+| `wall-idle-power` | W | The power from the wall at idle: `idle-power` divided by the `idleEfficiency` of the power supply. |
+| `noise` | dBA | The most sound level of the parts together, at 1 m. |
+| `cores` | count | The sum of the cores of the processors. |
+| `threads` | count | The sum of the threads of the processors. |
+| `memory` | GiB | The sum of the count times the modules times the module size of each memory kit. |
+| `storage` | GB | The sum of the capacity of the drives. |
+| `runner-slots` | count | The CI jobs that the machine runs at one time. |
 
-The rule `psu-load` reads the programs of `power` and `power-limit`. Thus the measures and the rule always agree. A test with random designs holds this.
+The rule `psu-load` reads the programs of `power` and `power-limit`. Thus the measures and the rule always agree. A test with random designs holds this. The rule `memory-size` reads the program of `memory` in the same way.
+
+`src/formulas.ts` has each program, and the entry exports them: `POWER_DRAW`, `IDLE_DRAW`, `WALL_POWER`, `NOISE`, `RUNNER_SLOTS` and the others.
+
+### Heat
+
+Each watt from the wall becomes heat in the room. Thus `wall-power` is also the most heat of the machine, and `wall-idle-power` is its heat at idle. The efficiency of a power supply is at a half load. Its idle efficiency is at a load of 10 percent.
+
+### Noise
+
+The program `noise` adds the sound energy of the parts, and not their levels in dBA. It gives 10 log10 of the sum of the count times 10^(L/10) of each line. Two equal sources give 3 dB more than one source. Ten equal sources give 10 dB more.
+
+Each level is the level of one part at 1 m, as a data sheet gives it. The classes with the field `noise` are `storage`, `psu`, `cooler`, `fan` and `gpu`.
+
+### Runner slots
+
+The program `runner-slots` gives the CI jobs that fit in the threads and the memory of a machine. The system of the machine keeps a reserve. The value is the smaller quotient, rounded down, and not less than 0:
+
+```text
+floor(max(0, min((threads - reserve threads) / job threads, (memory - reserve memory) / job memory)))
+```
+
+The option `job` sets the size of one job. The default `DEFAULT_JOB` is 4 threads and 16 GiB, the size of a standard hosted runner of GitHub for a public repository. The option `reserve` sets the reserve of the system. The default `DEFAULT_RESERVE` is no thread and 2 GiB.
+
+```ts
+const result = measureDesign(machines, catalog, { job: { threads: 2, memory: 7 }, reserve: { threads: 1, memory: 4 } });
+```
 
 `evaluateDesign` evaluates other programs at each machine of a design, with the same tree and the same variables.
 
@@ -86,4 +124,4 @@ pnpm typecheck
 pnpm test
 ```
 
-The tests use the parts of `src/sample.ts`. The parts are generic, and no part names a maker. The entry `@mark1russell7/cluster-design/sample` gives them to the demo of the site.
+The tests use the parts of `src/sample.ts`. The parts are generic, and no part names a maker. Property tests with `fast-check` hold three laws of the formulas. These are the noise of equal sources, the order of the runner slots and the power from the wall. The entry `@mark1russell7/cluster-design/sample` gives them to the demo of the site.

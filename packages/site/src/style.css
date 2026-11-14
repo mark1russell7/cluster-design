@@ -184,6 +184,7 @@ main > section:last-child {
   grid-template-columns: minmax(0, 1fr) minmax(0, 1.1fr);
   grid-template-areas:
     "parts summary"
+    "parts measures"
     "parts rules";
   align-items: start;
   gap: 1rem;
@@ -207,6 +208,43 @@ main > section:last-child {
 
 .parts {
   grid-area: parts;
+}
+
+.measures {
+  grid-area: measures;
+}
+
+.tiles {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(8.5rem, 1fr));
+  gap: 0.5rem;
+  margin: 0;
+}
+
+.tile {
+  padding: 0.5rem 0.75rem;
+  border: 1px solid var(--line);
+  border-radius: 0.5rem;
+  background: var(--page);
+}
+
+.tile dt {
+  color: var(--quiet);
+  font-size: 0.8rem;
+  line-height: 1.3;
+}
+
+.tile dd {
+  margin: 0.15rem 0 0;
+  font-size: 1.25rem;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+
+.tiles-note {
+  margin: 0.75rem 0 0;
+  color: var(--quiet);
+  font-size: 0.85rem;
 }
 
 .rules {
@@ -478,6 +516,7 @@ main > section:last-child {
     grid-template-columns: minmax(0, 1fr);
     grid-template-areas:
       "summary"
+      "measures"
       "parts"
       "rules";
   }

@@ -4,6 +4,7 @@
  */
 import {
   checkDesign,
+  DEFAULT_JOB,
   DEFAULT_PSU_LOAD,
   measureDesign,
   overall,
@@ -12,6 +13,7 @@ import {
   readCatalog,
   type Finding,
   type Machine,
+  type MeasureValue,
   type Part,
   type PartClass,
   type Verdict,
@@ -36,8 +38,30 @@ export const CLASS_LABELS: Readonly<Record<PartClass, string>> = {
   psu: "Power supplies",
   case: "Cases",
   cooler: "Coolers",
+  fan: "Case fans",
   gpu: "Graphics cards",
 };
+
+/** The short labels of the measures that the tiles of the demo show, in the order of the tiles. */
+export const TILE_LABELS: Readonly<Record<string, string>> = {
+  "idle-power": "Parts at idle",
+  "wall-power": "Heat at full load",
+  "wall-idle-power": "Heat at idle",
+  noise: "Noise at 1 m",
+  threads: "Threads",
+  memory: "Memory",
+  storage: "Storage",
+  "runner-slots": `CI jobs of ${String(DEFAULT_JOB.threads)} threads and ${String(DEFAULT_JOB.memory)} GiB`,
+};
+
+/** This function gives the text of the value of a measure, with its unit, or a dash for a value with no read. */
+export function formatMeasure(value: MeasureValue): string {
+  if (value.value === undefined) return "–";
+  if (value.unit === "dBA") return `${value.value.toFixed(1)} dBA`;
+  if (value.unit === "GB" && value.value >= 1000) return `${String(Math.round(value.value / 100) / 10)} TB`;
+  if (value.unit === "count") return String(Math.round(value.value));
+  return `${String(Math.round(value.value))} ${value.unit}`;
+}
 
 /** This record is the state of the demo: the count of each part, and the load limit of the power supply. */
 export interface DemoState {
@@ -104,10 +128,11 @@ export function machineOf(state: DemoState): Machine {
   return { id: MACHINE_ID, lines };
 }
 
-/** This record is the result of the check of the demo machine, and its power. */
+/** This record is the result of the check of the demo machine, its power and the values of its measures. */
 export interface DemoResult {
   readonly verdict: Verdict;
   readonly findings: readonly Finding[];
+  readonly measures: readonly MeasureValue[];
   readonly breaks: number;
   readonly unread: number;
   readonly power?: number;
@@ -127,6 +152,7 @@ export function resultOf(state: DemoState): DemoResult {
   const result: DemoResult = {
     verdict: overall(findings),
     findings,
+    measures: measured.values,
     breaks: findings.filter((finding) => finding.verdict === "breaks").length,
     unread: findings.filter((finding) => finding.verdict === "unread").length,
   };

@@ -53,6 +53,12 @@
         </label>
       </section>
 
+      <section class="card measures" aria-labelledby="measures-title">
+        <h3 id="measures-title">The measures</h3>
+        <dl class="tiles" id="tiles"></dl>
+        <p class="tiles-note">Each value is a Vex program over the parts. Each watt from the wall becomes heat in the room.</p>
+      </section>
+
       <section class="card parts" aria-labelledby="parts-title">
         <h3 id="parts-title">The parts</h3>
         <div id="parts"></div>
@@ -74,6 +80,7 @@
       <li><strong>Parts are data.</strong> A table gives the fields of each class. Each amount has a unit, so a cooler height of 16 cm and a cooler of 155 mm compare correctly.</li>
       <li><strong>A design is a tree.</strong> The cluster has machines, and each machine has part lines. The tree holds each amount in the unit of its field.</li>
       <li><strong>A rule is a program.</strong> Each fit rule is a Vex program at a machine. A rule that cannot read a part gives no read, not a pass.</li>
+      <li><strong>A measure is a program too.</strong> The power, the heat, the noise and the CI runner slots are Vex programs over the same tree. The rule of the power supply reads the program of the power, so the two always agree.</li>
     </ol>
 <pre class="code"><code>import { checkDesign, overall, readCatalog } from "@mark1russell7/cluster-design";
 

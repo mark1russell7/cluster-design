@@ -15,8 +15,10 @@ export type FieldSpec =
   | { readonly kind: "amount"; readonly quantity: Kind; readonly unit: string };
 
 /**
- * This table has the fields of each part class. The field `power` is the most power that one part takes.
- * A memory part is one kit: `modules` modules of `moduleSize` each.
+ * This table has the fields of each part class. The field `power` is the most power that one part takes, and
+ * `idlePower` is its power at idle. The field `noise` is the most sound level of one part at 1 m, in dBA.
+ * A memory part is one kit: `modules` modules of `moduleSize` each. The efficiency of a power supply is at a
+ * half load, and its idle efficiency is at a load of 10 percent.
  */
 export const PART_CLASSES = {
   cpu: {
@@ -25,6 +27,7 @@ export const PART_CLASSES = {
     threads: { kind: "count" },
     tdp: { kind: "amount", quantity: "power", unit: "W" },
     power: { kind: "amount", quantity: "power", unit: "W" },
+    idlePower: { kind: "amount", quantity: "power", unit: "W" },
   },
   board: {
     socket: { kind: "text" },
@@ -36,37 +39,54 @@ export const PART_CLASSES = {
     m2Slots: { kind: "count" },
     sataPorts: { kind: "count" },
     power: { kind: "amount", quantity: "power", unit: "W" },
+    idlePower: { kind: "amount", quantity: "power", unit: "W" },
   },
   memory: {
     memoryType: { kind: "text" },
     modules: { kind: "count" },
     moduleSize: { kind: "amount", quantity: "data", unit: "GiB" },
     power: { kind: "amount", quantity: "power", unit: "W" },
+    idlePower: { kind: "amount", quantity: "power", unit: "W" },
   },
   storage: {
     interface: { kind: "choice", options: ["m.2", "sata"] },
     capacity: { kind: "amount", quantity: "data", unit: "GB" },
     power: { kind: "amount", quantity: "power", unit: "W" },
+    idlePower: { kind: "amount", quantity: "power", unit: "W" },
+    noise: { kind: "amount", quantity: "level", unit: "dBA" },
   },
   psu: {
     formFactor: { kind: "text" },
     output: { kind: "amount", quantity: "power", unit: "W" },
+    efficiency: { kind: "amount", quantity: "ratio", unit: "%" },
+    idleEfficiency: { kind: "amount", quantity: "ratio", unit: "%" },
+    noise: { kind: "amount", quantity: "level", unit: "dBA" },
   },
   case: {
     boardFormFactors: { kind: "texts" },
     psuFormFactors: { kind: "texts" },
     gpuLength: { kind: "amount", quantity: "length", unit: "mm" },
     coolerHeight: { kind: "amount", quantity: "length", unit: "mm" },
+    fanSlots: { kind: "count" },
   },
   cooler: {
     sockets: { kind: "texts" },
     height: { kind: "amount", quantity: "length", unit: "mm" },
     rating: { kind: "amount", quantity: "power", unit: "W" },
     power: { kind: "amount", quantity: "power", unit: "W" },
+    idlePower: { kind: "amount", quantity: "power", unit: "W" },
+    noise: { kind: "amount", quantity: "level", unit: "dBA" },
+  },
+  fan: {
+    power: { kind: "amount", quantity: "power", unit: "W" },
+    idlePower: { kind: "amount", quantity: "power", unit: "W" },
+    noise: { kind: "amount", quantity: "level", unit: "dBA" },
   },
   gpu: {
     length: { kind: "amount", quantity: "length", unit: "mm" },
     power: { kind: "amount", quantity: "power", unit: "W" },
+    idlePower: { kind: "amount", quantity: "power", unit: "W" },
+    noise: { kind: "amount", quantity: "level", unit: "dBA" },
   },
 } as const;
 

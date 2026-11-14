@@ -1,7 +1,20 @@
 import { FIT_RULES } from "@mark1russell7/cluster-design";
 import { SAMPLE_PARTS } from "@mark1russell7/cluster-design/sample";
 import { describe, expect, it } from "vitest";
-import { factsOf, hashOf, headlineOf, machineOf, MACHINE_ID, partsByClass, PRESETS, resultOf, stateOf, type DemoState } from "./demo.ts";
+import {
+  factsOf,
+  formatMeasure,
+  hashOf,
+  headlineOf,
+  machineOf,
+  MACHINE_ID,
+  partsByClass,
+  PRESETS,
+  resultOf,
+  stateOf,
+  TILE_LABELS,
+  type DemoState,
+} from "./demo.ts";
 
 const preset = (id: string): DemoState => {
   const found = PRESETS.find((entry) => entry.id === id);
@@ -17,7 +30,7 @@ describe("the demo", () => {
     const result = resultOf(preset("fits"));
     expect(result.verdict).toBe("fits");
     expect(result.findings).toHaveLength(FIT_RULES.length);
-    expect({ power: result.power, limit: result.limit, output: result.output }).toEqual({ power: 159, limit: 440, output: 550 });
+    expect({ power: result.power, limit: result.limit, output: result.output }).toEqual({ power: 163, limit: 440, output: 550 });
     expect(headlineOf(result)).toBe("The parts fit");
   });
 
@@ -30,13 +43,14 @@ describe("the demo", () => {
       "cooler-height": "unread",
       "board-in-case": "unread",
       "psu-in-case": "unread",
+      "fan-slots": "unread",
     });
   });
 
   it("gives a headline that counts the breaks and the rules with no read", () => {
     expect(headlineOf(resultOf(preset("hot")))).toBe("1 rule breaks");
     expect(headlineOf(resultOf(preset("graphics")))).toBe("2 rules break");
-    expect(headlineOf(resultOf(preset("no-case")))).toBe("1 rule breaks, 3 rules have no read");
+    expect(headlineOf(resultOf(preset("no-case")))).toBe("1 rule breaks, 4 rules have no read");
     expect(headlineOf(resultOf({ counts: new Map(), psuLoad: 0.8 }))).toMatch(/rules break/);
   });
 
@@ -66,6 +80,13 @@ describe("the demo", () => {
     expect(partsByClass().flatMap(([, parts]) => parts)).toHaveLength(SAMPLE_PARTS.length);
     const cooler = SAMPLE_PARTS.find((part) => part.id === "cooler-a");
     if (cooler === undefined) throw new Error("No cooler");
-    expect(factsOf(cooler)).toEqual(["sockets S1/S2", "height 155 mm", "rating 150 W", "power 3 W"]);
+    expect(factsOf(cooler)).toEqual(["sockets S1/S2", "height 155 mm", "rating 150 W", "power 3 W", "idlePower 1 W", "noise 30 dBA"]);
+  });
+
+  it("gives the text of each tile of the measures", () => {
+    const measures = new Map(resultOf(preset("fits")).measures.map((value) => [value.measure, formatMeasure(value)]));
+    expect(Object.keys(TILE_LABELS).map((id) => measures.get(id))).toEqual(["43 W", "181 W", "54 W", "34.8 dBA", "16", "64 GiB", "9 TB", "3"]);
+    expect(formatMeasure({ machine: "m", measure: "noise", unit: "dBA", detail: "#NUM!" })).toBe("–");
+    expect(formatMeasure({ machine: "m", measure: "storage", unit: "GB", value: 512 })).toBe("512 GB");
   });
 });

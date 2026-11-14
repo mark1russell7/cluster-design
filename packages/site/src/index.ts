@@ -1,8 +1,9 @@
-import { FIT_RULES } from "@mark1russell7/cluster-design";
+import { FIT_RULES, MACHINE_MEASURES } from "@mark1russell7/cluster-design";
 import { byId, copyText, setupTheme } from "@mark1russell7/site-pages/chrome";
 import {
   CLASS_LABELS,
   factsOf,
+  formatMeasure,
   hashOf,
   headlineOf,
   MAX_COUNT,
@@ -10,6 +11,7 @@ import {
   PRESETS,
   resultOf,
   stateOf,
+  TILE_LABELS,
   type DemoResult,
   type DemoState,
 } from "./demo.ts";
@@ -113,6 +115,21 @@ function drawMeter(result: DemoResult): void {
   text.textContent = `The parts take up to ${watts(power)}. The limit is ${watts(cap)}, ${String(Math.round(state.psuLoad * 100))} percent of ${watts(output)}.`;
 }
 
+const sentences = new Map(MACHINE_MEASURES.map((measure) => [measure.id, measure.sentence]));
+
+function drawTiles(result: DemoResult): void {
+  const tiles = byId("tiles");
+  tiles.replaceChildren();
+  for (const [id, label] of Object.entries(TILE_LABELS)) {
+    const value = result.measures.find((entry) => entry.measure === id);
+    if (value === undefined) continue;
+    const tile = el("div", "tile");
+    tile.title = value.detail ?? sentences.get(id) ?? "";
+    tile.append(el("dt", undefined, label), el("dd", undefined, formatMeasure(value)));
+    tiles.append(tile);
+  }
+}
+
 function drawRules(result: DemoResult): void {
   const list = byId("rules");
   list.replaceChildren();
@@ -139,6 +156,7 @@ function draw(result: DemoResult): void {
   verdict.textContent = headlineOf(result);
   verdict.dataset["verdict"] = result.verdict;
   drawMeter(result);
+  drawTiles(result);
   drawRules(result);
   byId("load-value").textContent = `${String(Math.round(state.psuLoad * 100))}%`;
   load.value = String(Math.round(state.psuLoad * 100));

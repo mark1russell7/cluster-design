@@ -22,19 +22,20 @@ const byMeasure = (values: readonly MeasureValue[]): Record<string, number | str
 
 describe("the measures of a machine", () => {
   it("give the power of the sample machine and the limit of its power supply", () => {
-    // 88 + 30 + 2 x 6 + 8 + 2 x 9 + 3 = 159 W, and 550 W x 0.8 = 440 W.
-    expect(byMeasure(valuesOf([SAMPLE_MACHINE]))).toEqual({ power: 159, "power-limit": 440, "power-output": 550 });
-    expect(byMeasure(valuesOf([SAMPLE_MACHINE], 0.5))).toEqual({ power: 159, "power-limit": 275, "power-output": 550 });
+    // 88 + 30 + 2 x 6 + 8 + 2 x 9 + 3 + 2 x 2 = 163 W, and 550 W x 0.8 = 440 W.
+    expect(byMeasure(valuesOf([SAMPLE_MACHINE]))).toMatchObject({ power: 163, "power-limit": 440, "power-output": 550 });
+    expect(byMeasure(valuesOf([SAMPLE_MACHINE], 0.5))).toMatchObject({ power: 163, "power-limit": 275, "power-output": 550 });
   });
 
   it("give each value with the unit of its measure", () => {
-    for (const value of valuesOf([SAMPLE_MACHINE])) expect(value.unit).toBe("W");
+    const units = new Map(MACHINE_MEASURES.map((measure) => [measure.id, measure.unit]));
+    for (const value of valuesOf([SAMPLE_MACHINE])) expect(value.unit).toBe(units.get(value.measure));
   });
 
   it("give no limit, with its reason, for a machine with no power supply", () => {
     const machine: Machine = { id: "no-psu", lines: SAMPLE_MACHINE.lines.filter((line) => line.part !== "psu-550") };
     const [power, limit, output] = valuesOf([machine]);
-    expect(power?.value).toBe(159);
+    expect(power?.value).toBe(163);
     expect(limit?.value).toBeUndefined();
     expect(limit?.detail).toMatch(/^#N\/A/);
     expect(output?.detail).toMatch(/^#N\/A/);
@@ -62,14 +63,9 @@ describe("the measures of a machine", () => {
     const two: Machine[] = [SAMPLE_MACHINE, { id: "node-2", lines: [] }];
     const result = evaluateDesign(two, CATALOG, MACHINE_MEASURES);
     if (!result.ok) throw new Error(result.problems.join(" "));
-    expect(result.evaluations.map((e) => `${e.machine}/${e.item.id}`)).toEqual([
-      "node-1/power",
-      "node-1/power-limit",
-      "node-1/power-output",
-      "node-2/power",
-      "node-2/power-limit",
-      "node-2/power-output",
-    ]);
+    expect(result.evaluations.map((e) => `${e.machine}/${e.item.id}`)).toEqual(
+      ["node-1", "node-2"].flatMap((machine) => MACHINE_MEASURES.map((measure) => `${machine}/${measure.id}`)),
+    );
   });
 
   const machines = fc.uniqueArray(
