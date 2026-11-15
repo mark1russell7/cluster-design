@@ -4,7 +4,7 @@
  * A program that cannot read a part gives an error value, and the check then has no verdict for that rule.
  */
 import { app, each, let_, lit, ref, v, type Expr } from "@mark1russell7/vex";
-import { MEMORY, POWER_DRAW, POWER_LIMIT, POWERED_CLASSES } from "./formulas.ts";
+import { MEMORY, POWER_DRAW, POWER_LIMIT, POWERED_CLASSES, RESERVE_MEMORY, RESERVE_THREADS, THREADS, WORK_MEMORY, WORK_THREADS } from "./formulas.ts";
 import type { PartClass } from "./parts.ts";
 import { contains, countOf, every, isClass, linesOf, linesOfAny, linesWhere, STRICT, the, total } from "./program.ts";
 
@@ -15,6 +15,9 @@ export interface FitRule {
   readonly classes: readonly PartClass[];
   readonly program: Expr;
 }
+
+/** This expression tells if the work lines take not more of a resource than the resource less the reserve. With no work lines, it is true. */
+const workFits = (work: Expr, resource: Expr, reserve: string): Expr => app("lte", work, app("max", lit(0), app("subtract", resource, v(reserve))));
 
 const exactlyOne = (name: PartClass, label: string): FitRule => ({
   id: `one-${name}`,
@@ -158,5 +161,17 @@ export const FIT_RULES: readonly FitRule[] = [
     sentence: "The most power of the parts is not more than the load limit of the power supply.",
     classes: [...POWERED_CLASSES, "psu"],
     program: app("lte", POWER_DRAW, POWER_LIMIT),
+  },
+  {
+    id: "work-threads",
+    sentence: "The work lines take not more threads than the processors give, less the reserve.",
+    classes: ["cpu"],
+    program: workFits(WORK_THREADS, THREADS, RESERVE_THREADS),
+  },
+  {
+    id: "work-memory",
+    sentence: "The work lines take not more memory than the machine has, less the reserve.",
+    classes: ["memory"],
+    program: workFits(WORK_MEMORY, MEMORY, RESERVE_MEMORY),
   },
 ];

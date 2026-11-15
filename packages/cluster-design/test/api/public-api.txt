@@ -96,6 +96,8 @@ ENERGY_FROM_CAPACITY: build/index.d.ts#ENERGY_FROM_CAPACITY
 Evaluation: build/site.chunk.d.ts#Evaluation
 Exclusion: build/index.d.ts#Exclusion
 FIT_RULES: build/index.d.ts#FIT_RULES
+FREE_MEMORY: build/index.d.ts#FREE_MEMORY
+FREE_THREADS: build/index.d.ts#FREE_THREADS
 FieldSpec: build/site.chunk.d.ts#FieldSpec
 FieldValue: build/site.chunk.d.ts#FieldValue
 Finding: build/index.d.ts#Finding
@@ -157,6 +159,8 @@ SITE_COST: build/site.chunk.d.ts#SITE_COST
 SITE_COST_MEASURES: build/site.chunk.d.ts#SITE_COST_MEASURES
 SITE_FIELDS: build/site.chunk.d.ts#SITE_FIELDS
 SITE_FORMAT: build/site.chunk.d.ts#SITE_FORMAT
+SITE_FREE_MEMORY: build/site.chunk.d.ts#SITE_FREE_MEMORY
+SITE_FREE_THREADS: build/site.chunk.d.ts#SITE_FREE_THREADS
 SITE_IDLE_COST: build/site.chunk.d.ts#SITE_IDLE_COST
 SITE_IDLE_POWER: build/site.chunk.d.ts#SITE_IDLE_POWER
 SITE_KEY: build/site.chunk.d.ts#SITE_KEY
@@ -164,6 +168,8 @@ SITE_MEASURES: build/site.chunk.d.ts#SITE_MEASURES
 SITE_POWER: build/site.chunk.d.ts#SITE_POWER
 SITE_RULES: build/site.chunk.d.ts#SITE_RULES
 SITE_RUNNER_SLOTS: build/site.chunk.d.ts#SITE_RUNNER_SLOTS
+SITE_WORK_MEMORY: build/site.chunk.d.ts#SITE_WORK_MEMORY
+SITE_WORK_THREADS: build/site.chunk.d.ts#SITE_WORK_THREADS
 SLOT_COST: build/site.chunk.d.ts#SLOT_COST
 SOURCE_LOAD_LOW: build/index.d.ts#SOURCE_LOAD_LOW
 STOCK: build/site.chunk.d.ts#STOCK
@@ -193,6 +199,11 @@ USABLE_FROM_POINTS: build/index.d.ts#USABLE_FROM_POINTS
 Verdict: build/index.d.ts#Verdict
 WALL_IDLE_POWER: build/index.d.ts#WALL_IDLE_POWER
 WALL_POWER: build/index.d.ts#WALL_POWER
+WORK_KIND: build/site.chunk.d.ts#WORK_KIND
+WORK_MEMORY: build/index.d.ts#WORK_MEMORY
+WORK_THREADS: build/index.d.ts#WORK_THREADS
+type WorkClass: build/site.chunk.d.ts#WorkClass
+WorkLine: build/site.chunk.d.ts#WorkLine
 amountOf: build/site.chunk.d.ts#amountOf
 backupSchema: build/index.d.ts#backupSchema
 backupSpace: build/index.d.ts#backupSpace
@@ -228,8 +239,14 @@ readPrices: build/site.chunk.d.ts#readPrices
 readSite: build/site.chunk.d.ts#readSite
 siteSchema: build/site.chunk.d.ts#siteSchema
 siteTree: build/site.chunk.d.ts#siteTree
+siteWorkMeasures: build/site.chunk.d.ts#siteWorkMeasures
 sweepDesigns: build/index.d.ts#sweepDesigns
+unitsInFree: build/index.d.ts#unitsInFree
 verdictOf: build/index.d.ts#verdictOf
+workCapacity: build/index.d.ts#workCapacity
+workMeasures: build/site.chunk.d.ts#workMeasures
+workRecord: build/site.chunk.d.ts#workRecord
+workUnits: build/index.d.ts#workUnits
 
 ## ./sample (build/sample.d.ts): names
 
@@ -618,6 +635,12 @@ export interface Exclusion {
 ### build/index.d.ts#FIT_RULES
 export declare const FIT_RULES: readonly FitRule[];
 
+### build/index.d.ts#FREE_MEMORY
+export declare const FREE_MEMORY: Expr;
+
+### build/index.d.ts#FREE_THREADS
+export declare const FREE_THREADS: Expr;
+
 ### build/index.d.ts#Finding
 export interface Finding {
   readonly machine: string;
@@ -818,6 +841,12 @@ export declare const WALL_IDLE_POWER: Expr;
 ### build/index.d.ts#WALL_POWER
 export declare const WALL_POWER: Expr;
 
+### build/index.d.ts#WORK_MEMORY
+export declare const WORK_MEMORY: Expr;
+
+### build/index.d.ts#WORK_THREADS
+export declare const WORK_THREADS: Expr;
+
 ### build/index.d.ts#backupSchema
 export declare const backupSchema: z.ZodType<Backup>;
 
@@ -883,11 +912,20 @@ export declare function readBackup(value: unknown): BackupResult;
 ### build/index.d.ts#sweepDesigns
 export declare function sweepDesigns(design: DesignSpace, input: DesignInput, options: DesignSweepOptions): Outcome<DesignSweep>;
 
+### build/index.d.ts#unitsInFree
+export declare function unitsInFree(threads: Expr, memory: Expr): Expr;
+
 ### build/index.d.ts#verdictOf
 export declare function verdictOf(result: Result<unknown>): {
   readonly verdict: Verdict;
   readonly detail?: string;
 };
+
+### build/index.d.ts#workCapacity
+export declare function workCapacity(work: WorkClass): Expr;
+
+### build/index.d.ts#workUnits
+export declare const workUnits: (id: string) => Expr;
 
 ### build/sample.d.ts#SAMPLE_MACHINE
 export declare const SAMPLE_MACHINE: Machine;
@@ -982,6 +1020,7 @@ interface DesignOptions {
   readonly job?: Share;
   readonly reserve?: Share;
   readonly cost?: CostOptions;
+  readonly work?: readonly WorkClass[];
 }
 
 ### build/site.chunk.d.ts#DesignTree
@@ -1053,6 +1092,7 @@ declare const MACHINE_MEASURES: readonly Measure[];
 interface Machine {
   readonly id: string;
   readonly lines: readonly PartLine[];
+  readonly work?: readonly WorkLine[] | undefined;
 }
 
 ### build/site.chunk.d.ts#Measure
@@ -1462,6 +1502,12 @@ declare const SITE_FIELDS: {
 ### build/site.chunk.d.ts#SITE_FORMAT
 declare const SITE_FORMAT = "site/1";
 
+### build/site.chunk.d.ts#SITE_FREE_MEMORY
+declare const SITE_FREE_MEMORY: Expr;
+
+### build/site.chunk.d.ts#SITE_FREE_THREADS
+declare const SITE_FREE_THREADS: Expr;
+
 ### build/site.chunk.d.ts#SITE_IDLE_COST
 declare const SITE_IDLE_COST: Expr;
 
@@ -1482,6 +1528,12 @@ declare const SITE_RULES: readonly SiteRule[];
 
 ### build/site.chunk.d.ts#SITE_RUNNER_SLOTS
 declare const SITE_RUNNER_SLOTS: Expr;
+
+### build/site.chunk.d.ts#SITE_WORK_MEMORY
+declare const SITE_WORK_MEMORY: Expr;
+
+### build/site.chunk.d.ts#SITE_WORK_THREADS
+declare const SITE_WORK_THREADS: Expr;
 
 ### build/site.chunk.d.ts#SLOT_COST
 declare const SLOT_COST: Expr;
@@ -1553,6 +1605,20 @@ type SiteTreeResult = {
 ### build/site.chunk.d.ts#TOTAL_COST
 declare const TOTAL_COST: Expr;
 
+### build/site.chunk.d.ts#WORK_KIND
+declare const WORK_KIND = "work";
+
+### build/site.chunk.d.ts#WorkClass
+interface WorkClass extends Share {
+  readonly id: string;
+}
+
+### build/site.chunk.d.ts#WorkLine
+interface WorkLine {
+  readonly class: string;
+  readonly count: number;
+}
+
 ### build/site.chunk.d.ts#amountOf
 declare function amountOf(result: Result<unknown>): {
   readonly value?: number;
@@ -1566,7 +1632,7 @@ declare function costVariables(options: CostOptions | undefined, catalog: Readon
 };
 
 ### build/site.chunk.d.ts#designTree
-declare function designTree(machines: readonly Machine[], catalog: ReadonlyMap<string, Part>): DesignTreeResult;
+declare function designTree(machines: readonly Machine[], catalog: ReadonlyMap<string, Part>, work?: readonly WorkClass[]): DesignTreeResult;
 
 ### build/site.chunk.d.ts#evaluateDesign
 declare function evaluateDesign<T extends {
@@ -1607,4 +1673,13 @@ declare function readSite(value: unknown): SiteResult;
 declare const siteSchema: z.ZodType<Site>;
 
 ### build/site.chunk.d.ts#siteTree
-declare function siteTree(site: Site, machines: readonly Machine[], catalog: ReadonlyMap<string, Part>): SiteTreeResult;
+declare function siteTree(site: Site, machines: readonly Machine[], catalog: ReadonlyMap<string, Part>, work?: readonly WorkClass[]): SiteTreeResult;
+
+### build/site.chunk.d.ts#siteWorkMeasures
+declare function siteWorkMeasures(classes: readonly WorkClass[]): readonly SiteMeasure[];
+
+### build/site.chunk.d.ts#workMeasures
+declare function workMeasures(classes: readonly WorkClass[]): readonly Measure[];
+
+### build/site.chunk.d.ts#workRecord
+declare function workRecord(work: WorkClass, count: number): Readonly<Record<string, unknown>>;

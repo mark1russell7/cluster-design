@@ -1,7 +1,7 @@
 {
   "$schema": "https://json.schemastore.org/package",
   "name": "@mark1russell7/cluster-design",
-  "version": "0.1.6",
+  "version": "0.1.7",
   "description": "The design of a computer cluster as math: the records of the parts, and the rules that tell which parts fit in one machine.",
   "license": "MIT",
   "repository": {

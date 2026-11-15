@@ -9,6 +9,8 @@ import type { Machine } from "./machine.ts";
 import type { Part } from "./parts.ts";
 import {
   CORES,
+  FREE_MEMORY,
+  FREE_THREADS,
   IDLE_DRAW,
   MEMORY,
   NOISE,
@@ -20,7 +22,12 @@ import {
   THREADS,
   WALL_IDLE_POWER,
   WALL_POWER,
+  WORK_MEMORY,
+  WORK_THREADS,
+  workCapacity,
+  workUnits,
 } from "./formulas.ts";
+import type { WorkClass } from "./variables.ts";
 
 /** This record is one measure of a machine: its id, the sentence that tells it, its unit and its program. */
 export interface Measure {
@@ -46,8 +53,31 @@ export const MACHINE_MEASURES: readonly Measure[] = [
   { id: "threads", sentence: "The threads of the processors.", unit: "count", program: THREADS },
   { id: "memory", sentence: "The memory of the machine.", unit: "GiB", program: MEMORY },
   { id: "storage", sentence: "The storage of the drives.", unit: "GB", program: STORAGE },
-  { id: "runner-slots", sentence: "The CI jobs that the machine runs at one time.", unit: "count", program: RUNNER_SLOTS },
+  { id: "runner-slots", sentence: "The CI jobs that the machine runs at one time, in the share that the reserve and the work lines leave.", unit: "count", program: RUNNER_SLOTS },
+  { id: "work-threads", sentence: "The threads of the work lines.", unit: "count", program: WORK_THREADS },
+  { id: "work-memory", sentence: "The memory of the work lines.", unit: "GiB", program: WORK_MEMORY },
+  { id: "free-threads", sentence: "The threads that the reserve and the work lines leave.", unit: "count", program: FREE_THREADS },
+  { id: "free-memory", sentence: "The memory that the reserve and the work lines leave.", unit: "GiB", program: FREE_MEMORY },
 ];
+
+/**
+ * This function gives two measures for each class of work. The measure `work-<id>` gives the units of the class on the
+ * machine. The measure `capacity-<id>` adds the units of the class that fit in the free share.
+ *
+ * @param classes - The classes of work
+ * @returns The measures, two for each class, in the order of the classes
+ */
+export function workMeasures(classes: readonly WorkClass[]): readonly Measure[] {
+  return classes.flatMap((work) => [
+    { id: `work-${work.id}`, sentence: `The units of the work class ${work.id} on the machine.`, unit: "count", program: workUnits(work.id) },
+    {
+      id: `capacity-${work.id}`,
+      sentence: `The units of the work class ${work.id} that the machine runs: its work lines and the units that fit in the free share.`,
+      unit: "count",
+      program: workCapacity(work),
+    },
+  ]);
+}
 
 /** This record is the value of one measure at one machine. A value that the program cannot give has the reason in `detail`. */
 export interface MeasureValue {

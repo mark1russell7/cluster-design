@@ -118,9 +118,11 @@ describe("the rule programs", () => {
     expect(new Set(FIT_RULES.map((rule) => rule.id)).size).toBe(FIT_RULES.length);
   });
 
-  it("read only the fields of the classes that each rule names", () => {
+  it("read only the fields of the classes that each rule names, and the fields of the work lines for the rules of work", () => {
+    const workFields = ["kind", "work", "threads", "memory"];
     for (const rule of FIT_RULES) {
-      const known = new Set(["class", "count", "part", ...rule.classes.flatMap((name) => Object.keys(PART_CLASSES[name]))]);
+      const work = rule.id.startsWith("work-") ? workFields : [];
+      const known = new Set(["class", "count", "part", ...work, ...rule.classes.flatMap((name) => Object.keys(PART_CLASSES[name]))]);
       const unknown = refs(rule.program as Expr).filter((path) => !known.has(path[0] ?? ""));
       expect({ rule: rule.id, unknown }).toEqual({ rule: rule.id, unknown: [] });
     }

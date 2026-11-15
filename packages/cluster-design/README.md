@@ -15,6 +15,7 @@ The package has no prices, no site and no backup record of its own. They are inp
 - A **part** has a class and the fields of its class. `PART_CLASSES` is the table of the classes: `cpu`, `board`, `memory`, `storage`, `psu`, `case`, `cooler`, `fan` and `gpu`.
 - A field is a text, a list of texts, a count, a choice, or an **amount** with a unit from `@mark1russell7/quantity`.
 - A **machine** has an id and part lines. A part line is the id of a part and its count.
+- A machine can also have **work lines**. A work line is the id of a class of work and the count of its units. The option `work` gives the classes.
 - A **fit rule** is a Vex program as data. It evaluates at one machine and reads the part lines of the machine.
 
 ## Check a design
@@ -67,6 +68,8 @@ The option `psuLoad` sets the load limit of a power supply, as a ratio of its ou
 | `idle-power` | Each part takes less power at idle than its most power, or the same power. |
 | `psu-efficiency` | The efficiencies of the power supply are more than 0 percent and not more than 100 percent. |
 | `psu-load` | The most power of the parts is not more than the load limit of the power supply. |
+| `work-threads` | The work lines take not more threads than the processors give, less the reserve. |
+| `work-memory` | The work lines take not more memory than the machine has, less the reserve. |
 
 ## The measures of a machine
 
@@ -85,7 +88,11 @@ The option `psuLoad` sets the load limit of a power supply, as a ratio of its ou
 | `threads` | count | The sum of the threads of the processors. |
 | `memory` | GiB | The sum of the count times the modules times the module size of each memory kit. |
 | `storage` | GB | The sum of the capacity of the drives. |
-| `runner-slots` | count | The CI jobs that the machine runs at one time. |
+| `runner-slots` | count | The CI jobs that the machine runs at one time, in the share that the reserve and the work lines leave. |
+| `work-threads` | count | The sum of the count times the threads of each work line. |
+| `work-memory` | GiB | The sum of the count times the memory of each work line. |
+| `free-threads` | count | `threads` less the reserve and less `work-threads`. |
+| `free-memory` | GiB | `memory` less the reserve and less `work-memory`. |
 
 The rule `psu-load` reads the programs of `power` and `power-limit`. Thus the measures and the rule always agree. A test with random designs holds this. The rule `memory-size` reads the program of `memory` in the same way.
 
@@ -103,11 +110,15 @@ Each level is the level of one part at 1 m, as a data sheet gives it. The classe
 
 ### Runner slots
 
-The program `runner-slots` gives the CI jobs that fit in the threads and the memory of a machine. The system of the machine keeps a reserve. The value is the smaller quotient, rounded down, and not less than 0:
+The program `runner-slots` gives the CI jobs that fit in the threads and the memory of a machine. The system of the machine keeps a reserve, and the work lines take their share. The value is the smaller quotient, rounded down, and not less than 0:
 
 ```text
-floor(max(0, min((threads - reserve threads) / job threads, (memory - reserve memory) / job memory)))
+floor(max(0, min(free threads / job threads, free memory / job memory)))
+free threads = threads - reserve threads - work threads
+free memory  = memory - reserve memory - work memory
 ```
+
+A machine with no work lines has no work threads and no work memory.
 
 The option `job` sets the size of one job. The default `DEFAULT_JOB` is 4 threads and 16 GiB, the size of a standard hosted runner of GitHub for a public repository. The option `reserve` sets the reserve of the system. The default `DEFAULT_RESERVE` is no thread and 2 GiB.
 
@@ -116,6 +127,30 @@ const result = measureDesign(machines, catalog, { job: { threads: 2, memory: 7 }
 ```
 
 `evaluateDesign` evaluates other programs at each machine of a design, with the same tree and the same variables.
+
+### A mix of work
+
+A machine can run other work next to its CI jobs: sessions, workers of quick checks, services or labs. The option `work` gives the classes of work. Each class has an id, and one unit of the class takes its threads and its memory. A class that shares the processors gives the mean threads of one unit. The work lines of a machine give the count of the units of each class.
+
+```ts
+const work = [
+  { id: "session", threads: 1, memory: 4 },
+  { id: "service", threads: 2, memory: 8 },
+];
+const machine = { id: "node-1", lines, work: [{ class: "session", count: 4 }, { class: "service", count: 1 }] };
+const result = measureDesign([machine], catalog, { work, measures: [...MACHINE_MEASURES, ...workMeasures(work)] });
+```
+
+The work lines take their share first, and the CI jobs take the rest. The rules `work-threads` and `work-memory` tell if the work lines fit in the machine less the reserve. `workMeasures` gives two measures for each class:
+
+| Measure | Unit | Value |
+| --- | --- | --- |
+| `work-<id>` | count | The units of the class on the machine. |
+| `capacity-<id>` | count | The units of the class on the machine, plus the units of the class that fit in the free share. |
+
+A work line with a class that the options do not have is a problem of the input. A class with an empty id, an id on two classes, or threads or memory of 0 or less is also a problem. The record of a work line in the tree has the kind `work` and the class `work`. Thus a test of a part class gives false for it.
+
+The split of each machine is a parameter. A search of the splits can use `capacity-<id>` and `runner-slots` as its objectives.
 
 ## A site
 
@@ -165,6 +200,10 @@ A rule gives the verdict `unread` when it cannot read a value. For example, a ma
 | `cost` | site | USD | The cost of a month when each machine takes its most power: `power` in kW, times 730.485 hours, times `price`. |
 | `idle-cost` | site | USD | The cost of a month when each machine is idle. |
 | `runner-slots` | site | count | The sum of the `runner-slots` of the machines, with the size of a job of the options. |
+| `work-threads` | site | count | The sum of the `work-threads` of the machines. |
+| `work-memory` | site | GiB | The sum of the `work-memory` of the machines. |
+| `free-threads` | site | count | The sum of the `free-threads` of the machines. |
+| `free-memory` | site | GiB | The sum of the `free-memory` of the machines. |
 | `load` | circuit | W | The `wall-power` of the machines on the circuit, plus its `otherLoad`. |
 | `idle-load` | circuit | W | The `wall-idle-power` of the machines on the circuit, plus its `otherLoad`. |
 | `current` | circuit | A | `load` divided by `voltage`. |
@@ -175,7 +214,9 @@ A rule gives the verdict `unread` when it cannot read a value. For example, a ma
 | `noise` | room | dBA | The sound level of the machines in the room together, at 1 m from each machine. A room with no machine gives 0. |
 | `machines` | room | count | The machines in the room. |
 
-The programs of a site use the programs of a machine. Thus a site and its machines always agree. The options of a site also take the options of a design. These are the size of a job, the reserve of a machine and the load limit of a power supply. The rule `circuit-load` reads the programs of `load` and `limit`, and a property test holds that the rule and the measures agree. A month is a mean month of the Gregorian calendar: 730.485 hours, from the unit `mo` of `@mark1russell7/quantity`.
+`siteWorkMeasures` gives the measures `work-<id>` and `capacity-<id>` of a site for each class of work: the sums of the machines.
+
+The programs of a site use the programs of a machine. Thus a site and its machines always agree. The options of a site also take the options of a design. These are the size of a job, the reserve of a machine, the classes of work and the load limit of a power supply. The rule `circuit-load` reads the programs of `load` and `limit`, and a property test holds that the rule and the measures agree. A month is a mean month of the Gregorian calendar: 730.485 hours, from the unit `mo` of `@mark1russell7/quantity`.
 
 ## The design space
 

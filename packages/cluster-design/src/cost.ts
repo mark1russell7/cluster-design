@@ -13,7 +13,7 @@ import { z } from "zod";
 import type { Measure } from "./measure.ts";
 import type { Machine, PartLine } from "./machine.ts";
 import type { Part } from "./parts.ts";
-import { contains, STRICT, totalOfCount } from "./program.ts";
+import { contains, partLines, STRICT, totalOfCount } from "./program.ts";
 import { SITE_COST, SITE_IDLE_COST, SITE_RUNNER_SLOTS, type SiteMeasure } from "./site-formulas.ts";
 
 /** The format of a price list. */
@@ -164,7 +164,7 @@ const priceOfLine: Expr = app("get", v(PRICES), ref("part"));
 // The machine.
 
 /** This program gives the price of the parts of a machine in USD, when the user buys each part. */
-export const PARTS_PRICE: Expr = totalOfCount(axes.children, priceOfLine);
+export const PARTS_PRICE: Expr = totalOfCount(partLines, priceOfLine);
 
 // The site.
 

@@ -1,7 +1,7 @@
 /**
  * The parts of the Vex programs of a machine. Each program evaluates at the key of a machine in the tree of a
- * design. It reads the part lines of the machine through the axis `children`. The fit rules and the formulas
- * use these parts. The entry of the package does not export this module.
+ * design. It reads the part lines and the work lines of the machine through the axis `children`. The fit rules and
+ * the formulas use these parts. The entry of the package does not export this module.
  */
 import { app, axes, each, lit, ref, v, type Axis, type Expr } from "@mark1russell7/vex";
 import type { PartClass } from "./parts.ts";
@@ -11,6 +11,15 @@ export const STRICT: Expr = lit({ strict: true });
 
 /** This axis gives the part lines of the machine that pass the test. */
 export const linesWhere = (test: Expr): Axis => axes.where(axes.children, test);
+
+/** This axis gives the part lines of the machine: the children with the kind `line`. */
+export const partLines: Axis = linesWhere(app("eq", ref("kind"), lit("line")));
+
+/** This axis gives the work lines of the machine: the children with the kind `work`. */
+export const workLines: Axis = linesWhere(app("eq", ref("kind"), lit("work")));
+
+/** This axis gives the work lines of one class of work. */
+export const workLinesOf = (id: string): Axis => linesWhere(app("and", app("eq", ref("kind"), lit("work")), app("eq", ref("work"), lit(id))));
 
 /** This expression tells if the line at the focus has the class `name`. */
 export const isClass = (name: PartClass): Expr => app("eq", ref("class"), lit(name));

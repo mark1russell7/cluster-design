@@ -64,7 +64,7 @@ export function evaluateSite<T extends { readonly level: SiteLevel; readonly pro
   const problems = [...design.problems, ...cost.problems];
   if (!(continuousLoad > 0 && continuousLoad <= 1)) problems.push(`The continuous load limit ${String(continuousLoad)} is not more than 0 and not more than 1.`);
   if (problems.length > 0) return { ok: false, problems };
-  const tree = siteTree(site, machines, catalog);
+  const tree = siteTree(site, machines, catalog, options.work);
   if (!tree.ok) return tree;
   const keys: Readonly<Record<SiteLevel, ReadonlyMap<string, string>>> = {
     site: new Map([[SITE_KEY, SITE_KEY]]),

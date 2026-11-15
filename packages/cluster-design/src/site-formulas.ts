@@ -5,7 +5,20 @@
  */
 import { convert, quantity } from "@mark1russell7/quantity";
 import { app, axes, each, let_, lit, origin, parent, ref, v, type Addr, type Axis, type Expr } from "@mark1russell7/vex";
-import { levelOf, NOISE_ENERGY, RUNNER_SLOTS, WALL_IDLE_POWER, WALL_POWER } from "./formulas.ts";
+import {
+  FREE_MEMORY,
+  FREE_THREADS,
+  levelOf,
+  NOISE_ENERGY,
+  RUNNER_SLOTS,
+  WALL_IDLE_POWER,
+  WALL_POWER,
+  WORK_MEMORY,
+  WORK_THREADS,
+  workCapacity,
+  workUnits,
+} from "./formulas.ts";
+import type { WorkClass } from "./variables.ts";
 import { countOf, STRICT } from "./program.ts";
 
 /** The name of the variable that holds the continuous load limit of a circuit, as a ratio of its rating. */
@@ -86,6 +99,18 @@ export const SITE_IDLE_POWER: Expr = sumOver(siteMachines, WALL_IDLE_POWER);
 /** This program gives the CI jobs that the machines of a site run at one time: the sum of the runner slots of each machine. */
 export const SITE_RUNNER_SLOTS: Expr = sumOver(siteMachines, RUNNER_SLOTS);
 
+/** This program gives the threads of the work lines of the machines of a site. */
+export const SITE_WORK_THREADS: Expr = sumOver(siteMachines, WORK_THREADS);
+
+/** This program gives the memory of the work lines of the machines of a site, in GiB. */
+export const SITE_WORK_MEMORY: Expr = sumOver(siteMachines, WORK_MEMORY);
+
+/** This program gives the sum of the free threads of the machines of a site. */
+export const SITE_FREE_THREADS: Expr = sumOver(siteMachines, FREE_THREADS);
+
+/** This program gives the sum of the free memory of the machines of a site, in GiB. */
+export const SITE_FREE_MEMORY: Expr = sumOver(siteMachines, FREE_MEMORY);
+
 /** This expression gives the cost of a month at a power in watts, at the price of the site in USD per kWh. */
 const monthlyCost = (power: Expr): Expr => app("multiply", app("multiply", app("divide", power, lit(1000)), lit(HOURS_PER_MONTH)), ref("price"));
 
@@ -153,6 +178,10 @@ export const SITE_MEASURES: readonly SiteMeasure[] = [
   { id: "cost", sentence: "The most cost of the electricity for a month.", unit: "USD", level: "site", program: SITE_COST },
   { id: "idle-cost", sentence: "The cost of the electricity for a month at idle.", unit: "USD", level: "site", program: SITE_IDLE_COST },
   { id: "runner-slots", sentence: "The CI jobs that the machines of the site run at one time.", unit: "count", level: "site", program: SITE_RUNNER_SLOTS },
+  { id: "work-threads", sentence: "The threads of the work lines of the machines.", unit: "count", level: "site", program: SITE_WORK_THREADS },
+  { id: "work-memory", sentence: "The memory of the work lines of the machines.", unit: "GiB", level: "site", program: SITE_WORK_MEMORY },
+  { id: "free-threads", sentence: "The free threads of the machines.", unit: "count", level: "site", program: SITE_FREE_THREADS },
+  { id: "free-memory", sentence: "The free memory of the machines.", unit: "GiB", level: "site", program: SITE_FREE_MEMORY },
   { id: "load", sentence: "The most power of the circuit.", unit: "W", level: "circuit", program: CIRCUIT_LOAD },
   { id: "idle-load", sentence: "The power of the circuit at idle.", unit: "W", level: "circuit", program: CIRCUIT_IDLE_LOAD },
   { id: "current", sentence: "The most current of the circuit.", unit: "A", level: "circuit", program: CIRCUIT_CURRENT },
@@ -163,3 +192,23 @@ export const SITE_MEASURES: readonly SiteMeasure[] = [
   { id: "noise", sentence: "The most sound level of the machines in the room, at 1 m.", unit: "dBA", level: "room", program: ROOM_NOISE },
   { id: "machines", sentence: "The machines in the room.", unit: "count", level: "room", program: ROOM_MACHINES },
 ];
+
+/**
+ * This function gives two measures of a site for each class of work. The measure `work-<id>` gives the units of the
+ * class on the machines. The measure `capacity-<id>` gives the sum of the capacity of each machine for the class.
+ *
+ * @param classes - The classes of work
+ * @returns The measures, two for each class, in the order of the classes
+ */
+export function siteWorkMeasures(classes: readonly WorkClass[]): readonly SiteMeasure[] {
+  return classes.flatMap((work): SiteMeasure[] => [
+    { id: `work-${work.id}`, sentence: `The units of the work class ${work.id} on the machines.`, unit: "count", level: "site", program: sumOver(siteMachines, workUnits(work.id)) },
+    {
+      id: `capacity-${work.id}`,
+      sentence: `The units of the work class ${work.id} that the machines run, each machine in its own free share.`,
+      unit: "count",
+      level: "site",
+      program: sumOver(siteMachines, workCapacity(work)),
+    },
+  ]);
+}

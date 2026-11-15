@@ -5,7 +5,9 @@
 import type { Quantity } from "@mark1russell7/quantity";
 import { space, type Space } from "@mark1russell7/vex";
 import { z } from "zod";
-import { fieldValue, lineRecord, type Machine } from "./machine.ts";
+import { addLines, workClassesById } from "./lines.ts";
+import { fieldValue, type Machine } from "./machine.ts";
+import type { WorkClass } from "./variables.ts";
 import { fieldSchema, type FieldSpec, type Part } from "./parts.ts";
 
 /** The format of a site record. */
@@ -137,16 +139,18 @@ const keysOf = (ids: readonly string[], prefix: string, label: string, problems:
 
 /**
  * This function makes the tree of a site. The root is the site. Its children are the circuits and the rooms. The
- * children of a circuit are the machines that plug into it, and the children of a machine are its part lines. Each
+ * children of a circuit are the machines that plug into it. The children of a machine are its part lines and its work lines. Each
  * machine has the id of its room. Each machine of the design has one place, and each place names a machine, a
  * circuit and a room of the input.
  *
  * @param site - The site
  * @param machines - The machines of the design
  * @param catalog - The parts by their ids
+ * @param work - The classes of work that the work lines name
  * @returns The tree, or the problems
  */
-export function siteTree(site: Site, machines: readonly Machine[], catalog: ReadonlyMap<string, Part>): SiteTreeResult {
+export function siteTree(site: Site, machines: readonly Machine[], catalog: ReadonlyMap<string, Part>, work: readonly WorkClass[] = []): SiteTreeResult {
+  const classes = workClassesById(work);
   const problems: string[] = [];
   const circuits = keysOf(
     site.circuits.map((circuit) => circuit.id),
@@ -199,16 +203,7 @@ export function siteTree(site: Site, machines: readonly Machine[], catalog: Read
     if (key === undefined || key in records || place === undefined || circuit === undefined) continue;
     records[key] = { kind: "machine", id: machine.id, room: place.room };
     parents[key] = circuit;
-    machine.lines.forEach((line, l) => {
-      const part = catalog.get(line.part);
-      if (part === undefined) {
-        problems.push(`The machine ${machine.id} names the part ${line.part}, but the catalog does not have it.`);
-        return;
-      }
-      const lineKey = `${key}.${String(l)}`;
-      records[lineKey] = lineRecord(part, line.count);
-      parents[lineKey] = key;
-    });
+    addLines({ records, parents }, key, machine, catalog, classes, problems);
   }
 
   if (problems.length > 0) return { ok: false, problems };
