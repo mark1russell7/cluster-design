@@ -158,6 +158,7 @@ A rule gives the verdict `unread` when it cannot read a value. For example, a ma
 | `idle-power` | site | W | The sum of the `wall-idle-power` of the machines. |
 | `cost` | site | USD | The cost of a month when each machine takes its most power: `power` in kW, times 730.485 hours, times `price`. |
 | `idle-cost` | site | USD | The cost of a month when each machine is idle. |
+| `runner-slots` | site | count | The sum of the `runner-slots` of the machines, with the size of a job of the options. |
 | `load` | circuit | W | The `wall-power` of the machines on the circuit, plus its `otherLoad`. |
 | `idle-load` | circuit | W | The `wall-idle-power` of the machines on the circuit, plus its `otherLoad`. |
 | `current` | circuit | A | `load` divided by `voltage`. |
@@ -168,7 +169,7 @@ A rule gives the verdict `unread` when it cannot read a value. For example, a ma
 | `noise` | room | dBA | The sound level of the machines in the room together, at 1 m from each machine. A room with no machine gives 0. |
 | `machines` | room | count | The machines in the room. |
 
-The programs of a site use the programs of a machine. Thus a site and its machines always agree. The rule `circuit-load` reads the programs of `load` and `limit`, and a property test holds that the rule and the measures agree. A month is a mean month of the Gregorian calendar: 730.485 hours, from the unit `mo` of `@mark1russell7/quantity`.
+The programs of a site use the programs of a machine. Thus a site and its machines always agree. The options of a site also take the options of a design. These are the size of a job, the reserve of a machine and the load limit of a power supply. The rule `circuit-load` reads the programs of `load` and `limit`, and a property test holds that the rule and the measures agree. A month is a mean month of the Gregorian calendar: 730.485 hours, from the unit `mo` of `@mark1russell7/quantity`.
 
 ## The design space
 
@@ -227,6 +228,35 @@ A property test over random sites holds two claims. First, a count above the max
 - `spread` takes the room with the most free places and the circuit with the most free sockets.
 
 When no room or circuit is free, both rules take the first one. The rules of the site then refuse the design. `checkDesignConfig` applies the fit rules to one copy of the new machine and the rules of the site to the whole site. The verdict is `fits` only when each finding fits.
+
+### A sweep of the designs
+
+`sweepDesigns` evaluates each config of a grid or of a seeded sample of the space. It uses `sweep` of `@mark1russell7/strategy-search`, and gives one plain row for each design.
+
+```ts
+import { sweepDesigns } from "@mark1russell7/cluster-design";
+
+const swept = sweepDesigns(made.value, { catalog, site, fixed }, { enumerate: { mode: "sample", n: 200, seed: "my sweep" } });
+if (!swept.ok) throw new Error(swept.problems.join("
+"));
+swept.value.run.rows.filter((row) => row.front); // the designs on the Pareto front
+```
+
+- The hard constraints are the fit rules of the new machine and the rules of the site, from `checkDesignConfig`. A row that breaks a rule has the status `breaks`, and `breaks` names each rule as `<machine>:<rule>` or `<key>:<rule>`.
+- A rule without a read gives no value to each objective. Thus the row has the status `unread`, and `unread` names each rule without a read. A rule without a read does not give a pass.
+- The Pareto rank is over the rows that keep each rule. The rows of the front have the rank 1.
+- The id of the run holds a hash of the catalog, the site, the fixed machines and the options. Thus another input gives another run.
+
+| Objective | Goal | Measure of the site |
+| --- | --- | --- |
+| `runner-slots` | max | `runner-slots`: the CI jobs at one time |
+| `power` | min | `power`: the most power from the wall |
+| `idle-cost` | min | `idle-cost`: the cost of the electricity for a month at idle |
+| `noise` | min | `noise` of the loudest room |
+
+The option `objectives` gives other objectives, each with a name, a goal and the id of a measure. A measure of a circuit or a room gives the worst value of its keys. The worst value is the max for the goal `min`, and the min for the goal `max`. The size of a job, the reserve of a machine and the load limits go to the check and to the measures.
+
+A property test over random samples holds that each row has the verdict of `checkDesignConfig`.
 
 ## Units
 

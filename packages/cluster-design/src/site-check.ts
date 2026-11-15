@@ -10,12 +10,16 @@ import { amountOf } from "./measure.ts";
 import type { Part } from "./parts.ts";
 import { siteTree, SITE_KEY, type Site } from "./site.ts";
 import { CONTINUOUS_LOAD, SITE_MEASURES, SITE_RULES, type SiteLevel, type SiteMeasure, type SiteRule } from "./site-formulas.ts";
+import { variablesOf, type DesignOptions } from "./variables.ts";
 
 /** The default continuous load limit of a circuit: 80 percent of its rating, as the electrical codes ask for a continuous load. */
 export const DEFAULT_CONTINUOUS_LOAD = 0.8;
 
-/** These options change the evaluation of a site. */
-export interface SiteOptions {
+/**
+ * These options change the evaluation of a site. A program of a site can read a machine of the site. Thus the options
+ * of a design give the variables of the programs of a machine.
+ */
+export interface SiteOptions extends DesignOptions {
   /** The continuous load limit of a circuit, as a ratio of its rating. The default is 0.8. */
   readonly continuousLoad?: number;
 }
@@ -43,7 +47,7 @@ const DOMAINS = [NumDomain, BoolDomain, TextDomain];
  * @param machines - The machines of the design
  * @param catalog - The parts by their ids
  * @param items - The items, each with a level and a Vex program
- * @param options - The continuous load limit of a circuit
+ * @param options - The continuous load limit of a circuit, and the options of a design
  * @returns The evaluations in the order of the items and the keys, or the problems of the input
  */
 export function evaluateSite<T extends { readonly level: SiteLevel; readonly program: Expr }>(
@@ -54,9 +58,10 @@ export function evaluateSite<T extends { readonly level: SiteLevel; readonly pro
   options: SiteOptions = {},
 ): SiteEvaluationResult<T> {
   const continuousLoad = options.continuousLoad ?? DEFAULT_CONTINUOUS_LOAD;
-  if (!(continuousLoad > 0 && continuousLoad <= 1)) {
-    return { ok: false, problems: [`The continuous load limit ${String(continuousLoad)} is not more than 0 and not more than 1.`] };
-  }
+  const design = variablesOf(options);
+  const problems = [...design.problems];
+  if (!(continuousLoad > 0 && continuousLoad <= 1)) problems.push(`The continuous load limit ${String(continuousLoad)} is not more than 0 and not more than 1.`);
+  if (problems.length > 0) return { ok: false, problems };
   const tree = siteTree(site, machines, catalog);
   if (!tree.ok) return tree;
   const keys: Readonly<Record<SiteLevel, ReadonlyMap<string, string>>> = {
@@ -64,7 +69,7 @@ export function evaluateSite<T extends { readonly level: SiteLevel; readonly pro
     circuit: tree.value.circuits,
     room: tree.value.rooms,
   };
-  const vars = { [CONTINUOUS_LOAD]: continuousLoad };
+  const vars = { ...design.vars, [CONTINUOUS_LOAD]: continuousLoad };
   const evaluations: SiteEvaluation<T>[] = [];
   for (const item of items) {
     for (const [id, origin] of keys[item.level]) {

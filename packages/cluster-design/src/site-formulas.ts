@@ -5,7 +5,7 @@
  */
 import { convert, quantity } from "@mark1russell7/quantity";
 import { app, axes, each, let_, lit, origin, parent, ref, v, type Addr, type Axis, type Expr } from "@mark1russell7/vex";
-import { levelOf, NOISE_ENERGY, WALL_IDLE_POWER, WALL_POWER } from "./formulas.ts";
+import { levelOf, NOISE_ENERGY, RUNNER_SLOTS, WALL_IDLE_POWER, WALL_POWER } from "./formulas.ts";
 import { countOf, STRICT } from "./program.ts";
 
 /** The name of the variable that holds the continuous load limit of a circuit, as a ratio of its rating. */
@@ -83,6 +83,9 @@ export const SITE_POWER: Expr = sumOver(siteMachines, WALL_POWER);
 /** This program gives the power of the machines of a site from the wall at idle, in watts. */
 export const SITE_IDLE_POWER: Expr = sumOver(siteMachines, WALL_IDLE_POWER);
 
+/** This program gives the CI jobs that the machines of a site run at one time: the sum of the runner slots of each machine. */
+export const SITE_RUNNER_SLOTS: Expr = sumOver(siteMachines, RUNNER_SLOTS);
+
 /** This expression gives the cost of a month at a power in watts, at the price of the site in USD per kWh. */
 const monthlyCost = (power: Expr): Expr => app("multiply", app("multiply", app("divide", power, lit(1000)), lit(HOURS_PER_MONTH)), ref("price"));
 
@@ -149,6 +152,7 @@ export const SITE_MEASURES: readonly SiteMeasure[] = [
   { id: "idle-power", sentence: "The power of the machines from the wall at idle.", unit: "W", level: "site", program: SITE_IDLE_POWER },
   { id: "cost", sentence: "The most cost of the electricity for a month.", unit: "USD", level: "site", program: SITE_COST },
   { id: "idle-cost", sentence: "The cost of the electricity for a month at idle.", unit: "USD", level: "site", program: SITE_IDLE_COST },
+  { id: "runner-slots", sentence: "The CI jobs that the machines of the site run at one time.", unit: "count", level: "site", program: SITE_RUNNER_SLOTS },
   { id: "load", sentence: "The most power of the circuit.", unit: "W", level: "circuit", program: CIRCUIT_LOAD },
   { id: "idle-load", sentence: "The power of the circuit at idle.", unit: "W", level: "circuit", program: CIRCUIT_IDLE_LOAD },
   { id: "current", sentence: "The most current of the circuit.", unit: "A", level: "circuit", program: CIRCUIT_CURRENT },

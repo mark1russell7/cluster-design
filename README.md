@@ -21,13 +21,14 @@ This repository has no prices and no site of its own. They are input data.
 
 | Package | What it has |
 | --- | --- |
-| [`@mark1russell7/cluster-design`](packages/cluster-design) | The part classes, the fit rules, the formulas of a machine, the rules and the measures of a site, and the space of the designs. |
+| [`@mark1russell7/cluster-design`](packages/cluster-design) | The part classes, the fit rules, the formulas of a machine, the rules and the measures of a site, the space of the designs, and a sweep of the space. |
 
 Other packages give the general parts:
 
 - `@mark1russell7/quantity` gives the amounts with units.
 - `@mark1russell7/vex` gives the roll-ups over the parts of a design.
 - `@mark1russell7/strategy-space` gives the space of the designs, so a search can go through them.
+- `@mark1russell7/strategy-search` gives the sweep of the space, with one row for each design and its Pareto rank.
 - `@mark1russell7/market` gives the part records and their prices.
 
 ## Development
