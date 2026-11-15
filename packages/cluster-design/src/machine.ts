@@ -27,7 +27,7 @@ export interface WorkLine {
 export interface Machine {
   readonly id: string;
   readonly lines: readonly PartLine[];
-  readonly work?: readonly WorkLine[];
+  readonly work?: readonly WorkLine[] | undefined;
 }
 
 /** This schema accepts a machine. A count is a whole number of 1 or more. */
