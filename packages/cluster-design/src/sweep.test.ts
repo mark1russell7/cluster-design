@@ -8,7 +8,16 @@ import { readCatalog, type Part } from "./parts.ts";
 import { SAMPLE_MACHINE, SAMPLE_PARTS, SAMPLE_SITE } from "./sample.ts";
 import { measureSite } from "./site-check.ts";
 import { SITE_RULES, type SiteRule } from "./site-formulas.ts";
-import { DESIGN_OBJECTIVES, DESIGN_SWEEP_EVALUATOR, sweepDesigns, type DesignSweep, type DesignSweepOptions } from "./sweep.ts";
+import {
+  DESIGN_OBJECTIVES,
+  DESIGN_SWEEP_EVALUATOR,
+  evolveDesigns,
+  sweepDesigns,
+  type DesignEvolution,
+  type DesignEvolveOptions,
+  type DesignSweep,
+  type DesignSweepOptions,
+} from "./sweep.ts";
 
 const read = readCatalog(SAMPLE_PARTS);
 if (!read.ok) throw new Error(read.problems.join(" "));
@@ -163,5 +172,120 @@ describe("a sweep of the design space", () => {
     const nan = sweepDesigns(SPACE, INPUT, { ...SAMPLE, continuousLoad: Number.NaN });
     expect(nan.ok).toBe(false);
     if (!nan.ok) expect(nan.problems[0]).toMatch(/^The input has a value that JSON cannot hold: /);
+  });
+});
+
+const EVOLVE: DesignEvolveOptions = { seed: "cluster-design evolve", evaluations: 60, population: 12 };
+
+const evolveOf = (options: DesignEvolveOptions = EVOLVE, input: DesignInput = INPUT): DesignEvolution => {
+  const made = evolveDesigns(SPACE, input, options);
+  if (!made.ok) throw new Error(made.problems.join(" "));
+  return made.value;
+};
+
+/** This function tells if the values `a` dominate the values `b` for the objectives of a run. */
+const dominates = (objectives: readonly { name: string; goal: string }[], a: Record<string, number | null>, b: Record<string, number | null>): boolean => {
+  let better = false;
+  for (const { name, goal } of objectives) {
+    const x = (goal === "max" ? 1 : -1) * (a[name] ?? Number.NaN);
+    const y = (goal === "max" ? 1 : -1) * (b[name] ?? Number.NaN);
+    if (x < y) return false;
+    if (x > y) better = true;
+  }
+  return better;
+};
+
+describe("a genetic search of the design space", () => {
+  it("gives each design the verdict of the check and the rules that it breaks, in the budget", () => {
+    const { run } = evolveOf();
+    expect(run.method).toBe("evolve");
+    expect(run.stop).toBe("budget");
+    expect(run.rows).toHaveLength(60);
+    expect(run.generations).toBeGreaterThan(1);
+    expect(new Set(run.rows.map((r) => r.config)).size).toBe(run.rows.length);
+    expect(run.counts.feasible).toBeGreaterThan(0);
+    for (const row of run.rows) {
+      const config = run.configs[row.config];
+      if (config === undefined) throw new Error(`no config ${row.config}`);
+      const { verdict, breaks } = checkOf(config);
+      expect(row.status).toBe(STATUS[verdict]);
+      expect(row.breaks).toEqual(breaks);
+      expect(row.rank === null).toBe(row.status !== "feasible");
+    }
+  });
+
+  it("gives each design the evaluation of the sweep: the same evaluator and the measures of the site", () => {
+    const { run } = evolveOf();
+    expect(run.evaluator).toBe(sweepOf().run.evaluator);
+    expect(run.objectives).toEqual(sweepOf().run.objectives);
+    for (const row of run.rows.filter((r) => r.status === "feasible")) {
+      const config = run.configs[row.config];
+      if (config === undefined) throw new Error(`no config ${row.config}`);
+      const checked = checkDesignConfig(SPACE, config, INPUT);
+      if (!checked.ok) throw new Error(checked.problems.join(" "));
+      const measured = measureSite(checked.value.design.site, checked.value.design.machines, CATALOG);
+      if (!measured.ok) throw new Error(measured.problems.join(" "));
+      const at = (key: string, measure: string): number | undefined => measured.values.find((v) => v.id === key && v.measure === measure)?.value;
+      expect(row.values["runner-slots"]).toBe(at("site", "runner-slots"));
+      expect(row.values["power"]).toBe(at("site", "power"));
+      expect(row.values["idle-cost"]).toBe(at("site", "idle-cost"));
+      expect(row.values["noise"]).toBe(Math.max(at("room-a", "noise") ?? Number.NaN, at("room-b", "noise") ?? Number.NaN));
+    }
+  });
+
+  it("puts no design on the front that another feasible design of the run dominates", () => {
+    const { run } = evolveOf();
+    const feasible = run.rows.filter((r) => r.status === "feasible");
+    const front = feasible.filter((r) => r.rank === 1);
+    expect(front.length).toBeGreaterThan(0);
+    for (const row of front) expect(feasible.some((other) => dominates(run.objectives, other.values, row.values))).toBe(false);
+    for (const row of feasible.filter((r) => r.rank !== 1)) expect(feasible.some((other) => dominates(run.objectives, other.values, row.values))).toBe(true);
+  });
+
+  it("gives the options of the algorithm to the run, and the defaults of evolve without them", () => {
+    const { run } = evolveOf({ ...EVOLVE, population: 10, mutation: 0.5, crossover: 0.7 });
+    expect([run.population, run.mutation, run.crossover]).toEqual([10, 0.5, 0.7]);
+    const plain = evolveOf({ seed: 7, evaluations: 45 }).run;
+    expect(plain.population).toBe(40);
+    expect(plain.crossover).toBe(0.9);
+    expect(plain.mutation).toBeCloseTo(1 / SPACE.space.stages.length, 12);
+    expect(plain.rows).toHaveLength(45);
+  });
+
+  it("is deterministic, and another seed or another input gives another run", () => {
+    const one = evolveOf();
+    expect(evolveOf()).toEqual(one);
+    expect(evolveOf({ ...EVOLVE, seed: "another seed" }).run.run).not.toBe(one.run.run);
+    const dear = evolveOf(EVOLVE, { ...INPUT, site: { ...SAMPLE_SITE, price: quantity(0.3, "USD/kWh") } });
+    expect(dear.run.run).not.toBe(one.run.run);
+    expect(dear.run.evaluator).not.toBe(one.run.evaluator);
+  });
+
+  it("gives no value and no rank to a design with a rule without a read", () => {
+    const probe: SiteRule = { id: "probe", sentence: "The probe reads a field that the site does not have.", level: "site", program: app("lte", ref("missing"), lit(1)) };
+    const { run, unread } = evolveOf({ ...EVOLVE, siteRules: [...SITE_RULES, probe] });
+    expect(run.counts.feasible).toBe(0);
+    expect(run.counts.unread).toBeGreaterThan(0);
+    for (const row of run.rows) {
+      expect(unread[row.config]).toEqual(["site:probe"]);
+      expect(row.rank).toBeNull();
+    }
+    expect(evolveOf().unread).toEqual({});
+  });
+
+  it("gives the problems of the objectives, the options and the input", () => {
+    expect(evolveDesigns(SPACE, INPUT, { ...EVOLVE, objectives: [] })).toEqual({ ok: false, problems: ["The list of the objectives is empty."] });
+    expect(evolveDesigns(SPACE, INPUT, { ...EVOLVE, objectives: [{ name: "x", goal: "min", measure: "nope" }] })).toEqual({
+      ok: false,
+      problems: ["The objective x reads the measure nope, and the measures have no measure with this id."],
+    });
+    const none = evolveDesigns(SPACE, INPUT, { ...EVOLVE, evaluations: 0 });
+    expect(none.ok).toBe(false);
+    if (!none.ok) expect(none.problems.join(" ")).toMatch(/evaluations is 0/);
+    const alone = evolveDesigns(SPACE, INPUT, { ...EVOLVE, population: 1 });
+    expect(alone.ok).toBe(false);
+    if (!alone.ok) expect(alone.problems.join(" ")).toMatch(/population is 1/);
+    const roomless = evolveDesigns(SPACE, { ...INPUT, site: { ...SAMPLE_SITE, rooms: [], places: [] } }, EVOLVE);
+    expect(roomless).toEqual({ ok: false, problems: ["The site has no room for the new machines."] });
   });
 });

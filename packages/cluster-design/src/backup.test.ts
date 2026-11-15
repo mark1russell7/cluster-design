@@ -4,9 +4,11 @@ import { describe, expect, it } from "vitest";
 import {
   backupSpace,
   BACKUP_FORMAT,
+  BACKUP_RULES,
   checkBackup,
   measureBackup,
   readBackup,
+  SOURCE_LOAD_LOW,
   type Backup,
   type BackupMeasureValue,
   type BackupSource,
@@ -249,6 +251,28 @@ describe("checkBackup", () => {
     };
     expect(loadVerdict()).toBe("breaks");
     expect(loadVerdict(1)).toBe("fits");
+  });
+});
+
+describe("the rule of the low end", () => {
+  it("tells if a source fits at the low end of its loads, when the options give the rule", () => {
+    // The modem and the router draw 16 W at their low end and 24 W at their high end.
+    const LOW: BackupSource = { ...SMALL, id: "low", continuousShare: 1 };
+    const TINY: BackupSource = { ...SMALL, id: "tiny", rated: W(12), continuousShare: 1 };
+    const result = checkBackup({ ...BACKUP, sources: [UPS, LOW, TINY] }, { rules: [...BACKUP_RULES, SOURCE_LOAD_LOW] });
+    if (!result.ok) throw new Error(result.problems.join("\n"));
+    const verdict = (source: string, rule: string) => result.findings.find((finding) => finding.source === source && finding.rule === rule)?.verdict;
+    expect(["ups", "low", "tiny"].map((source) => [verdict(source, "source-load"), verdict(source, "source-load-low")])).toEqual([
+      ["fits", "fits"],
+      ["breaks", "fits"],
+      ["breaks", "breaks"],
+    ]);
+  });
+
+  it("is not a rule of the default check", () => {
+    const result = checkBackup(BACKUP);
+    if (!result.ok) throw new Error(result.problems.join("\n"));
+    expect(result.findings.some((finding) => finding.rule === SOURCE_LOAD_LOW.id)).toBe(false);
   });
 });
 
