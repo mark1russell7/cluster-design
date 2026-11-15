@@ -1,11 +1,12 @@
 /**
- * The formulas of a machine, as Vex programs: its power at idle and under load, its power from the wall, its
- * noise and its capacity. Each program evaluates at the key of a machine in the tree of a design. The measures and
+ * The formulas of a machine, as Vex programs. They give its power at idle and under load, its power from the wall,
+ * its noise and its capacity. They also give the share of its work lines. Each program evaluates at the key of a machine in the tree of a design. The measures and
  * the fit rules read the same programs, so a measure and a rule always agree.
  */
 import { app, lit, ref, v, type Expr } from "@mark1russell7/vex";
 import { PART_CLASS_NAMES, PART_CLASSES, type PartClass } from "./parts.ts";
-import { linesOf, linesOfAny, the, totalOfCount } from "./program.ts";
+import { linesOf, linesOfAny, the, total, totalOfCount, workLines, workLinesOf } from "./program.ts";
+import type { WorkClass } from "./variables.ts";
 
 /** The name of the variable that holds the load limit of the power supply, as a ratio of its output. */
 export const PSU_LOAD = "psuLoad";
@@ -78,14 +79,57 @@ export const MEMORY: Expr = totalOfCount(linesOf("memory"), app("multiply", ref(
 /** This program gives the storage of a machine in GB. */
 export const STORAGE: Expr = totalOfCount(linesOf("storage"), ref("capacity"));
 
-/** This expression gives the jobs that fit in a resource: the resource less the reserve, divided by the size of a job. */
-const jobsIn = (resource: Expr, reserve: string, job: string): Expr => app("divide", app("subtract", resource, v(reserve)), v(job));
+/** This program gives the threads of the work lines of a machine: the sum of the count times the threads of one unit. */
+export const WORK_THREADS: Expr = totalOfCount(workLines, ref("threads"));
+
+/** This program gives the memory of the work lines of a machine in GiB: the sum of the count times the memory of one unit. */
+export const WORK_MEMORY: Expr = totalOfCount(workLines, ref("memory"));
+
+/** This expression gives the free amount of a resource: the resource less the reserve and less the share of the work lines. */
+const freeOf = (resource: Expr, reserve: string, work: Expr): Expr => app("subtract", app("subtract", resource, v(reserve)), work);
+
+/**
+ * This program gives the free threads of a machine: the threads of the processors less `reserveThreads` and less the
+ * threads of the work lines. A value less than 0 tells that the work lines take too many threads.
+ */
+export const FREE_THREADS: Expr = freeOf(THREADS, RESERVE_THREADS, WORK_THREADS);
+
+/**
+ * This program gives the free memory of a machine in GiB: the memory less `reserveMemory` and less the memory of the
+ * work lines. A value less than 0 tells that the work lines take too much memory.
+ */
+export const FREE_MEMORY: Expr = freeOf(MEMORY, RESERVE_MEMORY, WORK_MEMORY);
+
+/**
+ * This function gives the program of the units of one size that fit in the free share of a machine. The count is the
+ * smaller quotient of the free threads and the free memory by the size, rounded down, and not less than 0.
+ *
+ * @param threads - The threads of one unit
+ * @param memory - The memory of one unit in GiB
+ * @returns The program of the count
+ */
+export function unitsInFree(threads: Expr, memory: Expr): Expr {
+  return app("floor", app("max", lit(0), app("min", app("divide", FREE_THREADS, threads), app("divide", FREE_MEMORY, memory))));
+}
 
 /**
  * This program gives the CI jobs that a machine runs at one time. The system keeps `reserveThreads` and
- * `reserveMemory`. Each job takes `jobThreads` and `jobMemory`. The count is the smaller quotient, rounded down, and not less than 0.
+ * `reserveMemory`, and the work lines take their share. Each job takes `jobThreads` and `jobMemory` of the rest.
+ * The count is the smaller quotient, rounded down, and not less than 0.
  */
-export const RUNNER_SLOTS: Expr = app(
-  "floor",
-  app("max", lit(0), app("min", jobsIn(THREADS, RESERVE_THREADS, JOB_THREADS), jobsIn(MEMORY, RESERVE_MEMORY, JOB_MEMORY))),
-);
+export const RUNNER_SLOTS: Expr = unitsInFree(v(JOB_THREADS), v(JOB_MEMORY));
+
+/** This function gives the program of the units of one class of work on a machine: the sum of the counts of its work lines. */
+export const workUnits = (id: string): Expr => total(workLinesOf(id), ref("count"));
+
+/**
+ * This function gives the program of the capacity of a machine for one class of work. The capacity is the units of
+ * its work lines, plus the units of the class that fit in the free share. The share of the other work lines stays the same.
+ *
+ * @param work - The class of work
+ * @returns The program of the count
+ */
+export function workCapacity(work: WorkClass): Expr {
+  return app("add", workUnits(work.id), unitsInFree(lit(work.threads), lit(work.memory)));
+}
+

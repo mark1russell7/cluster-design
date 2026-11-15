@@ -8,7 +8,7 @@ import { designTree, type Machine } from "./machine.ts";
 import type { Part } from "./parts.ts";
 import { variablesOf, type DesignOptions } from "./variables.ts";
 
-export { DEFAULT_JOB, DEFAULT_PSU_LOAD, DEFAULT_RESERVE, type DesignOptions, type Share } from "./variables.ts";
+export { DEFAULT_JOB, DEFAULT_PSU_LOAD, DEFAULT_RESERVE, type DesignOptions, type Share, type WorkClass } from "./variables.ts";
 
 /** This record is the result of the program of one item at one machine. */
 export interface Evaluation<T> {
@@ -30,7 +30,7 @@ const DOMAINS = [NumDomain, BoolDomain, TextDomain];
  * @param machines - The machines of the design
  * @param catalog - The parts by their ids
  * @param items - The items, each with a Vex program
- * @param options - The load limit of a power supply, the size of a job and the reserve of a machine
+ * @param options - The load limit of a power supply, the size of a job, the reserve of a machine and the work classes
  * @returns The evaluations in the order of the machines and the items, or the problems of the input
  */
 export function evaluateDesign<T extends { readonly program: Expr }>(
@@ -44,7 +44,7 @@ export function evaluateDesign<T extends { readonly program: Expr }>(
   const problems = [...design.problems, ...cost.problems];
   if (problems.length > 0) return { ok: false, problems };
   const vars = { ...design.vars, ...cost.vars };
-  const tree = designTree(machines, catalog);
+  const tree = designTree(machines, catalog, options.work);
   if (!tree.ok) return tree;
   const evaluations: Evaluation<T>[] = [];
   for (const machine of machines) {
