@@ -201,6 +201,24 @@ The fit rules give the constraints of the space. Each constraint has its reason 
 
 The derivation reads only the classes with one slot, because there each machine has the same lines of the rule. A property test holds that each rule reads only the lines of its classes. A second property test holds that each config that a constraint removes breaks a fit rule. Thus a constraint removes only the designs that the check also refuses. The option `derive: false` gives the space with no constraint from the rules.
 
+### The limits of the site
+
+The option `site` gives the site and its fixed machines. Then the rules of the site lower the max of the copies. Each limit has its reason in `limits`.
+
+| Rule | Free count | Each new machine takes |
+| --- | --- | --- |
+| `room-places` | the free places of the rooms | one place |
+| `circuit-plugs` | the free sockets of the circuits | the min count of its power supplies |
+
+Each new machine goes to one room and one circuit. When the new machines need more than the free count, a room or a circuit gets more than it has. Thus a count above the limit breaks the rule at each placement. A full room or circuit adds 0 to the free count.
+
+```ts
+const made = designSpace(catalog, { site: { site, fixed } });
+made.value.limits; // [{ rule: "room-places", free: 2, each: 1, max: 2 }, ...]
+```
+
+A property test over random sites holds two claims. First, a count above the max breaks the rule of the limit, with each placement. Second, `fill` places the max with no break of these rules, when no room or circuit is already full. A site with no room for one copy gives a problem. Only a rule in the list `siteRules` gives a limit.
+
 ### The check of a config
 
 `designOf` makes the design of a config. The new machines get the ids `new-1`, `new-2` and on, and the option `prefix` changes the start of the id. The rule of the placement puts each new machine on the site:
