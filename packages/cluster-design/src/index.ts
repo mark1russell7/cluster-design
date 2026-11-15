@@ -14,3 +14,4 @@ export * from "./measure.ts";
 export * from "./site.ts";
 export * from "./site-formulas.ts";
 export * from "./site-check.ts";
+export * from "./design-space.ts";
