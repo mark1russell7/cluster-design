@@ -5,6 +5,8 @@
  * each circuit, the heat and the noise of each room, and the cost of the electricity.
  *
  * A sweep of the design space gives the designs that keep each rule, and their Pareto front.
+ *
+ * The programs of backup power give the minutes and the charges of each battery of a site, and the rank of each battery.
  */
 export * from "./parts.ts";
 export * from "./machine.ts";
@@ -18,3 +20,4 @@ export * from "./site-formulas.ts";
 export * from "./site-check.ts";
 export * from "./design-space.ts";
 export * from "./sweep.ts";
+export * from "./backup.ts";

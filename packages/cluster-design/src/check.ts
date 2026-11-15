@@ -2,7 +2,7 @@
  * The check of a design: each fit rule at each machine. Each finding has a verdict. A rule that cannot read its
  * parts has the verdict `unread`. It does not get the verdict `fits`.
  */
-import type { Result } from "@mark1russell7/vex";
+import type { Result, VexError } from "@mark1russell7/vex";
 import { evaluateDesign, type DesignOptions } from "./evaluate.ts";
 import type { Machine } from "./machine.ts";
 import type { Part } from "./parts.ts";
@@ -31,9 +31,19 @@ export type CheckResult =
   | { readonly ok: true; readonly findings: readonly Finding[] }
   | { readonly ok: false; readonly problems: readonly string[] };
 
+/**
+ * This function gives the text of an error of a program: its code and its message. An op with two or more failed
+ * arguments gives an error with a cause for each of them. The text tells each cause after a colon.
+ */
+export function detailOf(error: VexError): string {
+  const head = `${error.code} ${error.message}`;
+  const causes = error.causes ?? [];
+  return causes.length === 0 ? head : `${head}: ${causes.map(detailOf).join(", ")}`;
+}
+
 /** This function gives the verdict of the result of a rule program. */
 export function verdictOf(result: Result<unknown>): { readonly verdict: Verdict; readonly detail?: string } {
-  if (!result.ok) return { verdict: "unread", detail: `${result.error.code} ${result.error.message}` };
+  if (!result.ok) return { verdict: "unread", detail: detailOf(result.error) };
   if (result.value === true) return { verdict: "fits" };
   if (result.value === false) return { verdict: "breaks" };
   return { verdict: "unread", detail: `The program gave ${JSON.stringify(result.value)}, not true or false.` };
