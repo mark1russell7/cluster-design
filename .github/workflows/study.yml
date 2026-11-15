@@ -18,6 +18,11 @@ on:
 permissions:
   contents: read
 
+# Two runs on one commit wait for each other, so each run has the whole runner.
+concurrency:
+  group: study-${{ github.event_name == 'pull_request' && github.ref || github.sha }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
 defaults:
   run:
     shell: bash
