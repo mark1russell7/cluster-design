@@ -96,7 +96,7 @@ describe("the design space", () => {
     expect(grid.length).toBeGreaterThan(0);
     const order = [...CATALOG.values()].filter((part) => part.class === "storage").map((part) => part.id);
     for (const config of grid) {
-      const first = config.stages.storage?.option;
+      const first = config.stages["storage"]?.option;
       const second = config.stages["storage-2"]?.option;
       if (first === undefined || second === undefined) continue;
       expect(order.indexOf(first)).toBeLessThan(order.indexOf(second));
@@ -186,7 +186,8 @@ describe("the design of a config", () => {
     };
     expect(placesOf(2, "fill")).toEqual(["new-1:room-b:circuit-a", "new-2:room-b:circuit-a"]);
     expect(placesOf(2, "spread")).toEqual(["new-1:room-b:circuit-a", "new-2:room-b:circuit-b"]);
-    expect(placesOf(3, "fill")).toEqual(["new-1:room-b:circuit-a", "new-2:room-b:circuit-a", "new-3:room-a:circuit-a"]);
+    // Circuit-a has 4 sockets and 2 fixed machines, so the third copy goes to circuit-b. Room-b is full, so it goes to room-a.
+    expect(placesOf(3, "fill")).toEqual(["new-1:room-b:circuit-a", "new-2:room-b:circuit-a", "new-3:room-a:circuit-b"]);
   });
 
   it("gives problems for a config that the space refuses, and for the id of a fixed machine", () => {
