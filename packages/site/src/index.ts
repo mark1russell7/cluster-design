@@ -19,6 +19,8 @@ import {
 } from "./demo.ts";
 import { siteHashOf, siteStateOf } from "./site-demo.ts";
 import { mountSite } from "./site-page.ts";
+import { viewHashOf, viewStateOf } from "./design-view.ts";
+import { mountDesigns } from "./design-page.ts";
 
 setupTheme(byId<HTMLButtonElement>("theme"), "theme");
 
@@ -173,15 +175,29 @@ function draw(result: DemoResult): void {
   byId("preset-sentence").textContent = PRESETS.find((preset) => preset.id === presetId)?.sentence ?? "Your own machine.";
 }
 
-// The site part follows the machine of the configurator. The hash holds the machine, then the site.
+// The site part follows the machine of the configurator. The hash holds the machine, the site, then the view.
 const site = mountSite({
   machine: () => machineOf(state),
   initial: siteStateOf(location.hash),
+  changed: () => {
+    writeHash();
+    designs.update();
+  },
+});
+
+// The view of the design space reads the site and the load limit above, and it opens a design in the builder.
+const designs = mountDesigns({
+  inputs: () => ({ demo: state, site: site.state() }),
+  initial: viewStateOf(location.hash),
   changed: () => writeHash(),
+  open: (hash) => {
+    location.hash = hash;
+    byId("demo-title").scrollIntoView({ behavior: "smooth", block: "start" });
+  },
 });
 
 function writeHash(): void {
-  history.replaceState(null, "", `${hashOf(state)}&${siteHashOf(site.state())}`);
+  history.replaceState(null, "", `${hashOf(state)}&${siteHashOf(site.state())}&${viewHashOf(designs.state())}`);
 }
 
 function update(next: DemoState): void {
@@ -189,6 +205,7 @@ function update(next: DemoState): void {
   writeHash();
   draw(resultOf(state));
   site.draw();
+  designs.update();
 }
 
 window.addEventListener("hashchange", () => {
@@ -198,6 +215,7 @@ window.addEventListener("hashchange", () => {
   presetId = undefined;
   draw(resultOf(state));
   site.draw(siteStateOf(location.hash));
+  designs.update(viewStateOf(location.hash));
 });
 
 draw(resultOf(state));
