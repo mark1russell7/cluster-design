@@ -279,9 +279,9 @@ export const BACKUP_MEASURES: readonly BackupMeasure[] = [
   { id: "charges-ceiling", sentence: "The most full charges of the batteries of the carried loads.", unit: "count", program: BACKUP_CHARGES_CEILING },
   { id: "charges", sentence: "The estimate of the full charges of the batteries of the carried loads.", unit: "count", program: BACKUP_CHARGES },
   { id: "price-per-minute", sentence: "The price over the most minutes at the most power of the loads.", unit: "USD/min", program: BACKUP_PRICE_PER_MINUTE },
-  { id: "price-per-charge", sentence: "The price over the most full charges.", unit: "USD/charge", program: BACKUP_PRICE_PER_CHARGE },
-  { id: "rank-by-minutes", sentence: "The rank by the most minutes at the most power of the loads, among the sources of the need.", unit: "rank", program: BACKUP_RANK_BY_MINUTES },
-  { id: "rank-by-charges", sentence: "The rank by the most full charges, among the sources of the need.", unit: "rank", program: BACKUP_RANK_BY_CHARGES },
+  { id: "price-per-charge", sentence: "The price over the most full charges.", unit: "USD/{charge}", program: BACKUP_PRICE_PER_CHARGE },
+  { id: "rank-by-minutes", sentence: "The rank by the most minutes at the most power of the loads, among the sources of the need.", unit: "{rank}", program: BACKUP_RANK_BY_MINUTES },
+  { id: "rank-by-charges", sentence: "The rank by the most full charges, among the sources of the need.", unit: "{rank}", program: BACKUP_RANK_BY_CHARGES },
 ];
 
 /** This type tells where a value of a source comes from: the input, the capacity or the runtime points. */

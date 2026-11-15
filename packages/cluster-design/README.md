@@ -367,9 +367,11 @@ The load limit of a source is its rated power times its continuous share. The de
 | `charges-ceiling` | count | `energy` over `charge`: the most full charges of the batteries of the loads. |
 | `charges` | count | The estimate: `energy` times `usable`, over `charge`. |
 | `price-per-minute` | USD/min | `price` over `ceiling-high`. |
-| `price-per-charge` | USD/charge | `price` over `charges-ceiling`. |
-| `rank-by-minutes` | rank | 1, plus the other sources of the need with a higher `ceiling-high`. |
-| `rank-by-charges` | rank | 1, plus the other sources of the need with a higher `charges-ceiling`. |
+| `price-per-charge` | USD/{charge} | `price` over `charges-ceiling`. |
+| `rank-by-minutes` | {rank} | 1, plus the other sources of the need with a higher `ceiling-high`. |
+| `rank-by-charges` | {rank} | 1, plus the other sources of the need with a higher `charges-ceiling`. |
+
+Each unit is a unit of `@mark1russell7/quantity`. A unit in braces, as `{rank}`, is a count with a name.
 
 A rank compares the sources of one need. Only a source that keeps the rule `source-plugs` gets a rank, and only these sources count. A source with no rank gets the text `none`. Equal scores get the same rank. The rank by minutes uses the ceiling, because the ceiling needs no runtime points.
 

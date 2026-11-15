@@ -1,13 +1,16 @@
 import { quantity } from "@mark1russell7/quantity";
 import fc from "fast-check";
 import { describe, expect, it } from "vitest";
+import { BACKUP_MEASURES } from "./backup.ts";
 import { checkDesign } from "./check.ts";
+import { MACHINE_COST_MEASURES, SITE_COST_MEASURES } from "./cost.ts";
 import type { Share } from "./evaluate.ts";
 import { NOISY_CLASSES, POWERED_CLASSES } from "./formulas.ts";
 import type { Machine } from "./machine.ts";
 import { MACHINE_MEASURES, measureDesign, type MeasureOptions } from "./measure.ts";
 import { PART_CLASSES, readCatalog, type Part } from "./parts.ts";
 import { SAMPLE_MACHINE, SAMPLE_PARTS } from "./sample.ts";
+import { SITE_MEASURES } from "./site-formulas.ts";
 
 const catalogOf = (parts: readonly Part[]): ReadonlyMap<string, Part> => {
   const read = readCatalog(parts);
@@ -55,8 +58,11 @@ describe("the formulas of the sample machine", () => {
     expect(measuresOf(SAMPLE_MACHINE, { job: { threads: 4, memory: 64 } })["runner-slots"]).toBe(0);
   });
 
-  it("give a unit of quantity to each measure", () => {
-    for (const measure of MACHINE_MEASURES) expect(() => quantity(1, measure.unit)).not.toThrow();
+  it("give a unit of quantity to each measure of each table", () => {
+    const tables = { MACHINE_MEASURES, MACHINE_COST_MEASURES, SITE_MEASURES, SITE_COST_MEASURES, BACKUP_MEASURES };
+    for (const [name, table] of Object.entries(tables)) {
+      for (const measure of table) expect(() => quantity(1, measure.unit), `${name} ${measure.id}`).not.toThrow();
+    }
   });
 
   it("refuse a job with no threads and a reserve less than 0", () => {
