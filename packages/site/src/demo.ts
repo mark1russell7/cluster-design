@@ -6,6 +6,8 @@ import {
   checkDesign,
   DEFAULT_JOB,
   DEFAULT_PSU_LOAD,
+  MACHINE_COST_MEASURES,
+  MACHINE_MEASURES,
   measureDesign,
   overall,
   PART_CLASSES,
@@ -18,7 +20,7 @@ import {
   type PartClass,
   type Verdict,
 } from "@mark1russell7/cluster-design";
-import { SAMPLE_MACHINE, SAMPLE_PARTS } from "@mark1russell7/cluster-design/sample";
+import { SAMPLE_MACHINE, SAMPLE_PARTS, SAMPLE_PRICES } from "@mark1russell7/cluster-design/sample";
 
 const read = readCatalog(SAMPLE_PARTS);
 if (!read.ok) throw new Error(read.problems.join(" "));
@@ -52,6 +54,7 @@ export const TILE_LABELS: Readonly<Record<string, string>> = {
   memory: "Memory",
   storage: "Storage",
   "runner-slots": `CI jobs of ${String(DEFAULT_JOB.threads)} threads and ${String(DEFAULT_JOB.memory)} GiB`,
+  price: "Price of the parts",
 };
 
 /** This function gives the text of the value of a measure, with its unit, or a dash for a value with no read. */
@@ -60,6 +63,7 @@ export function formatMeasure(value: MeasureValue): string {
   if (value.unit === "dBA") return `${value.value.toFixed(1)} dBA`;
   if (value.unit === "GB" && value.value >= 1000) return `${String(Math.round(value.value / 100) / 10)} TB`;
   if (value.unit === "count") return String(Math.round(value.value));
+  if (value.unit === "USD") return `$${String(Math.round(value.value))}`;
   return `${String(Math.round(value.value))} ${value.unit}`;
 }
 
@@ -144,7 +148,11 @@ export interface DemoResult {
 export function resultOf(state: DemoState): DemoResult {
   const machine = machineOf(state);
   const checked = checkDesign([machine], CATALOG, { psuLoad: state.psuLoad });
-  const measured = measureDesign([machine], CATALOG, { psuLoad: state.psuLoad });
+  const measured = measureDesign([machine], CATALOG, {
+    psuLoad: state.psuLoad,
+    cost: { prices: SAMPLE_PRICES },
+    measures: [...MACHINE_MEASURES, ...MACHINE_COST_MEASURES],
+  });
   if (!checked.ok) throw new Error(checked.problems.join(" "));
   if (!measured.ok) throw new Error(measured.problems.join(" "));
   const value = (id: string) => measured.values.find((entry) => entry.measure === id)?.value;

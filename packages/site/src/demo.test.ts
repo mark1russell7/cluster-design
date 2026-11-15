@@ -1,5 +1,5 @@
 import { FIT_RULES } from "@mark1russell7/cluster-design";
-import { SAMPLE_PARTS } from "@mark1russell7/cluster-design/sample";
+import { SAMPLE_PARTS, SAMPLE_PRICES } from "@mark1russell7/cluster-design/sample";
 import { describe, expect, it } from "vitest";
 import {
   factsOf,
@@ -85,8 +85,21 @@ describe("the demo", () => {
 
   it("gives the text of each tile of the measures", () => {
     const measures = new Map(resultOf(preset("fits")).measures.map((value) => [value.measure, formatMeasure(value)]));
-    expect(Object.keys(TILE_LABELS).map((id) => measures.get(id))).toEqual(["43 W", "181 W", "54 W", "34.8 dBA", "16", "64 GiB", "9 TB", "3"]);
+    expect(Object.keys(TILE_LABELS).map((id) => measures.get(id))).toEqual(["43 W", "181 W", "54 W", "34.8 dBA", "16", "64 GiB", "9 TB", "3", "$959"]);
     expect(formatMeasure({ machine: "m", measure: "noise", unit: "dBA", detail: "#NUM!" })).toBe("–");
     expect(formatMeasure({ machine: "m", measure: "storage", unit: "GB", value: 512 })).toBe("512 GB");
+  });
+});
+
+describe("the price of the demo machine", () => {
+  it("gives the price of the parts of the machine from the sample prices", () => {
+    const price = resultOf(preset("fits")).measures.find((value) => value.measure === "price");
+    expect(price?.value).toBe(959);
+    expect(price === undefined ? "" : formatMeasure(price)).toBe("$959");
+    expect(TILE_LABELS["price"]).toBe("Price of the parts");
+  });
+
+  it("has a sample price for each part of the catalog", () => {
+    expect(new Set(SAMPLE_PRICES.prices.map((line) => line.part))).toEqual(new Set(SAMPLE_PARTS.map((part) => part.id)));
   });
 });

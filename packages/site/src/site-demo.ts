@@ -7,13 +7,16 @@ import {
   checkSite,
   measureSite,
   overall,
+  SITE_COST_MEASURES,
   SITE_FORMAT,
+  SITE_MEASURES,
   type Machine,
   type Site,
   type SiteFinding,
   type SiteMeasureValue,
   type Verdict,
 } from "@mark1russell7/cluster-design";
+import { SAMPLE_PRICES } from "@mark1russell7/cluster-design/sample";
 import { CATALOG } from "./demo.ts";
 
 /** The most copies of the demo machine in the site. */
@@ -33,6 +36,7 @@ export const SITE_BOUNDS = {
   heatLimit: { min: 0, max: 5000, step: 50 },
   noiseLimit: { min: 20, max: 80, step: 1 },
   price: { min: 0.01, max: 1, step: 0.01 },
+  busy: { min: 0, max: 1, step: 0.05 },
 } as const;
 
 /** This record is one circuit of the demo: its voltage in volts, its breaker in amperes, its free sockets and its other load in watts. */
@@ -56,10 +60,14 @@ export interface CopyPlace {
   readonly room: 0 | 1;
 }
 
-/** This record is the state of the site: the place of each copy, the price of electricity in USD/kWh, the circuits and the rooms. */
+/**
+ * This record is the state of the site: the place of each copy, the price of electricity, the busy share, the circuits
+ * and the rooms. The price is in USD/kWh. The busy share is the share of the time that each machine takes its most power.
+ */
 export interface SiteState {
   readonly places: readonly CopyPlace[];
   readonly price: number;
+  readonly busy: number;
   readonly circuits: readonly [CircuitState, CircuitState];
   readonly rooms: readonly [RoomState, RoomState];
 }
@@ -81,6 +89,7 @@ export const SAMPLE_SITE_STATE: SiteState = {
     { circuit: 0, room: 0 },
   ],
   price: 0.15,
+  busy: 0.25,
   circuits: [
     { voltage: 120, breaker: 15, sockets: 4, otherLoad: 200 },
     { voltage: 120, breaker: 15, sockets: 2, otherLoad: 0 },
@@ -161,6 +170,10 @@ export interface SiteResult {
   readonly idlePower?: number;
   readonly cost?: number;
   readonly idleCost?: number;
+  readonly purchase?: number;
+  readonly energyCost?: number;
+  readonly totalCost?: number;
+  readonly slotCost?: number;
   readonly circuits: readonly CircuitView[];
   readonly rooms: readonly RoomView[];
 }
@@ -168,12 +181,21 @@ export interface SiteResult {
 const withValue = <K extends string>(key: K, value: number | undefined): Partial<Record<K, number>> =>
   value === undefined ? {} : ({ [key]: value } as Record<K, number>);
 
-/** This function checks the copies of a machine in the site of a state with each site rule, and gives the measures of the site. */
+/** The months of the cost of the demo: the default horizon of the package. */
+export const COST_MONTHS = 36;
+
+/**
+ * This function checks the copies of a machine in the site of a state with each site rule, and gives the measures of the
+ * site. The cost uses the sample prices, and the visitor buys each copy.
+ */
 export function siteResultOf(machine: Machine, state: SiteState): SiteResult {
   const site = siteOf(state);
   const machines = copiesOf(machine, state);
   const checked = checkSite(site, machines, CATALOG);
-  const measured = measureSite(site, machines, CATALOG);
+  const measured = measureSite(site, machines, CATALOG, {
+    cost: { prices: SAMPLE_PRICES, busy: state.busy },
+    measures: [...SITE_MEASURES, ...SITE_COST_MEASURES],
+  });
   if (!checked.ok) throw new Error(checked.problems.join(" "));
   if (!measured.ok) throw new Error(measured.problems.join(" "));
   const value = (id: string, measure: string) => measured.values.find((entry) => entry.id === id && entry.measure === measure)?.value;
@@ -220,6 +242,10 @@ export function siteResultOf(machine: Machine, state: SiteState): SiteResult {
     ...withValue("idlePower", value("site", "idle-power")),
     ...withValue("cost", value("site", "cost")),
     ...withValue("idleCost", value("site", "idle-cost")),
+    ...withValue("purchase", value("site", "purchase")),
+    ...withValue("energyCost", value("site", "energy-cost")),
+    ...withValue("totalCost", value("site", "total-cost")),
+    ...withValue("slotCost", value("site", "slot-cost")),
     circuits,
     rooms,
   };
@@ -286,7 +312,7 @@ export function siteHashOf(state: SiteState): string {
   const places = state.places.map((place) => `${place.circuit === 1 ? "b" : "a"}${place.room === 1 ? "b" : "a"}`).join(".");
   const circuits = state.circuits.map((c, index) => `c${String(index)}=${[c.voltage, c.breaker, c.sockets, c.otherLoad].join(".")}`);
   const rooms = state.rooms.map((r, index) => `r${String(index)}=${[r.places, r.heatLimit, r.noiseLimit].join(".")}`);
-  return [`at=${places}`, `price=${String(Math.round(state.price * 100))}`, ...circuits, ...rooms].join("&");
+  return [`at=${places}`, `price=${String(Math.round(state.price * 100))}`, `busy=${String(Math.round(state.busy * 100))}`, ...circuits, ...rooms].join("&");
 }
 
 /** This function reads a site state from the hash of the address. A hash with no pair `at` gives no state. */
@@ -321,7 +347,9 @@ export function siteStateOf(hash: string): SiteState | undefined {
   };
   const cents = Number.parseInt(pairs.get("price") ?? "", 10);
   const price = clamp(or(cents, SAMPLE_SITE_STATE.price * 100) / 100, SITE_BOUNDS.price);
-  return { places, price, circuits: [circuitOf(0), circuitOf(1)], rooms: [roomOf(0), roomOf(1)] };
+  const percent = Number.parseInt(pairs.get("busy") ?? "", 10);
+  const busy = clamp(or(percent, SAMPLE_SITE_STATE.busy * 100) / 100, SITE_BOUNDS.busy);
+  return { places, price, busy, circuits: [circuitOf(0), circuitOf(1)], rooms: [roomOf(0), roomOf(1)] };
 }
 
 /** This function gives an amount of money in US dollars, with cents under 100 dollars. */

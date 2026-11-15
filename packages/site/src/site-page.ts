@@ -3,13 +3,14 @@
  * configurator, two circuits and two rooms. Each change of the visitor gives a new state, and the page checks the site
  * again. The controls stay in the page between two draws, so a slider keeps its drag.
  */
-import { SITE_MEASURES, SITE_RULES, type Machine, type SiteFinding, type Verdict } from "@mark1russell7/cluster-design";
+import { SITE_COST_MEASURES, SITE_MEASURES, SITE_RULES, type Machine, type SiteFinding, type Verdict } from "@mark1russell7/cluster-design";
 import { byId, h } from "@mark1russell7/site-pages/chrome";
 import { headlineOf, VERDICT_TEXT } from "./demo.ts";
 import {
   BREAKERS,
   CIRCUITS,
   copyId,
+  COST_MONTHS,
   formatUsd,
   MAX_COPIES,
   ROOMS,
@@ -48,7 +49,8 @@ interface Bounds {
 }
 
 const programs = new Map(SITE_RULES.map((rule) => [rule.id, JSON.stringify(rule.program, null, 1)]));
-const sentences = new Map(SITE_MEASURES.map((measure) => [measure.id, measure.sentence]));
+const sentences = new Map([...SITE_MEASURES, ...SITE_COST_MEASURES].map((measure) => [measure.id, measure.sentence]));
+const years = `${String(COST_MONTHS / 12)} years`;
 const labels = new Map<string, string>([...CIRCUITS, ...ROOMS].map(({ id, label }) => [id, label]));
 const LETTERS = ["A", "B"] as const;
 
@@ -189,13 +191,18 @@ export function mountSite(options: SitePageOptions): SitePage {
     { measure: "idle-power", label: "Power at idle", text: (result: SiteResult) => watts(result.idlePower) },
     { measure: "cost", label: "A month at full power", text: (result: SiteResult) => formatUsd(result.cost) },
     { measure: "idle-cost", label: "A month at idle", text: (result: SiteResult) => formatUsd(result.idleCost) },
+    { measure: "purchase", label: "Parts to buy", text: (result: SiteResult) => formatUsd(result.purchase) },
+    { measure: "energy-cost", label: `Power for ${years}`, text: (result: SiteResult) => formatUsd(result.energyCost) },
+    { measure: "total-cost", label: `Total for ${years}`, text: (result: SiteResult) => formatUsd(result.totalCost) },
+    { measure: "slot-cost", label: `One CI slot for ${years}`, text: (result: SiteResult) => formatUsd(result.slotCost) },
   ].map((tile) => {
     const value = h("dd");
     byId("site-tiles").append(h("div", { class: "tile", title: sentences.get(tile.measure) ?? "" }, h("dt", {}, tile.label), value));
     return { value, text: tile.text };
   });
   const price = slider("Price of electricity", { min: 1, max: 100, step: 1 }, (cents) => `${String(cents)} ¢/kWh`, (cents) => change({ ...state, price: cents / 100 }));
-  byId("site-summary").append(price.root);
+  const busy = slider("Time at full power", { min: 0, max: 100, step: 5 }, (percent) => `${String(percent)}%`, (percent) => change({ ...state, busy: percent / 100 }));
+  byId("site-summary").append(price.root, busy.root);
 
   // The machines: a count, and the circuit and the room of each copy.
   const count = stepper("machine", { min: 0, max: MAX_COPIES, step: 1 }, (value) => {
@@ -333,6 +340,7 @@ export function mountSite(options: SitePageOptions): SitePage {
       tile.value.textContent = tile.text(result);
     });
     price.set(Math.round(state.price * 100));
+    busy.set(Math.round(state.busy * 100));
     count.set(state.places.length);
     copyRows.forEach(({ row, circuit, room }, index) => {
       const place = state.places[index];
