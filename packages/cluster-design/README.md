@@ -1,6 +1,6 @@
 # @mark1russell7/cluster-design
 
-The design of a computer cluster as math. This package has the records of the parts, the machines of a design, and the fit rules that tell which parts fit in one machine. It also has the formulas of a machine: its power, its heat, its noise and its capacity. A site holds the machines. Its rules and measures give the load of each circuit, the heat and the noise of each room, and the cost of the electricity.
+The design of a computer cluster as math. This package has the records of the parts, the machines of a design, and the fit rules that tell which parts fit in one machine. It also has the formulas of a machine: its power, its heat, its noise and its capacity. A site holds the machines. Its rules and measures give the load of each circuit, the heat and the noise of each room, and the cost of the electricity. The programs of backup power give the minutes and the charges of each battery of a site.
 
 The package is private. It is not on npm.
 
@@ -257,6 +257,73 @@ swept.value.run.rows.filter((row) => row.front); // the designs on the Pareto fr
 The option `objectives` gives other objectives, each with a name, a goal and the id of a measure. A measure of a circuit or a room gives the worst value of its keys. The worst value is the max for the goal `min`, and the min for the goal `max`. The size of a job, the reserve of a machine and the load limits go to the check and to the measures.
 
 A property test over random samples holds that each row has the verdict of `checkDesignConfig`.
+
+## Backup power
+
+A **backup record** has the loads and the sources of the backup power of a site. A load is a device that needs power when the power of the wall stops, for example a modem, a router or a phone. A source is a battery that carries some of the loads, for example a UPS, a DC battery or a power bank. The record is input data. This package has no backup record of its own.
+
+| Record | Fields |
+| --- | --- |
+| backup | `format` (`backup/1`), `loads` and `sources` |
+| load | `id`, `low` (W, the power at its low end), `high` (W, its most power), `plugs` (the plugs that the load takes) and `charge` (Wh, the battery of the load, if it has one) |
+| source | `id`, `need`, `rated` (W), `outputs` (the plugs of its outputs), `carries` (the ids of its loads), and `energy` (Wh) or `capacity` (`charge` in mAh and `voltage` in V) |
+| source, optional | `usable` (the share of the energy that reaches the loads), `ownUse` (W, the power that the source uses itself), `points` (two runtime points of the maker), `continuousShare` and `price` (USD) |
+
+`readBackup` reads a backup record from data. An amount with a unit of a different kind is a problem, for example a load in watt-hours.
+
+```ts
+import { checkBackup, measureBackup, readBackup } from "@mark1russell7/cluster-design";
+
+const backup = readBackup(data); // the backup record as data, from a private file
+if (!backup.ok) throw new Error(backup.problems.join("\n"));
+
+const check = checkBackup(backup.value); // the findings of each source
+const measures = measureBackup(backup.value); // the sources after the calibration, and the value of each measure
+```
+
+### The calibration
+
+The model of a source is `t = 60 E u / (p + i)`. A source holds `t` minutes at the load `p` watts. `E` is the energy of its battery in watt-hours, `u` is its usable share and `i` is its own use in watts. Two runtime points of the maker, `(p1, t1)` and `(p2, t2)` with `p1 < p2`, give the two values:
+
+- The own use is `i = (t2 p2 - t1 p1) / (t1 - t2)`, and not less than 0.
+- The usable share is `u = t1 (p1 + i) / 60 / E`.
+
+The energy comes from the capacity when the source gives no energy: the charge in ampere-hours times the voltage. A value of the input comes before a value of the calibration. The field `basis` of each source tells where each of the three values comes from: `input`, `capacity` or `points`. A property test holds that the calibration gives back the values of the model.
+
+### The rules of backup power
+
+| Rule | The sentence that it holds |
+| --- | --- |
+| `source-load` | The most power of the carried loads is not more than the load limit of the source. |
+| `source-plugs` | The source has an output for a plug of each carried load. |
+| `usable-share` | The usable share of the battery is more than 0 and not more than 1. |
+
+The load limit of a source is its rated power times its continuous share. The default share is 0.8, so the rated power is 1.25 times the load. A source that gives its rated power for hours, for example a power bank, has the share 1. The option `continuousShare` sets the share of each source that does not give it.
+
+### The measures of backup power
+
+| Measure | Unit | Value |
+| --- | --- | --- |
+| `load-low` | W | The sum of the `low` of the carried loads. |
+| `load-high` | W | The sum of the `high` of the carried loads. |
+| `limit` | W | `rated` times the continuous share. |
+| `ceiling-high` | min | `energy` over `load-high`, times 60. All of the energy reaches the loads, so no source holds longer. |
+| `ceiling-low` | min | `energy` over `load-low`, times 60. |
+| `minutes-high` | min | The estimate: `energy` times `usable`, over `load-high` plus `ownUse`, times 60. |
+| `minutes-low` | min | The estimate at `load-low`. |
+| `charge` | Wh | The sum of the `charge` of the carried loads. |
+| `charges-ceiling` | count | `energy` over `charge`: the most full charges of the batteries of the loads. |
+| `charges` | count | The estimate: `energy` times `usable`, over `charge`. |
+| `price-per-minute` | USD/min | `price` over `ceiling-high`. |
+| `price-per-charge` | USD/charge | `price` over `charges-ceiling`. |
+| `rank-by-minutes` | rank | 1, plus the other sources of the need with a higher `ceiling-high`. |
+| `rank-by-charges` | rank | 1, plus the other sources of the need with a higher `charges-ceiling`. |
+
+A rank compares the sources of one need. Only a source that keeps the rule `source-plugs` gets a rank, and only these sources count. A source with no rank gets the text `none`. Equal scores get the same rank. The rank by minutes uses the ceiling, because the ceiling needs no runtime points.
+
+A property test holds the rank against the measure `ceiling-high`. Two more hold that the order of the input and the scale of the energy change no value.
+
+A measure that the program cannot give has no value. Its field `detail` tells the reason, with each cause of the error. For example, a source with no usable share has no estimate.
 
 ## Units
 

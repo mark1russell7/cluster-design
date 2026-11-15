@@ -3,6 +3,7 @@
  * measure and a rule always agree.
  */
 import type { Expr, Result } from "@mark1russell7/vex";
+import { detailOf } from "./check.ts";
 import { evaluateDesign, type DesignOptions } from "./evaluate.ts";
 import type { Machine } from "./machine.ts";
 import type { Part } from "./parts.ts";
@@ -70,7 +71,7 @@ export type MeasureResult =
 
 /** This function gives the number of the result of a measure program, or the reason that it has no number. */
 export function amountOf(result: Result<unknown>): { readonly value?: number; readonly detail?: string } {
-  if (!result.ok) return { detail: `${result.error.code} ${result.error.message}` };
+  if (!result.ok) return { detail: detailOf(result.error) };
   if (typeof result.value === "number" && Number.isFinite(result.value)) return { value: result.value };
   return { detail: `The program gave ${JSON.stringify(result.value)}, not a number.` };
 }
