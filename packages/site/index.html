@@ -113,6 +113,31 @@
     </div>
   </section>
 
+  <section class="demo designs" aria-labelledby="designs-title">
+    <div class="demo-head">
+      <h2 id="designs-title">Search the space of designs</h2>
+      <p class="note">The library draws machines from the parts above, with 1 to 4 copies on the site above. It checks and measures each design in a worker of your browser.</p>
+      <div class="view-controls" id="design-controls"></div>
+      <p class="view-status" id="design-status" aria-live="polite"></p>
+    </div>
+
+    <div class="design-board">
+      <section class="card design-chart" aria-labelledby="chart-title">
+        <h3 id="chart-title">Each design of the sample</h3>
+        <ul class="legend" id="design-legend"></ul>
+        <div class="chart" id="design-chart"></div>
+        <p class="tiles-note">No other design that fits is as good on both goals as a design of the front, and better on one. Choose a design to see its parts.</p>
+      </section>
+
+      <section class="card design-detail" id="design-detail" aria-live="polite"></section>
+
+      <section class="card design-front" aria-labelledby="front-title">
+        <h3 id="front-title">The front</h3>
+        <ol class="front-list" id="design-front"></ol>
+      </section>
+    </div>
+  </section>
+
   <section class="how" aria-labelledby="how-title">
     <h2 id="how-title">How it works</h2>
     <ol class="steps">
@@ -121,6 +146,7 @@
       <li><strong>A rule is a program.</strong> Each fit rule is a Vex program at a machine. A rule that cannot read a part gives no read, not a pass.</li>
       <li><strong>A measure is a program too.</strong> The power, the heat, the noise and the CI runner slots are Vex programs over the same tree. The rule of the power supply reads the program of the power, so the two always agree.</li>
       <li><strong>A site is input data.</strong> A site record gives the circuits, the rooms and the price of electricity. The rules of the site read the same programs of the power at each machine of a circuit or a room.</li>
+      <li><strong>A design space is data too.</strong> Each slot of a machine, the count of copies and the placement are the stages of a strategy space. A sweep checks and measures each design, and the front holds the designs that no other design beats.</li>
     </ol>
 <pre class="code"><code>import { checkDesign, overall, readCatalog } from "@mark1russell7/cluster-design";
 
