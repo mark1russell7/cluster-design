@@ -1,4 +1,5 @@
 import fc from "fast-check";
+import { uniformDouble } from "@mark1russell7/rigor-testkit/arbitrary";
 import { describe, expect, it } from "vitest";
 import { checkDesign } from "./check.ts";
 import { evaluateDesign } from "./evaluate.ts";
@@ -78,7 +79,7 @@ describe("the measures of a machine", () => {
 
   it("agree with the rule psu-load at each machine and each load limit", () => {
     fc.assert(
-      fc.property(machines, fc.double({ min: 0.05, max: 1, noNaN: true }), (design, psuLoad) => {
+      fc.property(machines, uniformDouble({ min: 0.05, max: 1 }), (design, psuLoad) => {
         const values = valuesOf(design, psuLoad);
         const checked = checkDesign(design, CATALOG, { psuLoad });
         if (!checked.ok) throw new Error(checked.problems.join(" "));

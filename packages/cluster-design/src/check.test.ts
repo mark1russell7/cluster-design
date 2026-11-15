@@ -1,6 +1,7 @@
 import { quantity, valueIn, type Quantity } from "@mark1russell7/quantity";
 import type { Expr } from "@mark1russell7/vex";
 import fc from "fast-check";
+import { uniformDouble } from "@mark1russell7/rigor-testkit/arbitrary";
 import { describe, expect, it } from "vitest";
 import { checkDesign, overall, verdictOf, type Finding } from "./check.ts";
 import { designTree, type Machine } from "./machine.ts";
@@ -227,7 +228,7 @@ describe("the properties", () => {
 
   it("do not break the load rule at a higher load limit when a lower one fits", () => {
     fc.assert(
-      fc.property(machines, fc.double({ min: 0.05, max: 1, noNaN: true }), fc.double({ min: 0, max: 1, noNaN: true }), (design, low, t) => {
+      fc.property(machines, uniformDouble({ min: 0.05, max: 1 }), uniformDouble({ min: 0, max: 1 }), (design, low, t) => {
         const high = low + (1 - low) * t;
         const load = (limit: number) => findingsOf(design, CATALOG, limit).filter((f) => f.rule === "psu-load").map((f) => f.verdict);
         load(low).forEach((verdict, index) => {

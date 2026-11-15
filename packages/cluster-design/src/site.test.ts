@@ -1,5 +1,6 @@
 import { quantity } from "@mark1russell7/quantity";
 import fc from "fast-check";
+import { uniformDouble } from "@mark1russell7/rigor-testkit/arbitrary";
 import { describe, expect, it } from "vitest";
 import type { Machine } from "./machine.ts";
 import { measureDesign } from "./measure.ts";
@@ -209,7 +210,7 @@ describe("the rules of a site", () => {
       fc.property(
         fc.integer({ min: 1, max: 40 }),
         fc.integer({ min: 0, max: 3000 }),
-        fc.double({ min: 0.05, max: 1, noNaN: true }),
+        uniformDouble({ min: 0.05, max: 1 }),
         (breaker, otherLoad, continuousLoad) => {
           const site = withCircuit(SAMPLE_SITE, 0, { breaker: quantity(breaker, "A"), otherLoad: quantity(otherLoad, "W") });
           const values = valuesOf(site, MACHINES, { continuousLoad });

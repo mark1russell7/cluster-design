@@ -1,5 +1,6 @@
 import { quantity } from "@mark1russell7/quantity";
 import fc from "fast-check";
+import { uniformDouble } from "@mark1russell7/rigor-testkit/arbitrary";
 import { describe, expect, it } from "vitest";
 import {
   backupSpace,
@@ -281,11 +282,11 @@ describe("the properties of backup power", () => {
 
   it("the calibration gives back the usable share and the own use of the model", () => {
     const model = fc.record({
-      energy: fc.double({ min: 10, max: 2000, noNaN: true }),
-      usable: fc.double({ min: 0.3, max: 1, noNaN: true }),
-      ownUse: fc.double({ min: 0, max: 50, noNaN: true }),
-      p1: fc.double({ min: 1, max: 500, noNaN: true }),
-      ratio: fc.double({ min: 1.2, max: 4, noNaN: true }),
+      energy: uniformDouble({ min: 10, max: 2000 }),
+      usable: uniformDouble({ min: 0.3, max: 1 }),
+      ownUse: uniformDouble({ min: 0, max: 50 }),
+      p1: uniformDouble({ min: 1, max: 500 }),
+      ratio: uniformDouble({ min: 1.2, max: 4 }),
     });
     fc.assert(
       fc.property(model, ({ energy, usable, ownUse, p1, ratio }) => {
