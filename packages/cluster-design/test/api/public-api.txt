@@ -192,6 +192,8 @@ SiteRule: build/site.chunk.d.ts#SiteRule
 SiteTree: build/site.chunk.d.ts#SiteTree
 SiteTreeResult: build/site.chunk.d.ts#SiteTreeResult
 Slot: build/index.d.ts#Slot
+SplitRange: build/index.d.ts#SplitRange
+SplitStage: build/index.d.ts#SplitStage
 StageSlot: build/index.d.ts#StageSlot
 THREADS: build/index.d.ts#THREADS
 TOTAL_COST: build/site.chunk.d.ts#TOTAL_COST
@@ -201,6 +203,7 @@ WALL_IDLE_POWER: build/index.d.ts#WALL_IDLE_POWER
 WALL_POWER: build/index.d.ts#WALL_POWER
 WORK_KIND: build/site.chunk.d.ts#WORK_KIND
 WORK_MEMORY: build/index.d.ts#WORK_MEMORY
+WORK_STAGE_PREFIX: build/index.d.ts#WORK_STAGE_PREFIX
 WORK_THREADS: build/index.d.ts#WORK_THREADS
 type WorkClass: build/site.chunk.d.ts#WorkClass
 WorkLine: build/site.chunk.d.ts#WorkLine
@@ -240,12 +243,16 @@ readSite: build/site.chunk.d.ts#readSite
 siteSchema: build/site.chunk.d.ts#siteSchema
 siteTree: build/site.chunk.d.ts#siteTree
 siteWorkMeasures: build/site.chunk.d.ts#siteWorkMeasures
+siteWorkRules: build/site.chunk.d.ts#siteWorkRules
 sweepDesigns: build/index.d.ts#sweepDesigns
 unitsInFree: build/index.d.ts#unitsInFree
 verdictOf: build/index.d.ts#verdictOf
+withSpaceWork: build/index.d.ts#withSpaceWork
 workCapacity: build/index.d.ts#workCapacity
 workMeasures: build/site.chunk.d.ts#workMeasures
+workObjectives: build/index.d.ts#workObjectives
 workRecord: build/site.chunk.d.ts#workRecord
+workStage: build/index.d.ts#workStage
 workUnits: build/index.d.ts#workUnits
 
 ## ./sample (build/sample.d.ts): names
@@ -586,6 +593,8 @@ export interface DesignSearchOptions extends DesignCheckOptions {
 export interface DesignSpace {
   readonly space: StrategySpace;
   readonly slots: readonly StageSlot[];
+  readonly split: readonly SplitStage[];
+  readonly work: readonly WorkClass[];
   readonly copies: CountRange;
   readonly excluded: readonly Exclusion[];
   readonly derived: readonly DerivedConstraint[];
@@ -600,6 +609,7 @@ export interface DesignSpaceOptions extends DesignOptions {
   readonly derive?: boolean;
   readonly site?: Pick<DesignInput, "site" | "fixed">;
   readonly siteRules?: readonly SiteRule[];
+  readonly split?: readonly SplitRange[];
 }
 
 ### build/index.d.ts#DesignSweep
@@ -821,6 +831,16 @@ export interface Slot extends CountRange {
   readonly optional?: boolean;
 }
 
+### build/index.d.ts#SplitRange
+export interface SplitRange extends CountRange {
+  readonly class: string;
+}
+
+### build/index.d.ts#SplitStage
+export interface SplitStage extends SplitRange {
+  readonly stage: string;
+}
+
 ### build/index.d.ts#StageSlot
 export interface StageSlot extends Slot {
   readonly stage: string;
@@ -843,6 +863,9 @@ export declare const WALL_POWER: Expr;
 
 ### build/index.d.ts#WORK_MEMORY
 export declare const WORK_MEMORY: Expr;
+
+### build/index.d.ts#WORK_STAGE_PREFIX
+export declare const WORK_STAGE_PREFIX = "work-";
 
 ### build/index.d.ts#WORK_THREADS
 export declare const WORK_THREADS: Expr;
@@ -921,8 +944,17 @@ export declare function verdictOf(result: Result<unknown>): {
   readonly detail?: string;
 };
 
+### build/index.d.ts#withSpaceWork
+export declare function withSpaceWork<T extends DesignOptions>(design: DesignSpace, options: T): T;
+
 ### build/index.d.ts#workCapacity
 export declare function workCapacity(work: WorkClass): Expr;
+
+### build/index.d.ts#workObjectives
+export declare function workObjectives(classes: readonly WorkClass[]): readonly DesignObjective[];
+
+### build/index.d.ts#workStage
+export declare const workStage: (id: string) => string;
 
 ### build/index.d.ts#workUnits
 export declare const workUnits: (id: string) => Expr;
@@ -1611,6 +1643,7 @@ declare const WORK_KIND = "work";
 ### build/site.chunk.d.ts#WorkClass
 interface WorkClass extends Share {
   readonly id: string;
+  readonly demand?: number;
 }
 
 ### build/site.chunk.d.ts#WorkLine
@@ -1677,6 +1710,9 @@ declare function siteTree(site: Site, machines: readonly Machine[], catalog: Rea
 
 ### build/site.chunk.d.ts#siteWorkMeasures
 declare function siteWorkMeasures(classes: readonly WorkClass[]): readonly SiteMeasure[];
+
+### build/site.chunk.d.ts#siteWorkRules
+declare function siteWorkRules(classes: readonly WorkClass[]): readonly SiteRule[];
 
 ### build/site.chunk.d.ts#workMeasures
 declare function workMeasures(classes: readonly WorkClass[]): readonly Measure[];
