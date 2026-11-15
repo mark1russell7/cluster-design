@@ -2,6 +2,7 @@
  * A sample catalog and a sample machine for the tests and the demo. The parts are generic: no part names a maker.
  */
 import { quantity } from "@mark1russell7/quantity";
+import { PRICES_FORMAT, type PriceList } from "./cost.ts";
 import type { Machine } from "./machine.ts";
 import type { Part } from "./parts.ts";
 import { SITE_FORMAT, type Site } from "./site.ts";
@@ -117,5 +118,26 @@ export const SAMPLE_SITE: Site = {
   places: [
     { machine: "node-1", circuit: "circuit-a", room: "room-a" },
     { machine: "node-2", circuit: "circuit-a", room: "room-a" },
+  ],
+};
+
+/** A price list of the sample parts. The prices are generic, and they name no real offer. The sample machine costs 959 USD. */
+export const SAMPLE_PRICES: PriceList = {
+  format: PRICES_FORMAT,
+  prices: [
+    { part: "cpu-a", price: quantity(200, "USD") },
+    { part: "cpu-hot", price: quantity(450, "USD") },
+    { part: "cpu-s2", price: quantity(150, "USD") },
+    { part: "board-a", price: quantity(120, "USD") },
+    { part: "ram-2x16", price: quantity(90, "USD") },
+    { part: "ram-ddr4", price: quantity(60, "USD") },
+    { part: "ssd-m2", price: quantity(70, "USD") },
+    { part: "hdd-sata", price: quantity(85, "USD") },
+    { part: "psu-550", price: quantity(80, "USD") },
+    { part: "psu-300", price: quantity(45, "USD") },
+    { part: "case-a", price: quantity(75, "USD") },
+    { part: "cooler-a", price: quantity(40, "USD") },
+    { part: "fan-120", price: quantity(12, "USD") },
+    { part: "gpu-long", price: quantity(400, "USD") },
   ],
 };

@@ -24,6 +24,7 @@ BACKUP_PRICE_PER_MINUTE: build/index.d.ts#BACKUP_PRICE_PER_MINUTE
 BACKUP_RANK_BY_CHARGES: build/index.d.ts#BACKUP_RANK_BY_CHARGES
 BACKUP_RANK_BY_MINUTES: build/index.d.ts#BACKUP_RANK_BY_MINUTES
 BACKUP_RULES: build/index.d.ts#BACKUP_RULES
+BUSY: build/site.chunk.d.ts#BUSY
 Backup: build/index.d.ts#Backup
 BackupCheckOptions: build/index.d.ts#BackupCheckOptions
 BackupCheckResult: build/index.d.ts#BackupCheckResult
@@ -42,13 +43,13 @@ BackupSource: build/index.d.ts#BackupSource
 BackupSpaceResult: build/index.d.ts#BackupSpaceResult
 Basis: build/index.d.ts#Basis
 BatteryCapacity: build/index.d.ts#BatteryCapacity
-CIRCUIT_CURRENT: build/index.d.ts#CIRCUIT_CURRENT
-CIRCUIT_IDLE_LOAD: build/index.d.ts#CIRCUIT_IDLE_LOAD
-CIRCUIT_LIMIT: build/index.d.ts#CIRCUIT_LIMIT
-CIRCUIT_LOAD: build/index.d.ts#CIRCUIT_LOAD
-CIRCUIT_PLUGS: build/index.d.ts#CIRCUIT_PLUGS
+CIRCUIT_CURRENT: build/site.chunk.d.ts#CIRCUIT_CURRENT
+CIRCUIT_IDLE_LOAD: build/site.chunk.d.ts#CIRCUIT_IDLE_LOAD
+CIRCUIT_LIMIT: build/site.chunk.d.ts#CIRCUIT_LIMIT
+CIRCUIT_LOAD: build/site.chunk.d.ts#CIRCUIT_LOAD
+CIRCUIT_PLUGS: build/site.chunk.d.ts#CIRCUIT_PLUGS
 CLUSTER_KEY: build/site.chunk.d.ts#CLUSTER_KEY
-CONTINUOUS_LOAD: build/index.d.ts#CONTINUOUS_LOAD
+CONTINUOUS_LOAD: build/site.chunk.d.ts#CONTINUOUS_LOAD
 COPIES_STAGE: build/index.d.ts#COPIES_STAGE
 CORES: build/index.d.ts#CORES
 COUNT_PARAM: build/index.d.ts#COUNT_PARAM
@@ -58,13 +59,16 @@ CheckOptions: build/index.d.ts#CheckOptions
 CheckResult: build/index.d.ts#CheckResult
 Circuit: build/site.chunk.d.ts#Circuit
 CopiesLimit: build/index.d.ts#CopiesLimit
+CostOptions: build/site.chunk.d.ts#CostOptions
 CountRange: build/index.d.ts#CountRange
+DEFAULT_BUSY: build/site.chunk.d.ts#DEFAULT_BUSY
 DEFAULT_CONTINUOUS_LOAD: build/index.d.ts#DEFAULT_CONTINUOUS_LOAD
 DEFAULT_CONTINUOUS_SHARE: build/index.d.ts#DEFAULT_CONTINUOUS_SHARE
 DEFAULT_COPIES: build/index.d.ts#DEFAULT_COPIES
-DEFAULT_JOB: build/index.d.ts#DEFAULT_JOB
-DEFAULT_PSU_LOAD: build/index.d.ts#DEFAULT_PSU_LOAD
-DEFAULT_RESERVE: build/index.d.ts#DEFAULT_RESERVE
+DEFAULT_HORIZON: build/site.chunk.d.ts#DEFAULT_HORIZON
+DEFAULT_JOB: build/site.chunk.d.ts#DEFAULT_JOB
+DEFAULT_PSU_LOAD: build/site.chunk.d.ts#DEFAULT_PSU_LOAD
+DEFAULT_RESERVE: build/site.chunk.d.ts#DEFAULT_RESERVE
 DEFAULT_SLOTS: build/index.d.ts#DEFAULT_SLOTS
 DESIGN_ENGINE: build/index.d.ts#DESIGN_ENGINE
 DESIGN_OBJECTIVES: build/index.d.ts#DESIGN_OBJECTIVES
@@ -73,10 +77,10 @@ DESIGN_SWEEP_EVALUATOR: build/index.d.ts#DESIGN_SWEEP_EVALUATOR
 DerivedConstraint: build/index.d.ts#DerivedConstraint
 Design: build/index.d.ts#Design
 DesignCheckOptions: build/index.d.ts#DesignCheckOptions
-DesignEvaluation: build/index.d.ts#DesignEvaluation
+DesignEvaluation: build/site.chunk.d.ts#DesignEvaluation
 DesignInput: build/index.d.ts#DesignInput
 DesignObjective: build/index.d.ts#DesignObjective
-type DesignOptions: build/index.d.ts#DesignOptions
+type DesignOptions: build/site.chunk.d.ts#DesignOptions
 DesignSpace: build/index.d.ts#DesignSpace
 DesignSpaceOptions: build/index.d.ts#DesignSpaceOptions
 DesignSweep: build/index.d.ts#DesignSweep
@@ -84,8 +88,9 @@ DesignSweepOptions: build/index.d.ts#DesignSweepOptions
 DesignTree: build/site.chunk.d.ts#DesignTree
 DesignTreeResult: build/site.chunk.d.ts#DesignTreeResult
 DesignVerdict: build/index.d.ts#DesignVerdict
+ENERGY_COST: build/site.chunk.d.ts#ENERGY_COST
 ENERGY_FROM_CAPACITY: build/index.d.ts#ENERGY_FROM_CAPACITY
-Evaluation: build/index.d.ts#Evaluation
+Evaluation: build/site.chunk.d.ts#Evaluation
 Exclusion: build/index.d.ts#Exclusion
 FIT_RULES: build/index.d.ts#FIT_RULES
 FieldSpec: build/site.chunk.d.ts#FieldSpec
@@ -93,23 +98,27 @@ FieldValue: build/site.chunk.d.ts#FieldValue
 Finding: build/index.d.ts#Finding
 FitRule: build/index.d.ts#FitRule
 FreeCounts: build/index.d.ts#FreeCounts
-HOURS_PER_MONTH: build/index.d.ts#HOURS_PER_MONTH
+HORIZON: build/site.chunk.d.ts#HORIZON
+HOURS_PER_MONTH: build/site.chunk.d.ts#HOURS_PER_MONTH
 IDLE_DRAW: build/index.d.ts#IDLE_DRAW
 JOB_MEMORY: build/index.d.ts#JOB_MEMORY
 JOB_THREADS: build/index.d.ts#JOB_THREADS
-MACHINE_MEASURES: build/index.d.ts#MACHINE_MEASURES
+MACHINE_COST_MEASURES: build/site.chunk.d.ts#MACHINE_COST_MEASURES
+MACHINE_MEASURES: build/site.chunk.d.ts#MACHINE_MEASURES
 MEMORY: build/index.d.ts#MEMORY
 MINUTES_PER_HOUR: build/index.d.ts#MINUTES_PER_HOUR
 Machine: build/site.chunk.d.ts#Machine
-Measure: build/index.d.ts#Measure
-MeasureOptions: build/index.d.ts#MeasureOptions
-MeasureResult: build/index.d.ts#MeasureResult
-MeasureValue: build/index.d.ts#MeasureValue
+Measure: build/site.chunk.d.ts#Measure
+MeasureOptions: build/site.chunk.d.ts#MeasureOptions
+MeasureResult: build/site.chunk.d.ts#MeasureResult
+MeasureValue: build/site.chunk.d.ts#MeasureValue
 NOISE: build/index.d.ts#NOISE
 NOISE_ENERGY: build/index.d.ts#NOISE_ENERGY
 NOISY_CLASSES: build/index.d.ts#NOISY_CLASSES
+OWNED: build/site.chunk.d.ts#OWNED
 OWN_USE_FROM_POINTS: build/index.d.ts#OWN_USE_FROM_POINTS
 Outcome: build/index.d.ts#Outcome
+PARTS_PRICE: build/site.chunk.d.ts#PARTS_PRICE
 PART_CLASSES: build/site.chunk.d.ts#PART_CLASSES
 PART_CLASS_NAMES: build/site.chunk.d.ts#PART_CLASS_NAMES
 PLACEMENTS: build/index.d.ts#PLACEMENTS
@@ -118,70 +127,82 @@ POWERED_CLASSES: build/index.d.ts#POWERED_CLASSES
 POWER_DRAW: build/index.d.ts#POWER_DRAW
 POWER_LIMIT: build/index.d.ts#POWER_LIMIT
 POWER_OUTPUT: build/index.d.ts#POWER_OUTPUT
+PRICES: build/site.chunk.d.ts#PRICES
+PRICES_FORMAT: build/site.chunk.d.ts#PRICES_FORMAT
+PRICE_UNIT: build/site.chunk.d.ts#PRICE_UNIT
 PSU_LOAD: build/index.d.ts#PSU_LOAD
+PURCHASE: build/site.chunk.d.ts#PURCHASE
 Part: build/site.chunk.d.ts#Part
 PartClass: build/site.chunk.d.ts#PartClass
 PartLine: build/site.chunk.d.ts#PartLine
 PartOf: build/site.chunk.d.ts#PartOf
 Place: build/site.chunk.d.ts#Place
 Placement: build/index.d.ts#Placement
+PriceLine: build/site.chunk.d.ts#PriceLine
+PriceList: build/site.chunk.d.ts#PriceList
+PriceListResult: build/site.chunk.d.ts#PriceListResult
 RESERVE_MEMORY: build/index.d.ts#RESERVE_MEMORY
 RESERVE_THREADS: build/index.d.ts#RESERVE_THREADS
-ROOM_HEAT: build/index.d.ts#ROOM_HEAT
-ROOM_IDLE_HEAT: build/index.d.ts#ROOM_IDLE_HEAT
-ROOM_MACHINES: build/index.d.ts#ROOM_MACHINES
-ROOM_NOISE: build/index.d.ts#ROOM_NOISE
+ROOM_HEAT: build/site.chunk.d.ts#ROOM_HEAT
+ROOM_IDLE_HEAT: build/site.chunk.d.ts#ROOM_IDLE_HEAT
+ROOM_MACHINES: build/site.chunk.d.ts#ROOM_MACHINES
+ROOM_NOISE: build/site.chunk.d.ts#ROOM_NOISE
 RUNNER_SLOTS: build/index.d.ts#RUNNER_SLOTS
 Room: build/site.chunk.d.ts#Room
 RuntimePoint: build/index.d.ts#RuntimePoint
-SITE_COST: build/index.d.ts#SITE_COST
+SITE_COST: build/site.chunk.d.ts#SITE_COST
+SITE_COST_MEASURES: build/site.chunk.d.ts#SITE_COST_MEASURES
 SITE_FIELDS: build/site.chunk.d.ts#SITE_FIELDS
 SITE_FORMAT: build/site.chunk.d.ts#SITE_FORMAT
-SITE_IDLE_COST: build/index.d.ts#SITE_IDLE_COST
-SITE_IDLE_POWER: build/index.d.ts#SITE_IDLE_POWER
+SITE_IDLE_COST: build/site.chunk.d.ts#SITE_IDLE_COST
+SITE_IDLE_POWER: build/site.chunk.d.ts#SITE_IDLE_POWER
 SITE_KEY: build/site.chunk.d.ts#SITE_KEY
-SITE_MEASURES: build/index.d.ts#SITE_MEASURES
-SITE_POWER: build/index.d.ts#SITE_POWER
-SITE_RULES: build/index.d.ts#SITE_RULES
-SITE_RUNNER_SLOTS: build/index.d.ts#SITE_RUNNER_SLOTS
+SITE_MEASURES: build/site.chunk.d.ts#SITE_MEASURES
+SITE_POWER: build/site.chunk.d.ts#SITE_POWER
+SITE_RULES: build/site.chunk.d.ts#SITE_RULES
+SITE_RUNNER_SLOTS: build/site.chunk.d.ts#SITE_RUNNER_SLOTS
+SLOT_COST: build/site.chunk.d.ts#SLOT_COST
+STOCK: build/site.chunk.d.ts#STOCK
 STORAGE: build/index.d.ts#STORAGE
-type Share: build/index.d.ts#Share
+type Share: build/site.chunk.d.ts#Share
 Site: build/site.chunk.d.ts#Site
 SiteCheckOptions: build/index.d.ts#SiteCheckOptions
 SiteCheckResult: build/index.d.ts#SiteCheckResult
 SiteEvaluation: build/index.d.ts#SiteEvaluation
 SiteEvaluationResult: build/index.d.ts#SiteEvaluationResult
 SiteFinding: build/index.d.ts#SiteFinding
-SiteLevel: build/index.d.ts#SiteLevel
-SiteMeasure: build/index.d.ts#SiteMeasure
+SiteLevel: build/site.chunk.d.ts#SiteLevel
+SiteMeasure: build/site.chunk.d.ts#SiteMeasure
 SiteMeasureOptions: build/index.d.ts#SiteMeasureOptions
 SiteMeasureResult: build/index.d.ts#SiteMeasureResult
 SiteMeasureValue: build/index.d.ts#SiteMeasureValue
 SiteOptions: build/index.d.ts#SiteOptions
 SiteResult: build/site.chunk.d.ts#SiteResult
-SiteRule: build/index.d.ts#SiteRule
+SiteRule: build/site.chunk.d.ts#SiteRule
 SiteTree: build/site.chunk.d.ts#SiteTree
 SiteTreeResult: build/site.chunk.d.ts#SiteTreeResult
 Slot: build/index.d.ts#Slot
 StageSlot: build/index.d.ts#StageSlot
 THREADS: build/index.d.ts#THREADS
+TOTAL_COST: build/site.chunk.d.ts#TOTAL_COST
 USABLE_FROM_POINTS: build/index.d.ts#USABLE_FROM_POINTS
 Verdict: build/index.d.ts#Verdict
 WALL_IDLE_POWER: build/index.d.ts#WALL_IDLE_POWER
 WALL_POWER: build/index.d.ts#WALL_POWER
-amountOf: build/index.d.ts#amountOf
+amountOf: build/site.chunk.d.ts#amountOf
 backupSchema: build/index.d.ts#backupSchema
 backupSpace: build/index.d.ts#backupSpace
 checkBackup: build/index.d.ts#checkBackup
 checkDesign: build/index.d.ts#checkDesign
 checkDesignConfig: build/index.d.ts#checkDesignConfig
 checkSite: build/index.d.ts#checkSite
+costVariables: build/site.chunk.d.ts#costVariables
 designOf: build/index.d.ts#designOf
 designSpace: build/index.d.ts#designSpace
 designTree: build/site.chunk.d.ts#designTree
 detailOf: build/index.d.ts#detailOf
 evaluateBackup: build/index.d.ts#evaluateBackup
-evaluateDesign: build/index.d.ts#evaluateDesign
+evaluateDesign: build/site.chunk.d.ts#evaluateDesign
 evaluateSite: build/index.d.ts#evaluateSite
 fieldSchema: build/site.chunk.d.ts#fieldSchema
 fieldValue: build/site.chunk.d.ts#fieldValue
@@ -190,13 +211,15 @@ levelOf: build/index.d.ts#levelOf
 lineRecord: build/site.chunk.d.ts#lineRecord
 machineSchema: build/site.chunk.d.ts#machineSchema
 measureBackup: build/index.d.ts#measureBackup
-measureDesign: build/index.d.ts#measureDesign
+measureDesign: build/site.chunk.d.ts#measureDesign
 measureSite: build/index.d.ts#measureSite
 overall: build/index.d.ts#overall
 partSchema: build/site.chunk.d.ts#partSchema
 placeMachines: build/index.d.ts#placeMachines
+priceListSchema: build/site.chunk.d.ts#priceListSchema
 readBackup: build/index.d.ts#readBackup
 readCatalog: build/site.chunk.d.ts#readCatalog
+readPrices: build/site.chunk.d.ts#readPrices
 readSite: build/site.chunk.d.ts#readSite
 siteSchema: build/site.chunk.d.ts#siteSchema
 siteTree: build/site.chunk.d.ts#siteTree
@@ -207,6 +230,7 @@ verdictOf: build/index.d.ts#verdictOf
 
 SAMPLE_MACHINE: build/sample.d.ts#SAMPLE_MACHINE
 SAMPLE_PARTS: build/sample.d.ts#SAMPLE_PARTS
+SAMPLE_PRICES: build/sample.d.ts#SAMPLE_PRICES
 SAMPLE_SITE: build/sample.d.ts#SAMPLE_SITE
 
 ## Declarations
@@ -409,24 +433,6 @@ export interface BatteryCapacity {
   readonly voltage: Quantity;
 }
 
-### build/index.d.ts#CIRCUIT_CURRENT
-export declare const CIRCUIT_CURRENT: Expr;
-
-### build/index.d.ts#CIRCUIT_IDLE_LOAD
-export declare const CIRCUIT_IDLE_LOAD: Expr;
-
-### build/index.d.ts#CIRCUIT_LIMIT
-export declare const CIRCUIT_LIMIT: Expr;
-
-### build/index.d.ts#CIRCUIT_LOAD
-export declare const CIRCUIT_LOAD: Expr;
-
-### build/index.d.ts#CIRCUIT_PLUGS
-export declare const CIRCUIT_PLUGS: Expr;
-
-### build/index.d.ts#CONTINUOUS_LOAD
-export declare const CONTINUOUS_LOAD = "continuousLoad";
-
 ### build/index.d.ts#COPIES_STAGE
 export declare const COPIES_STAGE = "copies";
 
@@ -483,15 +489,6 @@ export declare const DEFAULT_CONTINUOUS_SHARE = .8;
 ### build/index.d.ts#DEFAULT_COPIES
 export declare const DEFAULT_COPIES: CountRange;
 
-### build/index.d.ts#DEFAULT_JOB
-export declare const DEFAULT_JOB: Share;
-
-### build/index.d.ts#DEFAULT_PSU_LOAD
-export declare const DEFAULT_PSU_LOAD = .8;
-
-### build/index.d.ts#DEFAULT_RESERVE
-export declare const DEFAULT_RESERVE: Share;
-
 ### build/index.d.ts#DEFAULT_SLOTS
 export declare const DEFAULT_SLOTS: readonly Slot[];
 
@@ -526,15 +523,6 @@ export interface DesignCheckOptions extends DesignOptions, SiteOptions {
   readonly siteRules?: readonly SiteRule[];
 }
 
-### build/index.d.ts#DesignEvaluation
-export type DesignEvaluation<T> = {
-  readonly ok: true;
-  readonly evaluations: readonly Evaluation<T>[];
-} | {
-  readonly ok: false;
-  readonly problems: readonly string[];
-};
-
 ### build/index.d.ts#DesignInput
 export interface DesignInput {
   readonly catalog: ReadonlyMap<string, Part>;
@@ -548,13 +536,6 @@ export interface DesignObjective {
   readonly name: string;
   readonly goal: Goal;
   readonly measure: string;
-}
-
-### build/index.d.ts#DesignOptions
-interface DesignOptions {
-  readonly psuLoad?: number;
-  readonly job?: Share;
-  readonly reserve?: Share;
 }
 
 ### build/index.d.ts#DesignSpace
@@ -602,13 +583,6 @@ export interface DesignVerdict {
 ### build/index.d.ts#ENERGY_FROM_CAPACITY
 export declare const ENERGY_FROM_CAPACITY: Expr;
 
-### build/index.d.ts#Evaluation
-export interface Evaluation<T> {
-  readonly machine: string;
-  readonly item: T;
-  readonly result: Result<unknown>;
-}
-
 ### build/index.d.ts#Exclusion
 export interface Exclusion {
   readonly stage: string;
@@ -642,9 +616,6 @@ export interface FreeCounts {
   readonly circuits: Map<string, number>;
 }
 
-### build/index.d.ts#HOURS_PER_MONTH
-export declare const HOURS_PER_MONTH: number;
-
 ### build/index.d.ts#IDLE_DRAW
 export declare const IDLE_DRAW: Expr;
 
@@ -654,45 +625,11 @@ export declare const JOB_MEMORY = "jobMemory";
 ### build/index.d.ts#JOB_THREADS
 export declare const JOB_THREADS = "jobThreads";
 
-### build/index.d.ts#MACHINE_MEASURES
-export declare const MACHINE_MEASURES: readonly Measure[];
-
 ### build/index.d.ts#MEMORY
 export declare const MEMORY: Expr;
 
 ### build/index.d.ts#MINUTES_PER_HOUR
 export declare const MINUTES_PER_HOUR: number;
-
-### build/index.d.ts#Measure
-export interface Measure {
-  readonly id: string;
-  readonly sentence: string;
-  readonly unit: string;
-  readonly program: Expr;
-}
-
-### build/index.d.ts#MeasureOptions
-export interface MeasureOptions extends DesignOptions {
-  readonly measures?: readonly Measure[];
-}
-
-### build/index.d.ts#MeasureResult
-export type MeasureResult = {
-  readonly ok: true;
-  readonly values: readonly MeasureValue[];
-} | {
-  readonly ok: false;
-  readonly problems: readonly string[];
-};
-
-### build/index.d.ts#MeasureValue
-export interface MeasureValue {
-  readonly machine: string;
-  readonly measure: string;
-  readonly unit: string;
-  readonly value?: number;
-  readonly detail?: string;
-}
 
 ### build/index.d.ts#NOISE
 export declare const NOISE: Expr;
@@ -745,18 +682,6 @@ export declare const RESERVE_MEMORY = "reserveMemory";
 ### build/index.d.ts#RESERVE_THREADS
 export declare const RESERVE_THREADS = "reserveThreads";
 
-### build/index.d.ts#ROOM_HEAT
-export declare const ROOM_HEAT: Expr;
-
-### build/index.d.ts#ROOM_IDLE_HEAT
-export declare const ROOM_IDLE_HEAT: Expr;
-
-### build/index.d.ts#ROOM_MACHINES
-export declare const ROOM_MACHINES: Expr;
-
-### build/index.d.ts#ROOM_NOISE
-export declare const ROOM_NOISE: Expr;
-
 ### build/index.d.ts#RUNNER_SLOTS
 export declare const RUNNER_SLOTS: Expr;
 
@@ -766,35 +691,8 @@ export interface RuntimePoint {
   readonly time: Quantity;
 }
 
-### build/index.d.ts#SITE_COST
-export declare const SITE_COST: Expr;
-
-### build/index.d.ts#SITE_IDLE_COST
-export declare const SITE_IDLE_COST: Expr;
-
-### build/index.d.ts#SITE_IDLE_POWER
-export declare const SITE_IDLE_POWER: Expr;
-
-### build/index.d.ts#SITE_MEASURES
-export declare const SITE_MEASURES: readonly SiteMeasure[];
-
-### build/index.d.ts#SITE_POWER
-export declare const SITE_POWER: Expr;
-
-### build/index.d.ts#SITE_RULES
-export declare const SITE_RULES: readonly SiteRule[];
-
-### build/index.d.ts#SITE_RUNNER_SLOTS
-export declare const SITE_RUNNER_SLOTS: Expr;
-
 ### build/index.d.ts#STORAGE
 export declare const STORAGE: Expr;
-
-### build/index.d.ts#Share
-interface Share {
-  readonly threads: number;
-  readonly memory: number;
-}
 
 ### build/index.d.ts#SiteCheckOptions
 export interface SiteCheckOptions extends SiteOptions {
@@ -837,18 +735,6 @@ export interface SiteFinding {
   readonly detail?: string;
 }
 
-### build/index.d.ts#SiteLevel
-export type SiteLevel = "site" | "circuit" | "room";
-
-### build/index.d.ts#SiteMeasure
-export interface SiteMeasure {
-  readonly id: string;
-  readonly sentence: string;
-  readonly unit: string;
-  readonly level: SiteLevel;
-  readonly program: Expr;
-}
-
 ### build/index.d.ts#SiteMeasureOptions
 export interface SiteMeasureOptions extends SiteOptions {
   readonly measures?: readonly SiteMeasure[];
@@ -878,14 +764,6 @@ export interface SiteOptions extends DesignOptions {
   readonly continuousLoad?: number;
 }
 
-### build/index.d.ts#SiteRule
-export interface SiteRule {
-  readonly id: string;
-  readonly sentence: string;
-  readonly level: SiteLevel;
-  readonly program: Expr;
-}
-
 ### build/index.d.ts#Slot
 export interface Slot extends CountRange {
   readonly class: PartClass;
@@ -911,12 +789,6 @@ export declare const WALL_IDLE_POWER: Expr;
 
 ### build/index.d.ts#WALL_POWER
 export declare const WALL_POWER: Expr;
-
-### build/index.d.ts#amountOf
-export declare function amountOf(result: Result<unknown>): {
-  readonly value?: number;
-  readonly detail?: string;
-};
 
 ### build/index.d.ts#backupSchema
 export declare const backupSchema: z.ZodType<Backup>;
@@ -950,11 +822,6 @@ export declare function evaluateBackup<T extends {
   readonly program: Expr;
 }>(backup: Backup, items: readonly T[], options?: BackupOptions): BackupEvaluationResult<T>;
 
-### build/index.d.ts#evaluateDesign
-export declare function evaluateDesign<T extends {
-  readonly program: Expr;
-}>(machines: readonly Machine[], catalog: ReadonlyMap<string, Part>, items: readonly T[], options?: DesignOptions): DesignEvaluation<T>;
-
 ### build/index.d.ts#evaluateSite
 export declare function evaluateSite<T extends {
   readonly level: SiteLevel;
@@ -969,9 +836,6 @@ export declare const levelOf: (energy: Expr) => Expr;
 
 ### build/index.d.ts#measureBackup
 export declare function measureBackup(backup: Backup, options?: BackupMeasureOptions): BackupMeasureResult;
-
-### build/index.d.ts#measureDesign
-export declare function measureDesign(machines: readonly Machine[], catalog: ReadonlyMap<string, Part>, options?: MeasureOptions): MeasureResult;
 
 ### build/index.d.ts#measureSite
 export declare function measureSite(site: Site, machines: readonly Machine[], catalog: ReadonlyMap<string, Part>, options?: SiteMeasureOptions): SiteMeasureResult;
@@ -1000,11 +864,35 @@ export declare const SAMPLE_MACHINE: Machine;
 ### build/sample.d.ts#SAMPLE_PARTS
 export declare const SAMPLE_PARTS: readonly Part[];
 
+### build/sample.d.ts#SAMPLE_PRICES
+export declare const SAMPLE_PRICES: PriceList;
+
 ### build/sample.d.ts#SAMPLE_SITE
 export declare const SAMPLE_SITE: Site;
 
+### build/site.chunk.d.ts#BUSY
+declare const BUSY = "busy";
+
+### build/site.chunk.d.ts#CIRCUIT_CURRENT
+declare const CIRCUIT_CURRENT: Expr;
+
+### build/site.chunk.d.ts#CIRCUIT_IDLE_LOAD
+declare const CIRCUIT_IDLE_LOAD: Expr;
+
+### build/site.chunk.d.ts#CIRCUIT_LIMIT
+declare const CIRCUIT_LIMIT: Expr;
+
+### build/site.chunk.d.ts#CIRCUIT_LOAD
+declare const CIRCUIT_LOAD: Expr;
+
+### build/site.chunk.d.ts#CIRCUIT_PLUGS
+declare const CIRCUIT_PLUGS: Expr;
+
 ### build/site.chunk.d.ts#CLUSTER_KEY
 declare const CLUSTER_KEY = "cluster";
+
+### build/site.chunk.d.ts#CONTINUOUS_LOAD
+declare const CONTINUOUS_LOAD = "continuousLoad";
 
 ### build/site.chunk.d.ts#CatalogResult
 type CatalogResult = {
@@ -1024,6 +912,47 @@ interface Circuit {
   readonly otherLoad: Quantity;
 }
 
+### build/site.chunk.d.ts#CostOptions
+interface CostOptions {
+  readonly prices?: PriceList;
+  readonly stock?: readonly PartLine[];
+  readonly owned?: readonly string[];
+  readonly horizon?: Quantity;
+  readonly busy?: number;
+}
+
+### build/site.chunk.d.ts#DEFAULT_BUSY
+declare const DEFAULT_BUSY = 1;
+
+### build/site.chunk.d.ts#DEFAULT_HORIZON
+declare const DEFAULT_HORIZON: Quantity;
+
+### build/site.chunk.d.ts#DEFAULT_JOB
+declare const DEFAULT_JOB: Share;
+
+### build/site.chunk.d.ts#DEFAULT_PSU_LOAD
+declare const DEFAULT_PSU_LOAD = .8;
+
+### build/site.chunk.d.ts#DEFAULT_RESERVE
+declare const DEFAULT_RESERVE: Share;
+
+### build/site.chunk.d.ts#DesignEvaluation
+type DesignEvaluation<T> = {
+  readonly ok: true;
+  readonly evaluations: readonly Evaluation<T>[];
+} | {
+  readonly ok: false;
+  readonly problems: readonly string[];
+};
+
+### build/site.chunk.d.ts#DesignOptions
+interface DesignOptions {
+  readonly psuLoad?: number;
+  readonly job?: Share;
+  readonly reserve?: Share;
+  readonly cost?: CostOptions;
+}
+
 ### build/site.chunk.d.ts#DesignTree
 interface DesignTree {
   readonly space: Space<string, unknown>;
@@ -1038,6 +967,16 @@ type DesignTreeResult = {
   readonly ok: false;
   readonly problems: readonly string[];
 };
+
+### build/site.chunk.d.ts#ENERGY_COST
+declare const ENERGY_COST: Expr;
+
+### build/site.chunk.d.ts#Evaluation
+interface Evaluation<T> {
+  readonly machine: string;
+  readonly item: T;
+  readonly result: Result<unknown>;
+}
 
 ### build/site.chunk.d.ts#FieldSpec
 type FieldSpec = {
@@ -1067,11 +1006,60 @@ type FieldValue<F> = F extends {
   readonly options: readonly (infer O)[];
 } ? O : Quantity;
 
+### build/site.chunk.d.ts#HORIZON
+declare const HORIZON = "horizon";
+
+### build/site.chunk.d.ts#HOURS_PER_MONTH
+declare const HOURS_PER_MONTH: number;
+
+### build/site.chunk.d.ts#MACHINE_COST_MEASURES
+declare const MACHINE_COST_MEASURES: readonly Measure[];
+
+### build/site.chunk.d.ts#MACHINE_MEASURES
+declare const MACHINE_MEASURES: readonly Measure[];
+
 ### build/site.chunk.d.ts#Machine
 interface Machine {
   readonly id: string;
   readonly lines: readonly PartLine[];
 }
+
+### build/site.chunk.d.ts#Measure
+interface Measure {
+  readonly id: string;
+  readonly sentence: string;
+  readonly unit: string;
+  readonly program: Expr;
+}
+
+### build/site.chunk.d.ts#MeasureOptions
+interface MeasureOptions extends DesignOptions {
+  readonly measures?: readonly Measure[];
+}
+
+### build/site.chunk.d.ts#MeasureResult
+type MeasureResult = {
+  readonly ok: true;
+  readonly values: readonly MeasureValue[];
+} | {
+  readonly ok: false;
+  readonly problems: readonly string[];
+};
+
+### build/site.chunk.d.ts#MeasureValue
+interface MeasureValue {
+  readonly machine: string;
+  readonly measure: string;
+  readonly unit: string;
+  readonly value?: number;
+  readonly detail?: string;
+}
+
+### build/site.chunk.d.ts#OWNED
+declare const OWNED = "owned";
+
+### build/site.chunk.d.ts#PARTS_PRICE
+declare const PARTS_PRICE: Expr;
 
 ### build/site.chunk.d.ts#PART_CLASSES
 declare const PART_CLASSES: {
@@ -1308,6 +1296,18 @@ declare const PART_CLASSES: {
 ### build/site.chunk.d.ts#PART_CLASS_NAMES
 declare const PART_CLASS_NAMES: readonly PartClass[];
 
+### build/site.chunk.d.ts#PRICES
+declare const PRICES = "prices";
+
+### build/site.chunk.d.ts#PRICES_FORMAT
+declare const PRICES_FORMAT = "prices/1";
+
+### build/site.chunk.d.ts#PRICE_UNIT
+declare const PRICE_UNIT = "USD";
+
+### build/site.chunk.d.ts#PURCHASE
+declare const PURCHASE: Expr;
+
 ### build/site.chunk.d.ts#Part
 type Part = { [C in PartClass]: PartOf<C>; }[PartClass];
 
@@ -1334,6 +1334,40 @@ interface Place {
   readonly room: string;
 }
 
+### build/site.chunk.d.ts#PriceLine
+interface PriceLine {
+  readonly part: string;
+  readonly price: Quantity;
+  readonly source?: string;
+}
+
+### build/site.chunk.d.ts#PriceList
+interface PriceList {
+  readonly format: typeof PRICES_FORMAT;
+  readonly prices: readonly PriceLine[];
+}
+
+### build/site.chunk.d.ts#PriceListResult
+type PriceListResult = {
+  readonly ok: true;
+  readonly value: PriceList;
+} | {
+  readonly ok: false;
+  readonly problems: readonly string[];
+};
+
+### build/site.chunk.d.ts#ROOM_HEAT
+declare const ROOM_HEAT: Expr;
+
+### build/site.chunk.d.ts#ROOM_IDLE_HEAT
+declare const ROOM_IDLE_HEAT: Expr;
+
+### build/site.chunk.d.ts#ROOM_MACHINES
+declare const ROOM_MACHINES: Expr;
+
+### build/site.chunk.d.ts#ROOM_NOISE
+declare const ROOM_NOISE: Expr;
+
 ### build/site.chunk.d.ts#Room
 interface Room {
   readonly id: string;
@@ -1341,6 +1375,12 @@ interface Room {
   readonly heatLimit: Quantity;
   readonly noiseLimit: Quantity;
 }
+
+### build/site.chunk.d.ts#SITE_COST
+declare const SITE_COST: Expr;
+
+### build/site.chunk.d.ts#SITE_COST_MEASURES
+declare const SITE_COST_MEASURES: readonly SiteMeasure[];
 
 ### build/site.chunk.d.ts#SITE_FIELDS
 declare const SITE_FIELDS: {
@@ -1391,8 +1431,38 @@ declare const SITE_FIELDS: {
 ### build/site.chunk.d.ts#SITE_FORMAT
 declare const SITE_FORMAT = "site/1";
 
+### build/site.chunk.d.ts#SITE_IDLE_COST
+declare const SITE_IDLE_COST: Expr;
+
+### build/site.chunk.d.ts#SITE_IDLE_POWER
+declare const SITE_IDLE_POWER: Expr;
+
 ### build/site.chunk.d.ts#SITE_KEY
 declare const SITE_KEY = "site";
+
+### build/site.chunk.d.ts#SITE_MEASURES
+declare const SITE_MEASURES: readonly SiteMeasure[];
+
+### build/site.chunk.d.ts#SITE_POWER
+declare const SITE_POWER: Expr;
+
+### build/site.chunk.d.ts#SITE_RULES
+declare const SITE_RULES: readonly SiteRule[];
+
+### build/site.chunk.d.ts#SITE_RUNNER_SLOTS
+declare const SITE_RUNNER_SLOTS: Expr;
+
+### build/site.chunk.d.ts#SLOT_COST
+declare const SLOT_COST: Expr;
+
+### build/site.chunk.d.ts#STOCK
+declare const STOCK = "stock";
+
+### build/site.chunk.d.ts#Share
+interface Share {
+  readonly threads: number;
+  readonly memory: number;
+}
 
 ### build/site.chunk.d.ts#Site
 interface Site {
@@ -1403,6 +1473,18 @@ interface Site {
   readonly places: readonly Place[];
 }
 
+### build/site.chunk.d.ts#SiteLevel
+type SiteLevel = "site" | "circuit" | "room";
+
+### build/site.chunk.d.ts#SiteMeasure
+interface SiteMeasure {
+  readonly id: string;
+  readonly sentence: string;
+  readonly unit: string;
+  readonly level: SiteLevel;
+  readonly program: Expr;
+}
+
 ### build/site.chunk.d.ts#SiteResult
 type SiteResult = {
   readonly ok: true;
@@ -1411,6 +1493,14 @@ type SiteResult = {
   readonly ok: false;
   readonly problems: readonly string[];
 };
+
+### build/site.chunk.d.ts#SiteRule
+interface SiteRule {
+  readonly id: string;
+  readonly sentence: string;
+  readonly level: SiteLevel;
+  readonly program: Expr;
+}
 
 ### build/site.chunk.d.ts#SiteTree
 interface SiteTree {
@@ -1429,8 +1519,28 @@ type SiteTreeResult = {
   readonly problems: readonly string[];
 };
 
+### build/site.chunk.d.ts#TOTAL_COST
+declare const TOTAL_COST: Expr;
+
+### build/site.chunk.d.ts#amountOf
+declare function amountOf(result: Result<unknown>): {
+  readonly value?: number;
+  readonly detail?: string;
+};
+
+### build/site.chunk.d.ts#costVariables
+declare function costVariables(options: CostOptions | undefined, catalog: ReadonlyMap<string, Part>, machines: readonly Machine[]): {
+  readonly problems: readonly string[];
+  readonly vars: Readonly<Record<string, unknown>>;
+};
+
 ### build/site.chunk.d.ts#designTree
 declare function designTree(machines: readonly Machine[], catalog: ReadonlyMap<string, Part>): DesignTreeResult;
+
+### build/site.chunk.d.ts#evaluateDesign
+declare function evaluateDesign<T extends {
+  readonly program: Expr;
+}>(machines: readonly Machine[], catalog: ReadonlyMap<string, Part>, items: readonly T[], options?: DesignOptions): DesignEvaluation<T>;
 
 ### build/site.chunk.d.ts#fieldSchema
 declare const fieldSchema: (spec: FieldSpec) => z.ZodType;
@@ -1444,11 +1554,20 @@ declare function lineRecord(part: Part, count: number): Readonly<Record<string, 
 ### build/site.chunk.d.ts#machineSchema
 declare const machineSchema: z.ZodType<Machine>;
 
+### build/site.chunk.d.ts#measureDesign
+declare function measureDesign(machines: readonly Machine[], catalog: ReadonlyMap<string, Part>, options?: MeasureOptions): MeasureResult;
+
 ### build/site.chunk.d.ts#partSchema
 declare const partSchema: z.ZodType<Part>;
 
+### build/site.chunk.d.ts#priceListSchema
+declare const priceListSchema: z.ZodType<PriceList>;
+
 ### build/site.chunk.d.ts#readCatalog
 declare function readCatalog(values: readonly unknown[]): CatalogResult;
+
+### build/site.chunk.d.ts#readPrices
+declare function readPrices(value: unknown): PriceListResult;
 
 ### build/site.chunk.d.ts#readSite
 declare function readSite(value: unknown): SiteResult;

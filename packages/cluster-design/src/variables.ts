@@ -3,6 +3,7 @@
  * machine. The programs of a machine and of a site read the same variables. The entry of the package does not export
  * this module. The module `evaluate.ts` exports its public names.
  */
+import type { CostOptions } from "./cost.ts";
 import { JOB_MEMORY, JOB_THREADS, PSU_LOAD, RESERVE_MEMORY, RESERVE_THREADS } from "./formulas.ts";
 
 /** The default load limit of a power supply: 80 percent of its output. */
@@ -29,6 +30,8 @@ export interface DesignOptions {
   readonly job?: Share;
   /** The threads and the memory that the system of a machine keeps. The default is `DEFAULT_RESERVE`. */
   readonly reserve?: Share;
+  /** The input of the cost programs: the prices, the stock, the owned machines, the horizon and the busy share. */
+  readonly cost?: CostOptions;
 }
 
 const isAmount = (value: number, least: number, open: boolean): boolean => Number.isFinite(value) && (open ? value > least : value >= least);

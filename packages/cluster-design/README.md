@@ -1,6 +1,8 @@
 # @mark1russell7/cluster-design
 
-The design of a computer cluster as math. This package has the records of the parts, the machines of a design, and the fit rules that tell which parts fit in one machine. It also has the formulas of a machine: its power, its heat, its noise and its capacity. A site holds the machines. Its rules and measures give the load of each circuit, the heat and the noise of each room, and the cost of the electricity. The programs of backup power give the minutes and the charges of each battery of a site.
+The design of a computer cluster as math. This package has the records of the parts, the machines of a design, and the fit rules that tell which parts fit in one machine. It also has the formulas of a machine: its power, its heat, its noise and its capacity. A site holds the machines. Its rules and measures give the load of each circuit, the heat and the noise of each room, and the cost of the electricity.
+
+The cost programs give the price of the parts to buy and the cost of a design over a horizon. The programs of backup power give the minutes and the charges of each battery of a site.
 
 ```sh
 pnpm add @mark1russell7/cluster-design
@@ -261,6 +263,52 @@ swept.value.run.rows.filter((row) => row.front); // the designs on the Pareto fr
 The option `objectives` gives other objectives, each with a name, a goal and the id of a measure. A measure of a circuit or a room gives the worst value of its keys. The worst value is the max for the goal `min`, and the min for the goal `max`. The size of a job, the reserve of a machine and the load limits go to the check and to the measures.
 
 A property test over random samples holds that each row has the verdict of `checkDesignConfig`.
+
+## The cost of a design
+
+The cost of a design has two parts: the price of the parts to buy, and the cost of the electricity over a horizon. The option `cost` holds the input of the cost. The measures of a machine, the measures of a site and a sweep take this option.
+
+| Option | Default | Value |
+| --- | --- | --- |
+| `prices` | no price | A price list `prices/1`: the price of each part in USD, and the source of the price. |
+| `stock` | no part | The spare parts of the user, as part lines. |
+| `owned` | no machine | The ids of the machines that the user owns already. |
+| `horizon` | 36 months | The time of the cost of the electricity, as an amount of time. |
+| `busy` | 1 | The share of the time that each machine takes its most power, from 0 to 1. |
+
+`readPrices` reads a price list from data. The price list is input data. For example, `bestOffer` of `@mark1russell7/market` gives the price of a part. This package reads no seller.
+
+```ts
+import { measureSite, readPrices, SITE_COST_MEASURES } from "@mark1russell7/cluster-design";
+
+const prices = readPrices(data); // the price list as data
+if (!prices.ok) throw new Error(prices.problems.join("
+"));
+const cost = { prices: prices.value, stock: [{ part: "ram-2x16", count: 2 }], owned: ["node-1"], busy: 0.3 };
+const values = measureSite(site, machines, catalog, { cost, measures: SITE_COST_MEASURES });
+```
+
+A part of the price list or of the stock that is not in the catalog is a problem. Two prices of one part are a problem. An owned id that is not a machine of the design is a problem. A busy share outside 0 to 1 is a problem.
+
+### The purchase
+
+The purchase takes the parts from a pool. The machines in `owned` need no part. The lines of the other machines make one group for each part.
+
+The count to buy is the count of the group less the stock, and not less than 0. A part costs its price times the count to buy. A part with no count to buy needs no price. A part to buy with no price gives no purchase, and the detail names the part.
+
+### The measures of the cost
+
+| Measure | Level | Unit | Value |
+| --- | --- | --- | --- |
+| `price` | machine | USD | The sum of the count times the price of each line of the machine. |
+| `purchase` | site | USD | The price of the parts to buy. |
+| `energy-cost` | site | USD | `horizon` in months, times `idle-cost` plus `busy` times the difference of `cost` and `idle-cost`. |
+| `total-cost` | site | USD | `purchase` plus `energy-cost`. |
+| `slot-cost` | site | USD | `total-cost` divided by `runner-slots`: the cost of one CI job slot over the horizon. A site with no slot gives no value. |
+
+The measure of a machine is in `MACHINE_COST_MEASURES`, and the measures of a site are in `SITE_COST_MEASURES`. The default busy share of 1 makes `energy-cost` a bound: each machine takes its most power at each hour. A property test holds that the purchase equals plain arithmetic over random designs, stock and prices.
+
+In a sweep, the default measures include the cost measures. Thus an objective can read `total-cost` or `slot-cost`. The fixed machines stand on the site already, so the default `owned` of a sweep is the fixed machines. A part to buy with no price makes the row `unread`, and `unread` names the measure as `site:total-cost`.
 
 ## Backup power
 

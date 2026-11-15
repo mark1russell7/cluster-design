@@ -4,7 +4,11 @@
  *
  * The hard constraints are the fit rules of the new machine and the rules of the site. `checkDesignConfig` gives them.
  * The objectives are measures of the site, as Vex programs. A rule without a read gives no value to each objective.
- * Thus the row is `unread`, and it gets no rank.
+ * Thus the row is `unread`, and it gets no rank. A measure without a value, for example a cost with a part that has no
+ * price, also makes the row `unread`.
+ *
+ * The fixed machines stand on the site already. Thus a cost measure buys no part for them, unless the option
+ * `cost.owned` names other machines.
  *
  * The id of the run holds a hash of the input. Thus another site or another catalog gives another run.
  */
@@ -14,6 +18,7 @@ import type { GridOptions, StrategyConfig } from "@mark1russell7/strategy-space"
 import { checkDesignConfig, type DesignCheckOptions, type DesignInput, type DesignSpace, type Outcome } from "./design-space.ts";
 import { measureSite, type SiteMeasureValue } from "./site-check.ts";
 import { SITE_MEASURES, type SiteMeasure } from "./site-formulas.ts";
+import { SITE_COST_MEASURES } from "./cost.ts";
 
 /** The name and the version of the evaluation of a sweep. A change of the evaluation gives a new version. */
 export const DESIGN_SWEEP_EVALUATOR = "cluster-design-sweep/1";
@@ -46,7 +51,7 @@ export interface DesignSweepOptions extends DesignCheckOptions {
   readonly enumerate: GridOptions | SweepSample;
   /** The objectives. The default is `DESIGN_OBJECTIVES`. */
   readonly objectives?: readonly DesignObjective[];
-  /** The measures of the site that the objectives read. The default is `SITE_MEASURES`. */
+  /** The measures of the site that the objectives read. The default is `SITE_MEASURES` and `SITE_COST_MEASURES`. */
   readonly measures?: readonly SiteMeasure[];
 }
 
@@ -54,8 +59,9 @@ export interface DesignSweepOptions extends DesignCheckOptions {
 export interface DesignSweep {
   readonly run: SweepRun;
   /**
-   * The rules without a read, by the id of the config. A rule of the new machine has the form `<machine>:<rule>`, and
-   * a rule of the site has the form `<key>:<rule>`. A config with a read of each rule has no entry.
+   * The rules and the measures without a read, by the id of the config. A rule of the new machine has the form
+   * `<machine>:<rule>`, and a rule of the site has the form `<key>:<rule>`. A measure of an objective without a value
+   * has the form `<key>:<measure>`. A config with a read of each rule and a value of each measure has no entry.
    */
   readonly unread: Readonly<Record<string, readonly string[]>>;
 }
@@ -106,7 +112,8 @@ const partsOf = (catalog: DesignInput["catalog"]): unknown[] => [...catalog.valu
  * @returns The sweep, or the problems of the objectives, the enumeration and the input
  */
 export function sweepDesigns(design: DesignSpace, input: DesignInput, options: DesignSweepOptions): Outcome<DesignSweep> {
-  const { enumerate, objectives = DESIGN_OBJECTIVES, measures = SITE_MEASURES, ...check } = options;
+  const { enumerate, objectives = DESIGN_OBJECTIVES, measures = [...SITE_MEASURES, ...SITE_COST_MEASURES], ...check } = options;
+  const withOwned = { ...check, cost: { owned: (input.fixed ?? []).map((machine) => machine.id), ...check.cost } };
   const byId = new Map(measures.map((measure) => [measure.id, measure]));
   const problems = designObjectiveProblems(objectives, byId);
   if (problems.length > 0) return { ok: false, problems };
@@ -116,7 +123,7 @@ export function sweepDesigns(design: DesignSpace, input: DesignInput, options: D
   const unread: Record<string, readonly string[]> = {};
 
   const evaluate = (config: StrategyConfig): Measure => {
-    const checked = checkDesignConfig(design, config, input, check);
+    const checked = checkDesignConfig(design, config, input, withOwned);
     if (!checked.ok) throw new InputProblem(checked.problems);
     const { id, machine, site, design: made } = checked.value;
     const name = (finding: { readonly verdict: string; readonly rule: string }, key: string): string => `${key}:${finding.rule}`;
@@ -132,8 +139,10 @@ export function sweepDesigns(design: DesignSpace, input: DesignInput, options: D
       unread[id] = missing;
       return { breaks, values: Object.fromEntries(objectives.map((objective) => [objective.name, Number.NaN])) };
     }
-    const measured = measureSite(made.site, made.machines, input.catalog, { ...check, measures: used });
+    const measured = measureSite(made.site, made.machines, input.catalog, { ...withOwned, measures: used });
     if (!measured.ok) throw new InputProblem(measured.problems);
+    const empty = measured.values.filter((value) => value.value === undefined).map((value) => `${value.id}:${value.measure}`);
+    if (empty.length > 0) unread[id] = empty;
     return { breaks, values: Object.fromEntries(objectives.map((objective) => [objective.name, valueOf(objective, measured.values)])) };
   };
 
