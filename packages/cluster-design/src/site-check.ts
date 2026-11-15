@@ -5,6 +5,7 @@
 import { evaluate, type Expr, type Result } from "@mark1russell7/vex";
 import { BoolDomain, NumDomain, TextDomain } from "@mark1russell7/vex-domains";
 import { verdictOf, type Verdict } from "./check.ts";
+import { costVariables } from "./cost.ts";
 import type { Machine } from "./machine.ts";
 import { amountOf } from "./measure.ts";
 import type { Part } from "./parts.ts";
@@ -59,7 +60,8 @@ export function evaluateSite<T extends { readonly level: SiteLevel; readonly pro
 ): SiteEvaluationResult<T> {
   const continuousLoad = options.continuousLoad ?? DEFAULT_CONTINUOUS_LOAD;
   const design = variablesOf(options);
-  const problems = [...design.problems];
+  const cost = costVariables(options.cost, catalog, machines);
+  const problems = [...design.problems, ...cost.problems];
   if (!(continuousLoad > 0 && continuousLoad <= 1)) problems.push(`The continuous load limit ${String(continuousLoad)} is not more than 0 and not more than 1.`);
   if (problems.length > 0) return { ok: false, problems };
   const tree = siteTree(site, machines, catalog);
@@ -69,7 +71,7 @@ export function evaluateSite<T extends { readonly level: SiteLevel; readonly pro
     circuit: tree.value.circuits,
     room: tree.value.rooms,
   };
-  const vars = { ...design.vars, [CONTINUOUS_LOAD]: continuousLoad };
+  const vars = { ...design.vars, ...cost.vars, [CONTINUOUS_LOAD]: continuousLoad };
   const evaluations: SiteEvaluation<T>[] = [];
   for (const item of items) {
     for (const [id, origin] of keys[item.level]) {

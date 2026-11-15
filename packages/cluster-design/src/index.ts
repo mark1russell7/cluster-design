@@ -21,3 +21,4 @@ export * from "./site-check.ts";
 export * from "./design-space.ts";
 export * from "./sweep.ts";
 export * from "./backup.ts";
+export * from "./cost.ts";

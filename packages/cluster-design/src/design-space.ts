@@ -494,10 +494,11 @@ export interface DesignVerdict {
 export function checkDesignConfig(design: DesignSpace, config: StrategyConfig, input: DesignInput, options: DesignCheckOptions = {}): Outcome<DesignVerdict> {
   const made = designOf(design, config, input);
   if (!made.ok) return made;
-  const { fitRules, siteRules, ...rest } = options;
+  // The fit rules read no cost, and the one copy that they examine is not the design. Thus only the site check gets the cost options.
+  const { fitRules, siteRules, cost, ...rest } = options;
   const machine = checkDesign(made.value.added.slice(0, 1), input.catalog, { ...rest, ...(fitRules === undefined ? {} : { rules: fitRules }) });
   if (!machine.ok) return machine;
-  const site = checkSite(made.value.site, made.value.machines, input.catalog, { ...rest, ...(siteRules === undefined ? {} : { rules: siteRules }) });
+  const site = checkSite(made.value.site, made.value.machines, input.catalog, { ...rest, ...(cost === undefined ? {} : { cost }), ...(siteRules === undefined ? {} : { rules: siteRules }) });
   if (!site.ok) return site;
   const verdict = overall([...machine.findings, ...site.findings]);
   return { ok: true, value: { id: configId(design.space, config), verdict, machine: machine.findings, site: site.findings, design: made.value } };

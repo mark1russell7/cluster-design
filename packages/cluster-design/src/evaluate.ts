@@ -2,6 +2,7 @@
  * The evaluation of Vex programs at each machine of a design. The check of the fit rules and the measures use it.
  */
 import { evaluate, type Expr, type Result } from "@mark1russell7/vex";
+import { costVariables } from "./cost.ts";
 import { BoolDomain, NumDomain, TextDomain } from "@mark1russell7/vex-domains";
 import { designTree, type Machine } from "./machine.ts";
 import type { Part } from "./parts.ts";
@@ -38,8 +39,11 @@ export function evaluateDesign<T extends { readonly program: Expr }>(
   items: readonly T[],
   options: DesignOptions = {},
 ): DesignEvaluation<T> {
-  const { problems, vars } = variablesOf(options);
+  const design = variablesOf(options);
+  const cost = costVariables(options.cost, catalog, machines);
+  const problems = [...design.problems, ...cost.problems];
   if (problems.length > 0) return { ok: false, problems };
+  const vars = { ...design.vars, ...cost.vars };
   const tree = designTree(machines, catalog);
   if (!tree.ok) return tree;
   const evaluations: Evaluation<T>[] = [];
