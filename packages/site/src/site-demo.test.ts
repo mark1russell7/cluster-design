@@ -4,6 +4,7 @@ import { describe, expect, it } from "vitest";
 import { headlineOf, machineOf, PRESETS } from "./demo.ts";
 import {
   copiesOf,
+  COST_MONTHS,
   formatUsd,
   MAX_COPIES,
   SAMPLE_SITE_STATE,
@@ -100,6 +101,8 @@ describe("the hash of a site", () => {
 
   it("goes after the pairs of the machine", () => {
     expect(siteStateOf("#cpu-a=1&load=80&at=ab.ba&price=20")).toMatchObject({ places: [{ circuit: 0, room: 1 }, { circuit: 1, room: 0 }], price: 0.2 });
+    expect(siteStateOf("#at=aa&busy=40")?.busy).toBe(0.4);
+    expect(siteStateOf("#at=aa")?.busy).toBe(SAMPLE_SITE_STATE.busy);
   });
 
   it("gives no state with no pair at", () => {
@@ -111,6 +114,7 @@ describe("the hash of a site", () => {
     const read = siteStateOf(`#at=${Array.from({ length: 9 }, () => "aa").join(".")}&price=900&c0=99.17.40.99999&r0=99.-5.200`);
     expect(read?.places).toHaveLength(MAX_COPIES);
     expect(read?.price).toBe(1);
+    expect(siteStateOf("#at=aa&busy=500")?.busy).toBe(1);
     expect(read?.circuits[0]).toEqual({ voltage: 120, breaker: 15, sockets: 8, otherLoad: 3000 });
     expect(read?.rooms[0]).toEqual({ places: 8, heatLimit: 0, noiseLimit: 80 });
     expect(read?.circuits[1]).toEqual(SAMPLE_SITE_STATE.circuits[1]);
@@ -126,5 +130,29 @@ describe("the text of money", () => {
     expect(formatUsd(39.6912)).toBe("$39.69");
     expect(formatUsd(123.4)).toBe("$123");
     expect(formatUsd(undefined)).toBe("–");
+  });
+});
+
+describe("the cost of the site of the demo", () => {
+  const valueOf = (state: SiteState, measure: string): number => {
+    const value = siteResultOf(MACHINE, state).measures.find((entry) => entry.id === "site" && entry.measure === measure)?.value;
+    if (value === undefined) throw new Error(`no value of ${measure}`);
+    return value;
+  };
+
+  it("buys each copy, and takes the power for the busy share of the time", () => {
+    const result = siteResultOf(MACHINE, SAMPLE_SITE_STATE);
+    const month = (result.idleCost ?? 0) + SAMPLE_SITE_STATE.busy * ((result.cost ?? 0) - (result.idleCost ?? 0));
+    expect(result.purchase).toBe(2 * 959);
+    expect(result.energyCost).toBeCloseTo(COST_MONTHS * month, 9);
+    expect(result.totalCost).toBeCloseTo(2 * 959 + COST_MONTHS * month, 9);
+    expect(result.slotCost).toBeCloseTo((result.totalCost ?? 0) / valueOf(SAMPLE_SITE_STATE, "runner-slots"), 9);
+  });
+
+  it("costs more with more time at full power, and nothing to buy with no machine", () => {
+    expect(valueOf({ ...SAMPLE_SITE_STATE, busy: 1 }, "energy-cost")).toBeGreaterThan(valueOf({ ...SAMPLE_SITE_STATE, busy: 0 }, "energy-cost"));
+    const empty = siteResultOf(MACHINE, { ...SAMPLE_SITE_STATE, places: [] });
+    expect(empty.purchase).toBe(0);
+    expect(empty.slotCost).toBeUndefined();
   });
 });
