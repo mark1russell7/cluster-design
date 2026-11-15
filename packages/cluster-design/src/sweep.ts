@@ -27,9 +27,10 @@ import {
   type SweepSample,
 } from "@mark1russell7/strategy-search";
 import type { GridOptions, StrategyConfig } from "@mark1russell7/strategy-space";
-import { checkDesignConfig, type DesignCheckOptions, type DesignInput, type DesignSpace, type Outcome } from "./design-space.ts";
+import { checkDesignConfig, withSpaceWork, type DesignCheckOptions, type DesignInput, type DesignSpace, type Outcome } from "./design-space.ts";
 import { measureSite, type SiteMeasureValue } from "./site-check.ts";
-import { SITE_MEASURES, type SiteMeasure } from "./site-formulas.ts";
+import { SITE_MEASURES, siteWorkMeasures, type SiteMeasure } from "./site-formulas.ts";
+import type { WorkClass } from "./variables.ts";
 import { SITE_COST_MEASURES } from "./cost.ts";
 
 /** The name and the version of the evaluation of a design, in a sweep and in a genetic search. A change of the evaluation gives a new version. */
@@ -57,11 +58,24 @@ export const DESIGN_OBJECTIVES: readonly DesignObjective[] = [
   { name: "noise", goal: "min", measure: "noise" },
 ];
 
+/**
+ * This function gives one objective for each work class: the most units of the class on the site. With the objective
+ * `runner-slots`, a search of a split gives the front of the work classes and the CI jobs.
+ * @param classes - The work classes
+ * @returns The objective `work-<id>` of each class, with the goal `max`
+ */
+export function workObjectives(classes: readonly WorkClass[]): readonly DesignObjective[] {
+  return classes.map((work): DesignObjective => ({ name: `work-${work.id}`, goal: "max", measure: `work-${work.id}` }));
+}
+
 /** These options change each search of the design space: the objectives, the measures, and the options of the check. */
 export interface DesignSearchOptions extends DesignCheckOptions {
   /** The objectives. The default is `DESIGN_OBJECTIVES`. */
   readonly objectives?: readonly DesignObjective[];
-  /** The measures of the site that the objectives read. The default is `SITE_MEASURES` and `SITE_COST_MEASURES`. */
+  /**
+   * The measures of the site that the objectives read. The default is `SITE_MEASURES`, `SITE_COST_MEASURES` and the
+   * measures of the work classes from `siteWorkMeasures`.
+   */
   readonly measures?: readonly SiteMeasure[];
 }
 
@@ -149,9 +163,11 @@ interface DesignEvaluation {
 /**
  * This function gives the evaluation of the designs of one search. The evaluation checks a design, measures its site and
  * gives the value of each objective. Its name holds a hash of the input. The search fills `unread` while it evaluates.
+ * Without the option `work`, the evaluation reads the work classes of the space.
  */
 function designEvaluation(design: DesignSpace, input: DesignInput, options: DesignSearchOptions): Outcome<DesignEvaluation> {
-  const { objectives = DESIGN_OBJECTIVES, measures = [...SITE_MEASURES, ...SITE_COST_MEASURES], ...check } = options;
+  const withWork = withSpaceWork(design, options);
+  const { objectives = DESIGN_OBJECTIVES, measures = [...SITE_MEASURES, ...SITE_COST_MEASURES, ...siteWorkMeasures(withWork.work ?? [])], ...check } = withWork;
   const withOwned = { ...check, cost: { owned: (input.fixed ?? []).map((machine) => machine.id), ...check.cost } };
   const byId = new Map(measures.map((measure) => [measure.id, measure]));
   const problems = designObjectiveProblems(objectives, byId);

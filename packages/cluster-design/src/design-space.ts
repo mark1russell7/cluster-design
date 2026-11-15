@@ -7,6 +7,9 @@
  * `placement` gives the rule that puts them on the site. The fit rules and the site rules are the hard constraints:
  * `checkDesignConfig` gives one verdict for a config.
  *
+ * The option `split` gives the range of the units of each work class on the new machine. Each range is one stage, after
+ * the slots. Thus a search finds the split of the machine between the work classes and the CI jobs.
+ *
  * The constraints of the space come from the fit rules, and each one has its reason. A rule of one class removes a part
  * that breaks it at each count. A rule of two classes forbids a pair of parts that breaks it at each pair of counts.
  * The derivation uses only the classes with one slot, because there the lines of the rule are the same in each machine.
@@ -27,12 +30,13 @@ import {
 } from "@mark1russell7/strategy-space";
 import { checkDesign, overall, verdictOf, type Finding, type Verdict } from "./check.ts";
 import { evaluateDesign, type DesignOptions } from "./evaluate.ts";
-import type { Machine, PartLine } from "./machine.ts";
+import type { Machine, PartLine, WorkLine } from "./machine.ts";
 import type { Part, PartClass } from "./parts.ts";
 import { FIT_RULES, type FitRule } from "./rules.ts";
 import { checkSite, type SiteFinding, type SiteOptions } from "./site-check.ts";
 import { SITE_RULES, type SiteRule } from "./site-formulas.ts";
 import type { Place, Site } from "./site.ts";
+import { workProblems, type WorkClass } from "./variables.ts";
 
 /** The name of the design space. A config names the space with this value. */
 export const DESIGN_ENGINE = "cluster-design";
@@ -46,7 +50,13 @@ export const COPIES_STAGE = "copies";
 /** The name of the stage of the rule that puts the new machines on the site. */
 export const PLACEMENT_STAGE = "placement";
 
-/** The name of the param of a count, in a stage of a part and in the stage `copies`. */
+/** The start of the name of the stage of a work class. The stage of the class `session` is `work-session`. */
+export const WORK_STAGE_PREFIX = "work-";
+
+/** This function gives the name of the stage of a work class. */
+export const workStage = (id: string): string => `${WORK_STAGE_PREFIX}${id}`;
+
+/** The name of the param of a count. The stages of the parts, the stages of the work classes and the stage `copies` have it. */
 export const COUNT_PARAM = "count";
 
 /**
@@ -88,6 +98,17 @@ export const DEFAULT_SLOTS: readonly Slot[] = [
   { class: "gpu", min: 1, max: 1, optional: true },
 ];
 
+/** This record is the range of the units of one work class on each new machine. The min can be 0. */
+export interface SplitRange extends CountRange {
+  /** The id of a work class of the option `work`. */
+  readonly class: string;
+}
+
+/** This record is a range of the split and the name of its stage. */
+export interface SplitStage extends SplitRange {
+  readonly stage: string;
+}
+
 /** The default range of the count of the new machines. */
 export const DEFAULT_COPIES: CountRange = { min: 1, max: 4 };
 
@@ -108,6 +129,11 @@ export interface DesignSpaceOptions extends DesignOptions {
   readonly site?: Pick<DesignInput, "site" | "fixed">;
   /** The rules of the site of the check. Only a rule of this list gives a limit. The default is `SITE_RULES`. */
   readonly siteRules?: readonly SiteRule[];
+  /**
+   * The split of the new machine: the range of the units of each work class of the option `work`. The default is no
+   * split, so the new machine has no work lines.
+   */
+  readonly split?: readonly SplitRange[];
 }
 
 /**
@@ -143,12 +169,15 @@ export interface DerivedConstraint {
 }
 
 /**
- * This record is a design space: the strategy space, its slots, its range of copies, and the reasons of its constraints.
- * The range of the copies has the limits of the site. Without a site, `limits` is empty.
+ * This record is a design space: the strategy space, its slots, its split, its range of copies, and the reasons of its
+ * constraints. The range of the copies has the limits of the site. Without a site, `limits` is empty. The field `work`
+ * keeps the work classes of the options, so a check of a config reads the same classes.
  */
 export interface DesignSpace {
   readonly space: StrategySpace;
   readonly slots: readonly StageSlot[];
+  readonly split: readonly SplitStage[];
+  readonly work: readonly WorkClass[];
   readonly copies: CountRange;
   readonly excluded: readonly Exclusion[];
   readonly derived: readonly DerivedConstraint[];
@@ -213,6 +242,9 @@ export function designSpace(catalog: ReadonlyMap<string, Part>, options: DesignS
   }
   const copiesProblem = rangeProblem("the copies", copies, 1);
   if (copiesProblem !== undefined) problems.push(copiesProblem);
+  const work = options.work ?? [];
+  problems.push(...workProblems(work));
+  const split = splitStages(options.split ?? [], work, problems);
   if (problems.length > 0) return { ok: false, problems };
 
   const slotCount = new Map<PartClass, number>();
@@ -298,6 +330,7 @@ export function designSpace(catalog: ReadonlyMap<string, Part>, options: DesignS
       ...(slot.optional === true ? { optional: true } : {}),
       options: (options_.get(slot.stage) ?? []).map((part) => ({ id: part.id, params: countParams(slot) })),
     })),
+    ...split.map((range) => ({ name: range.stage, options: [{ id: range.class, params: countParams(range) }] })),
     { name: COPIES_STAGE, options: [{ id: COPIES_STAGE, params: countParams(range) }] },
     { name: PLACEMENT_STAGE, options: PLACEMENTS.map((id) => ({ id, params: [] })) },
   ];
@@ -310,7 +343,24 @@ export function designSpace(catalog: ReadonlyMap<string, Part>, options: DesignS
   };
   const breaks = checkSpace(space);
   if (breaks.length > 0) return { ok: false, problems: breaks.map((b) => `The space breaks the claim ${b.claim}: ${b.detail}`) };
-  return { ok: true, value: { space, slots: used, copies: range, excluded, derived, limits } };
+  return { ok: true, value: { space, slots: used, split, work, copies: range, excluded, derived, limits } };
+}
+
+/**
+ * This function names the stage of each range of the split. A class that the work classes do not have, a class with two
+ * ranges and a bad range are problems.
+ */
+function splitStages(split: readonly SplitRange[], work: readonly WorkClass[], problems: string[]): SplitStage[] {
+  const ids = new Set(work.map((w) => w.id));
+  const seen = new Set<string>();
+  for (const range of split) {
+    if (seen.has(range.class)) problems.push(`The split has two ranges of the work class ${range.class}.`);
+    seen.add(range.class);
+    if (!ids.has(range.class)) problems.push(`The split names the work class ${range.class}, but the options do not have it.`);
+    const problem = rangeProblem(`the work class ${range.class}`, range, 0);
+    if (problem !== undefined) problems.push(problem);
+  }
+  return split.map((range) => ({ ...range, stage: workStage(range.class) }));
 }
 
 /**
@@ -450,17 +500,27 @@ export function designOf(design: DesignSpace, config: StrategyConfig, input: Des
     const choice = canonical.stages[slot.stage];
     if (choice !== null && choice !== undefined) lines.push({ part: choice.option, count: countIn(choice.params, slot) });
   }
+  const work: WorkLine[] = [];
+  for (const range of design.split) {
+    const count = countIn(canonical.stages[range.stage]?.params, range);
+    if (count > 0) work.push({ class: range.class, count });
+  }
   const copies = countIn(canonical.stages[COPIES_STAGE]?.params, design.copies);
   const placement = (canonical.stages[PLACEMENT_STAGE]?.option ?? "fill") as Placement;
   const fixed = input.fixed ?? [];
   const prefix = input.prefix ?? "new-";
-  const added = Array.from({ length: copies }, (_, i) => ({ id: `${prefix}${String(i + 1)}`, lines }));
+  const added: Machine[] = Array.from({ length: copies }, (_, i) => ({ id: `${prefix}${String(i + 1)}`, lines, ...(work.length > 0 ? { work } : {}) }));
   const taken = new Set(fixed.map((machine) => machine.id));
   const clash = added.filter((machine) => taken.has(machine.id));
   if (clash.length > 0) return { ok: false, problems: clash.map((machine) => `The id ${machine.id} of a new machine is the id of a fixed machine.`) };
   const places = placeMachines(input.site, fixed, added, input.catalog, placement);
   if (!places.ok) return places;
   return { ok: true, value: { machines: [...fixed, ...added], site: { ...input.site, places: [...input.site.places, ...places.value] }, added } };
+}
+
+/** This function gives the options with the work classes of the space, when the options have none and the space has some. */
+export function withSpaceWork<T extends DesignOptions>(design: DesignSpace, options: T): T {
+  return options.work === undefined && design.work.length > 0 ? { ...options, work: design.work } : options;
 }
 
 /** These options change the check of a config. */
@@ -482,7 +542,7 @@ export interface DesignVerdict {
 
 /**
  * This function examines a config with the hard constraints. The fit rules examine one copy of the new machine, because
- * each copy has the same parts. The site rules examine the site with each machine. The verdict is `fits` only when each
+ * each copy has the same parts and the same work lines. Without the option `work`, the check reads the work classes of the space. The site rules examine the site with each machine. The verdict is `fits` only when each
  * finding fits, and a finding with no read gives `unread`, not `fits`.
  *
  * @param design - The design space
@@ -495,7 +555,7 @@ export function checkDesignConfig(design: DesignSpace, config: StrategyConfig, i
   const made = designOf(design, config, input);
   if (!made.ok) return made;
   // The fit rules read no cost, and the one copy that they examine is not the design. Thus only the site check gets the cost options.
-  const { fitRules, siteRules, cost, ...rest } = options;
+  const { fitRules, siteRules, cost, ...rest } = withSpaceWork(design, options);
   const machine = checkDesign(made.value.added.slice(0, 1), input.catalog, { ...rest, ...(fitRules === undefined ? {} : { rules: fitRules }) });
   if (!machine.ok) return machine;
   const site = checkSite(made.value.site, made.value.machines, input.catalog, { ...rest, ...(cost === undefined ? {} : { cost }), ...(siteRules === undefined ? {} : { rules: siteRules }) });
