@@ -141,6 +141,25 @@ describe("the measures of a site", () => {
     expect(valuesOf(cents)["site:cost"]).toBeCloseTo(((2 * WALL) / 1000) * HOURS_PER_MONTH * 1.5, 9);
   });
 
+  it("give the runner slots of the site, the sum of the runner slots of each machine at the same size of a job", () => {
+    const SLOTS = machineValue("runner-slots");
+    expect(SLOTS).toBeGreaterThan(0);
+    expect(valuesOf()["site:runner-slots"]).toBe(2 * SLOTS);
+    const small = { threads: 1, memory: 2 };
+    const one = measureDesign([SAMPLE_MACHINE], CATALOG, { job: small });
+    if (!one.ok) throw new Error(one.problems.join(" "));
+    const smallSlots = one.values.find((value) => value.measure === "runner-slots")?.value;
+    expect(smallSlots).toBeGreaterThan(SLOTS);
+    expect(valuesOf(SAMPLE_SITE, MACHINES, { job: small })["site:runner-slots"]).toBe(2 * (smallSlots ?? 0));
+  });
+
+  it("give the problems of the options of a design and of the continuous load", () => {
+    expect(measureSite(SAMPLE_SITE, MACHINES, CATALOG, { job: { threads: 0, memory: 16 }, continuousLoad: 2 })).toEqual({
+      ok: false,
+      problems: ["The threads and the memory of a job are not more than 0.", "The continuous load limit 2 is not more than 0 and not more than 1."],
+    });
+  });
+
   it("give each value with the unit of its measure", () => {
     const result = measureSite(SAMPLE_SITE, MACHINES, CATALOG);
     if (!result.ok) throw new Error(result.problems.join(" "));

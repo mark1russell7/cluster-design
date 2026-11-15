@@ -3,6 +3,8 @@
  * It also has the fit rules, which tell which parts fit in one machine. Its formulas give the measures of a machine:
  * its power, its heat, its noise and its capacity. A site holds the machines. Its rules and measures give the load of
  * each circuit, the heat and the noise of each room, and the cost of the electricity.
+ *
+ * A sweep of the design space gives the designs that keep each rule, and their Pareto front.
  */
 export * from "./parts.ts";
 export * from "./machine.ts";
@@ -15,3 +17,4 @@ export * from "./site.ts";
 export * from "./site-formulas.ts";
 export * from "./site-check.ts";
 export * from "./design-space.ts";
+export * from "./sweep.ts";
