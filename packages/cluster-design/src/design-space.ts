@@ -527,7 +527,7 @@ export function withSpaceWork<T extends DesignOptions>(design: DesignSpace, opti
 export interface DesignCheckOptions extends DesignOptions, SiteOptions {
   /** The fit rules of the new machine. The default is `FIT_RULES`. */
   readonly fitRules?: readonly FitRule[];
-  /** The rules of the site. The default is `SITE_RULES`. */
+  /** The rules of the site. The default is the default of `checkSite`: `SITE_RULES` and the rules of the demands of the work classes. */
   readonly siteRules?: readonly SiteRule[];
 }
 

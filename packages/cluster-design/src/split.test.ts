@@ -15,8 +15,8 @@ import {
 } from "./design-space.ts";
 import { readCatalog, type Part } from "./parts.ts";
 import { SAMPLE_MACHINE, SAMPLE_PARTS, SAMPLE_SITE } from "./sample.ts";
-import { measureSite } from "./site-check.ts";
-import { SITE_MEASURES, siteWorkMeasures } from "./site-formulas.ts";
+import { checkSite, measureSite } from "./site-check.ts";
+import { SITE_MEASURES, SITE_RULES, siteWorkMeasures, siteWorkRules } from "./site-formulas.ts";
 import { sweepDesigns, workObjectives } from "./sweep.ts";
 import type { WorkClass } from "./variables.ts";
 
@@ -179,5 +179,63 @@ describe("a search of the split", () => {
       { name: "work-session", goal: "max", measure: "work-session" },
       { name: "work-service", goal: "max", measure: "work-service" },
     ]);
+  });
+});
+
+describe("the demand of a work class", () => {
+  const DEMAND: readonly WorkClass[] = [{ ...SESSION, demand: 6 }, SERVICE];
+  const space = spaceOf({ site: INPUT, work: DEMAND, split: SPLIT });
+
+  /** This function gives the rules of the site that a config breaks. */
+  const breaksOf = (work: Readonly<Record<string, number>>): string[] => {
+    const checked = checkDesignConfig(space, configOf(work), INPUT);
+    if (!checked.ok) throw new Error(checked.problems.join(" "));
+    return checked.value.site.filter((finding) => finding.verdict === "breaks").map((finding) => `${finding.id}:${finding.rule}`);
+  };
+
+  it("gives one rule of the site for each class with a demand", () => {
+    const rules = siteWorkRules(DEMAND);
+    expect(rules.map((rule) => [rule.id, rule.level, rule.sentence])).toEqual([
+      ["demand-session", "site", "The machines of the site have 6 units of the work class session or more."],
+    ]);
+    expect(siteWorkRules(CLASSES)).toEqual([]);
+  });
+
+  it("is a hard constraint of the check of a config", () => {
+    expect(breaksOf({ session: 5, service: 0 })).toEqual(["site:demand-session"]);
+    expect(breaksOf({ session: 6, service: 0 })).toEqual([]);
+    expect(breaksOf({ session: 8, service: 2 })).toEqual([]);
+  });
+
+  it("is a rule of the check of a site, unless the option rules gives other rules", () => {
+    const machines = [{ ...SAMPLE_MACHINE, work: [{ class: "session", count: 2 }] }];
+    const site = { ...SAMPLE_SITE, places: SAMPLE_SITE.places.filter((place) => place.machine === SAMPLE_MACHINE.id) };
+    const checked = checkSite(site, machines, CATALOG, { work: DEMAND });
+    if (!checked.ok) throw new Error(checked.problems.join(" "));
+    expect(checked.findings.filter((finding) => finding.rule === "demand-session").map((finding) => finding.verdict)).toEqual(["breaks"]);
+    const plain = checkSite(site, machines, CATALOG, { work: DEMAND, rules: SITE_RULES });
+    expect(plain.ok && plain.findings.some((finding) => finding.rule === "demand-session")).toBe(false);
+  });
+
+  it("keeps each feasible design of a search at the demand or more", () => {
+    const swept = sweepDesigns(space, INPUT, {
+      enumerate: { mode: "sample", n: 40, seed: "cluster-design demand" },
+      objectives: [{ name: "runner-slots", goal: "max", measure: "runner-slots" }, ...workObjectives(DEMAND)],
+    });
+    if (!swept.ok) throw new Error(swept.problems.join(" "));
+    const { run } = swept.value;
+    for (const row of run.rows) {
+      const units = row.values["work-session"] ?? Number.NaN;
+      if (row.status === "feasible") expect(units).toBeGreaterThanOrEqual(6);
+      if (units < 6) expect(row.breaks).toContain("site:demand-session");
+    }
+    expect(run.rows.some((row) => row.breaks.includes("site:demand-session"))).toBe(true);
+  });
+
+  it("refuses a demand that is not a whole number of 0 or more", () => {
+    expect(designSpace(CATALOG, { work: [{ ...SESSION, demand: -1 }, { ...SERVICE, demand: 1.5 }] })).toEqual({
+      ok: false,
+      problems: ["The demand of the work class session is not a whole number of 0 or more.", "The demand of the work class service is not a whole number of 0 or more."],
+    });
   });
 });

@@ -10,7 +10,7 @@ import type { Machine } from "./machine.ts";
 import { amountOf } from "./measure.ts";
 import type { Part } from "./parts.ts";
 import { siteTree, SITE_KEY, type Site } from "./site.ts";
-import { CONTINUOUS_LOAD, SITE_MEASURES, SITE_RULES, type SiteLevel, type SiteMeasure, type SiteRule } from "./site-formulas.ts";
+import { CONTINUOUS_LOAD, SITE_MEASURES, SITE_RULES, siteWorkRules, type SiteLevel, type SiteMeasure, type SiteRule } from "./site-formulas.ts";
 import { variablesOf, type DesignOptions } from "./variables.ts";
 
 /** The default continuous load limit of a circuit: 80 percent of its rating, as the electrical codes ask for a continuous load. */
@@ -94,7 +94,7 @@ export interface SiteFinding {
 
 /** These options change the check of a site. */
 export interface SiteCheckOptions extends SiteOptions {
-  /** The rules of the check. The default is `SITE_RULES`. */
+  /** The rules of the check. The default is `SITE_RULES` and the rules of the demands of the work classes, from `siteWorkRules`. */
   readonly rules?: readonly SiteRule[];
 }
 
@@ -111,7 +111,7 @@ export type SiteCheckResult = { readonly ok: true; readonly findings: readonly S
  * @returns The findings in the order of the rules and the keys, or the problems of the input
  */
 export function checkSite(site: Site, machines: readonly Machine[], catalog: ReadonlyMap<string, Part>, options: SiteCheckOptions = {}): SiteCheckResult {
-  const evaluated = evaluateSite(site, machines, catalog, options.rules ?? SITE_RULES, options);
+  const evaluated = evaluateSite(site, machines, catalog, options.rules ?? [...SITE_RULES, ...siteWorkRules(options.work ?? [])], options);
   if (!evaluated.ok) return evaluated;
   const findings = evaluated.evaluations.map(({ level, id, item, result }) => ({ level, id, rule: item.id, sentence: item.sentence, ...verdictOf(result) }));
   return { ok: true, findings };

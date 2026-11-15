@@ -148,7 +148,7 @@ The work lines take their share first, and the CI jobs take the rest. The rules 
 | `work-<id>` | count | The units of the class on the machine. |
 | `capacity-<id>` | count | The units of the class on the machine, plus the units of the class that fit in the free share. |
 
-A work line with a class that the options do not have is a problem of the input. A class with an empty id, an id on two classes, or threads or memory of 0 or less is also a problem. The record of a work line in the tree has the kind `work` and the class `work`. Thus a test of a part class gives false for it.
+A work line with a class that the options do not have is a problem of the input. A class with an empty id, an id on two classes, or threads or memory of 0 or less is also a problem. A demand that is not a whole number of 0 or more is a problem too. The record of a work line in the tree has the kind `work` and the class `work`. Thus a test of a part class gives false for it.
 
 The split of each machine is a parameter. The option `split` of the design space makes it a stage of the search (the part [The split of the work](#the-split-of-the-work)).
 
@@ -188,6 +188,9 @@ The option `continuousLoad` sets the continuous load limit of a circuit, as a ra
 | `room-heat` | room | The most heat of the machines in a room is not more than the heat limit of the room. |
 | `room-noise` | room | The most sound level of the machines in a room is not more than the noise limit of the room. |
 | `room-places` | room | The machines in a room are not more than the places of the room. |
+| `demand-<id>` | site | The machines of the site have the demand of the work class, or more. `siteWorkRules` gives one rule for each class with a demand. |
+
+The check adds the rules of the demands by default. The option `rules` gives other rules.
 
 A rule gives the verdict `unread` when it cannot read a value. For example, a machine with no power supply has no power from the wall. Thus its circuit and its room get `unread`, and not `fits`.
 
@@ -293,6 +296,7 @@ const made = designSpace(catalog, { site: { site, fixed }, work, split: [{ class
 - The space keeps the work classes in its field `work`. Thus `checkDesignConfig` and a search read the same classes without the option `work`.
 - A range of a class that the option `work` does not have is a problem. A class with two ranges and a range that is not whole numbers from 0 are problems too.
 - Without a split, the space has no stage of work, and it is the same space as before.
+- The field `demand` of a work class gives the units that the site needs. Its rule `demand-<id>` is a hard constraint of the check and of a search. Thus a search keeps only the splits that hold each demand.
 
 ### A sweep of the designs
 
