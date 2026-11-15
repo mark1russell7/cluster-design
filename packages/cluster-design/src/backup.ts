@@ -258,6 +258,16 @@ export const BACKUP_RULES: readonly BackupRule[] = [
   { id: "usable-share", sentence: "The usable share of the battery is more than 0 and not more than 1.", program: app("and", app("gt", ref("usable"), lit(0)), app("lte", ref("usable"), lit(1))) },
 ];
 
+/**
+ * This rule tells if a source fits at the low end of its loads. A source that breaks `source-load` and keeps this rule
+ * fits only while the loads stay low. The rule is not in `BACKUP_RULES`. Give it in the option `rules` of `checkBackup`.
+ */
+export const SOURCE_LOAD_LOW: BackupRule = {
+  id: "source-load-low",
+  sentence: "The power of the carried loads at their low end is not more than the load limit of the source.",
+  program: app("lte", BACKUP_LOAD_LOW, BACKUP_LIMIT),
+};
+
 /** This record is one measure of backup power: its id, the sentence that tells it, its unit and its program at a source. */
 export interface BackupMeasure {
   readonly id: string;

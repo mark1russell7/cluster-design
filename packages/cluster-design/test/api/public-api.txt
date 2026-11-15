@@ -78,9 +78,12 @@ DerivedConstraint: build/index.d.ts#DerivedConstraint
 Design: build/index.d.ts#Design
 DesignCheckOptions: build/index.d.ts#DesignCheckOptions
 DesignEvaluation: build/site.chunk.d.ts#DesignEvaluation
+DesignEvolution: build/index.d.ts#DesignEvolution
+DesignEvolveOptions: build/index.d.ts#DesignEvolveOptions
 DesignInput: build/index.d.ts#DesignInput
 DesignObjective: build/index.d.ts#DesignObjective
 type DesignOptions: build/site.chunk.d.ts#DesignOptions
+DesignSearchOptions: build/index.d.ts#DesignSearchOptions
 DesignSpace: build/index.d.ts#DesignSpace
 DesignSpaceOptions: build/index.d.ts#DesignSpaceOptions
 DesignSweep: build/index.d.ts#DesignSweep
@@ -162,6 +165,7 @@ SITE_POWER: build/site.chunk.d.ts#SITE_POWER
 SITE_RULES: build/site.chunk.d.ts#SITE_RULES
 SITE_RUNNER_SLOTS: build/site.chunk.d.ts#SITE_RUNNER_SLOTS
 SLOT_COST: build/site.chunk.d.ts#SLOT_COST
+SOURCE_LOAD_LOW: build/index.d.ts#SOURCE_LOAD_LOW
 STOCK: build/site.chunk.d.ts#STOCK
 STORAGE: build/index.d.ts#STORAGE
 type Share: build/site.chunk.d.ts#Share
@@ -204,6 +208,7 @@ detailOf: build/index.d.ts#detailOf
 evaluateBackup: build/index.d.ts#evaluateBackup
 evaluateDesign: build/site.chunk.d.ts#evaluateDesign
 evaluateSite: build/index.d.ts#evaluateSite
+evolveDesigns: build/index.d.ts#evolveDesigns
 fieldSchema: build/site.chunk.d.ts#fieldSchema
 fieldValue: build/site.chunk.d.ts#fieldValue
 freeCounts: build/index.d.ts#freeCounts
@@ -523,6 +528,22 @@ export interface DesignCheckOptions extends DesignOptions, SiteOptions {
   readonly siteRules?: readonly SiteRule[];
 }
 
+### build/index.d.ts#DesignEvolution
+export interface DesignEvolution {
+  readonly run: EvolveRun;
+  readonly unread: Readonly<Record<string, readonly string[]>>;
+}
+
+### build/index.d.ts#DesignEvolveOptions
+export interface DesignEvolveOptions extends DesignSearchOptions {
+  readonly seed: number | string;
+  readonly evaluations: number;
+  readonly population?: number;
+  readonly mutation?: number;
+  readonly crossover?: number;
+  readonly sample?: EvolveSample;
+}
+
 ### build/index.d.ts#DesignInput
 export interface DesignInput {
   readonly catalog: ReadonlyMap<string, Part>;
@@ -536,6 +557,12 @@ export interface DesignObjective {
   readonly name: string;
   readonly goal: Goal;
   readonly measure: string;
+}
+
+### build/index.d.ts#DesignSearchOptions
+export interface DesignSearchOptions extends DesignCheckOptions {
+  readonly objectives?: readonly DesignObjective[];
+  readonly measures?: readonly SiteMeasure[];
 }
 
 ### build/index.d.ts#DesignSpace
@@ -565,10 +592,8 @@ export interface DesignSweep {
 }
 
 ### build/index.d.ts#DesignSweepOptions
-export interface DesignSweepOptions extends DesignCheckOptions {
+export interface DesignSweepOptions extends DesignSearchOptions {
   readonly enumerate: GridOptions | SweepSample;
-  readonly objectives?: readonly DesignObjective[];
-  readonly measures?: readonly SiteMeasure[];
 }
 
 ### build/index.d.ts#DesignVerdict
@@ -690,6 +715,9 @@ export interface RuntimePoint {
   readonly load: Quantity;
   readonly time: Quantity;
 }
+
+### build/index.d.ts#SOURCE_LOAD_LOW
+export declare const SOURCE_LOAD_LOW: BackupRule;
 
 ### build/index.d.ts#STORAGE
 export declare const STORAGE: Expr;
@@ -827,6 +855,9 @@ export declare function evaluateSite<T extends {
   readonly level: SiteLevel;
   readonly program: Expr;
 }>(site: Site, machines: readonly Machine[], catalog: ReadonlyMap<string, Part>, items: readonly T[], options?: SiteOptions): SiteEvaluationResult<T>;
+
+### build/index.d.ts#evolveDesigns
+export declare function evolveDesigns(design: DesignSpace, input: DesignInput, options: DesignEvolveOptions): Outcome<DesignEvolution>;
 
 ### build/index.d.ts#freeCounts
 export declare function freeCounts(site: Site, fixed: readonly Machine[], catalog: ReadonlyMap<string, Part>): FreeCounts;

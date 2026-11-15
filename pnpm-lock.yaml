@@ -178,6 +178,9 @@ importers:
       '@mark1russell7/cue':
         specifier: ^2.0.0
         version: 2.1.4
+      '@mark1russell7/rigor-statistics':
+        specifier: ^0.2.2
+        version: 0.2.2
       '@mark1russell7/ste-lint':
         specifier: ^0.3.0
         version: 0.3.2
@@ -212,8 +215,8 @@ importers:
         specifier: ^0.1.16
         version: 0.1.16
       '@mark1russell7/strategy-search':
-        specifier: ^0.0.1
-        version: 0.0.1
+        specifier: ^0.0.3
+        version: 0.0.3
       '@mark1russell7/strategy-space':
         specifier: ^0.0.7
         version: 0.0.7
@@ -255,8 +258,8 @@ importers:
         specifier: workspace:*
         version: link:../cluster-design
       '@mark1russell7/strategy-search':
-        specifier: ^0.0.1
-        version: 0.0.1
+        specifier: ^0.0.3
+        version: 0.0.3
     devDependencies:
       '@mark1russell7/cue':
         specifier: ^2.0.0
@@ -537,8 +540,8 @@ packages:
     resolution: {integrity: sha512-UnBEZVSVSytwFH5pJ5ezlOCEs/19Ur0/REQ+Tq5BYs8uYWSNoP/hZNGx2tdqLN2Rn0u+A41GwieBnuM6DuWS4g==}
     engines: {node: '>=22'}
 
-  '@mark1russell7/rigor-statistics@0.2.0':
-    resolution: {integrity: sha512-Gzi1Uy2/EdXXKGtqF+ZUpNrVQELEDAoG8ufrUvo0oXYlYXWyWxk3HXhLPKSq4MmRn/EiUr0Uebc05n3IjpvkGQ==}
+  '@mark1russell7/rigor-statistics@0.2.2':
+    resolution: {integrity: sha512-DBcPP7mt0LsUFIVk8luMICkwbrt/JRCIosHCfpn/F/IM5PYbUKHrCvyzKfwglw4M7lKa7oO70vpcQ2jZZxqKeA==}
     engines: {node: '>=22'}
 
   '@mark1russell7/site-pages@0.4.8':
@@ -551,8 +554,8 @@ packages:
     engines: {node: '>=22'}
     hasBin: true
 
-  '@mark1russell7/strategy-search@0.0.1':
-    resolution: {integrity: sha512-Rd0lR2Y0PRU+wBmlOChBQny/A38wehCNTSTOo0JhG5cPhFt1oBF7TGBk9R9O9tcX2AQT6rhMtMc0Fwaeekjnfw==}
+  '@mark1russell7/strategy-search@0.0.3':
+    resolution: {integrity: sha512-wdTXtbd3y35MY5nswHu4LZLohjqxaXgdRcscuL1cw702ldwyNIsuixbU6km01+mCSBPhwu4Eex+wfvEre6GfOQ==}
     engines: {node: '>=22'}
 
   '@mark1russell7/strategy-space@0.0.7':
@@ -1856,7 +1859,7 @@ snapshots:
     dependencies:
       '@mark1russell7/rigor-generators': 0.1.16
 
-  '@mark1russell7/rigor-statistics@0.2.0':
+  '@mark1russell7/rigor-statistics@0.2.2':
     dependencies:
       '@mark1russell7/rigor-generators': 0.1.16
 
@@ -1868,7 +1871,7 @@ snapshots:
     dependencies:
       typescript: 6.0.3
 
-  '@mark1russell7/strategy-search@0.0.1':
+  '@mark1russell7/strategy-search@0.0.3':
     dependencies:
       '@mark1russell7/rigor-generators': 0.1.16
       '@mark1russell7/strategy-space': 0.0.7
@@ -1876,7 +1879,7 @@ snapshots:
   '@mark1russell7/strategy-space@0.0.7':
     dependencies:
       '@mark1russell7/rigor-generators': 0.1.16
-      '@mark1russell7/rigor-statistics': 0.2.0
+      '@mark1russell7/rigor-statistics': 0.2.2
 
   '@mark1russell7/template-cli@0.1.7':
     dependencies:

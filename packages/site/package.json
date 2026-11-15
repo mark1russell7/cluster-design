@@ -14,7 +14,7 @@
   },
   "dependencies": {
     "@mark1russell7/cluster-design": "workspace:*",
-    "@mark1russell7/strategy-search": "^0.0.1"
+    "@mark1russell7/strategy-search": "^0.0.3"
   },
   "devDependencies": {
     "@mark1russell7/cue": "^2.0.0",

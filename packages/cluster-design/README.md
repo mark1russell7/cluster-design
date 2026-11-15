@@ -264,6 +264,25 @@ The option `objectives` gives other objectives, each with a name, a goal and the
 
 A property test over random samples holds that each row has the verdict of `checkDesignConfig`.
 
+### A genetic search of the designs
+
+`evolveDesigns` searches the space with `evolve` of `@mark1russell7/strategy-search`, a genetic search (NSGA-II). Use it when a sample finds few designs near the front.
+
+```ts
+import { evolveDesigns } from "@mark1russell7/cluster-design";
+
+const evolved = evolveDesigns(made.value, { catalog, site, fixed }, { seed: "my search", evaluations: 400 });
+if (!evolved.ok) throw new Error(evolved.problems.join("\n"));
+evolved.value.run.rows.filter((row) => row.front); // the designs on the Pareto front
+```
+
+- Each design gets the evaluation of `sweepDesigns`: the same check, the same measures and the same objectives. Thus a sweep and a genetic search of one input have the same `evaluator`, and their rows compare.
+- The options `population` (default 40), `mutation` and `crossover` go to `evolve`. A bad option gives a problem, not a throw.
+- Each row has the field `generation`. The first population is generation 0.
+- The run stops when it used each evaluation, or when 20 generations in a row made no new design.
+
+The script `scripts/study-evolve.ts` compares the genetic search with a seeded sample on the sample site. The workflow `study.yml` starts it, and its artifact holds the record.
+
 ## The cost of a design
 
 The cost of a design has two parts: the price of the parts to buy, and the cost of the electricity over a horizon. The option `cost` holds the input of the cost. The measures of a machine, the measures of a site and a sweep take this option.
@@ -349,6 +368,8 @@ The energy comes from the capacity when the source gives no energy: the charge i
 | `source-load` | The most power of the carried loads is not more than the load limit of the source. |
 | `source-plugs` | The source has an output for a plug of each carried load. |
 | `usable-share` | The usable share of the battery is more than 0 and not more than 1. |
+
+The rule `source-load-low` (`SOURCE_LOAD_LOW`) holds that the power of the loads at their low end is not more than the load limit. It is not in `BACKUP_RULES`. Give it in the option `rules` of `checkBackup`. A source that breaks `source-load` and keeps this rule fits only while the loads stay low.
 
 The load limit of a source is its rated power times its continuous share. The default share is 0.8, so the rated power is 1.25 times the load. A source that gives its rated power for hours, for example a power bank, has the share 1. The option `continuousShare` sets the share of each source that does not give it.
 
