@@ -31,7 +31,7 @@ import type { Machine, PartLine } from "./machine.ts";
 import type { Part, PartClass } from "./parts.ts";
 import { FIT_RULES, type FitRule } from "./rules.ts";
 import { checkSite, type SiteFinding, type SiteOptions } from "./site-check.ts";
-import type { SiteRule } from "./site-formulas.ts";
+import { SITE_RULES, type SiteRule } from "./site-formulas.ts";
 import type { Place, Site } from "./site.ts";
 
 /** The name of the design space. A config names the space with this value. */
@@ -101,6 +101,24 @@ export interface DesignSpaceOptions extends DesignOptions {
   readonly rules?: readonly FitRule[];
   /** With `false`, the fit rules give no constraint and remove no part. The rule of the order of two slots stays. The default is `true`. */
   readonly derive?: boolean;
+  /**
+   * The site and its fixed machines. With them, the rules `room-places` and `circuit-plugs` lower the max of the copies.
+   * Each limit has its reason in `limits`. The option `derive` does not change the limits.
+   */
+  readonly site?: Pick<DesignInput, "site" | "fixed">;
+  /** The rules of the site of the check. Only a rule of this list gives a limit. The default is `SITE_RULES`. */
+  readonly siteRules?: readonly SiteRule[];
+}
+
+/**
+ * This record is a limit of the site on the count of the new machines. The free count is the sum of the free places or of
+ * the free sockets of the site. Each new machine takes `each` of them, so a count above `max` breaks the rule `rule`.
+ */
+export interface CopiesLimit {
+  readonly rule: string;
+  readonly free: number;
+  readonly each: number;
+  readonly max: number;
 }
 
 /** This record is a slot and the name of its stage. The first slot of a class has the name of the class. */
@@ -124,13 +142,17 @@ export interface DerivedConstraint {
   readonly reason: string;
 }
 
-/** This record is a design space: the strategy space, its slots, its range of copies, and the reasons of its constraints. */
+/**
+ * This record is a design space: the strategy space, its slots, its range of copies, and the reasons of its constraints.
+ * The range of the copies has the limits of the site. Without a site, `limits` is empty.
+ */
 export interface DesignSpace {
   readonly space: StrategySpace;
   readonly slots: readonly StageSlot[];
   readonly copies: CountRange;
   readonly excluded: readonly Exclusion[];
   readonly derived: readonly DerivedConstraint[];
+  readonly limits: readonly CopiesLimit[];
 }
 
 /** This record is a value, or the problems of the input. */
@@ -262,13 +284,21 @@ export function designSpace(catalog: ReadonlyMap<string, Part>, options: DesignS
 
   if (problems.length > 0) return { ok: false, problems };
 
+  const limits = options.site === undefined ? [] : copiesLimits(options.site, catalog, used, options.siteRules ?? SITE_RULES);
+  const max = Math.min(copies.max, ...limits.map((limit) => limit.max));
+  if (max < copies.min) {
+    const least = limits.filter((limit) => limit.max === max).map((limit) => limit.rule).join(" and ");
+    return { ok: false, problems: [`The site has room for ${String(max)} new machines by the rule ${least}, less than the min ${String(copies.min)} of the copies.`] };
+  }
+  const range: CountRange = { min: copies.min, max };
+
   const stages: SpaceStage[] = [
     ...used.map((slot) => ({
       name: slot.stage,
       ...(slot.optional === true ? { optional: true } : {}),
       options: (options_.get(slot.stage) ?? []).map((part) => ({ id: part.id, params: countParams(slot) })),
     })),
-    { name: COPIES_STAGE, options: [{ id: COPIES_STAGE, params: countParams(copies) }] },
+    { name: COPIES_STAGE, options: [{ id: COPIES_STAGE, params: countParams(range) }] },
     { name: PLACEMENT_STAGE, options: PLACEMENTS.map((id) => ({ id, params: [] })) },
   ];
   const space: StrategySpace = {
@@ -280,7 +310,32 @@ export function designSpace(catalog: ReadonlyMap<string, Part>, options: DesignS
   };
   const breaks = checkSpace(space);
   if (breaks.length > 0) return { ok: false, problems: breaks.map((b) => `The space breaks the claim ${b.claim}: ${b.detail}`) };
-  return { ok: true, value: { space, slots: used, copies, excluded, derived } };
+  return { ok: true, value: { space, slots: used, copies: range, excluded, derived, limits } };
+}
+
+/**
+ * This function gives the limits of a site on the count of the new machines. The placement puts each new machine in one
+ * room and on one circuit. The new machines can need more places or plugs than the sum of the free ones. Then a room or a
+ * circuit gets more than it has, and its rule breaks. A room or a circuit that is already full adds 0 to the sum.
+ *
+ * Each new machine takes one place, and the sum of the min counts of its power supplies in plugs. A count above the min
+ * takes more, so the limit holds for each count. A machine with no power supply takes no plug and gets no limit of plugs.
+ */
+function copiesLimits(input: Pick<DesignInput, "site" | "fixed">, catalog: ReadonlyMap<string, Part>, used: readonly StageSlot[], rules: readonly SiteRule[]): CopiesLimit[] {
+  const { rooms, circuits } = freeCounts(input.site, input.fixed ?? [], catalog);
+  const sum = (counts: ReadonlyMap<string, number>): number => [...counts.values()].reduce((n, free) => n + Math.max(0, free), 0);
+  const ids = new Set(rules.map((rule) => rule.id));
+  const limits: CopiesLimit[] = [];
+  if (ids.has("room-places")) {
+    const free = sum(rooms);
+    limits.push({ rule: "room-places", free, each: 1, max: free });
+  }
+  const plugs = used.filter((slot) => slot.class === "psu" && slot.optional !== true).reduce((n, slot) => n + slot.min, 0);
+  if (ids.has("circuit-plugs") && plugs > 0) {
+    const free = sum(circuits);
+    limits.push({ rule: "circuit-plugs", free, each: plugs, max: Math.floor(free / plugs) });
+  }
+  return limits;
 }
 
 /** This record is the input of a design: the catalog, the site, and the machines that the site already has. */
@@ -308,6 +363,33 @@ const countIn = (params: Readonly<Record<string, ParamValue>> | undefined, range
 
 const plugsOf = (machine: Machine, catalog: ReadonlyMap<string, Part>): number =>
   machine.lines.reduce((n, line) => n + (catalog.get(line.part)?.class === "psu" ? line.count : 0), 0);
+
+/** This record is the free places of each room and the free sockets of each circuit of a site, by their ids. A count below 0 tells that the fixed machines already break a rule. */
+export interface FreeCounts {
+  readonly rooms: Map<string, number>;
+  readonly circuits: Map<string, number>;
+}
+
+/**
+ * This function gives the free counts of a site after its fixed machines. A room has its places less its machines free.
+ * A circuit has its sockets less the power supplies of its machines free.
+ *
+ * @param site - The site, with the places of the fixed machines
+ * @param fixed - The fixed machines
+ * @param catalog - The parts by their ids
+ * @returns The free places of each room and the free sockets of each circuit
+ */
+export function freeCounts(site: Site, fixed: readonly Machine[], catalog: ReadonlyMap<string, Part>): FreeCounts {
+  const byId = new Map(fixed.map((machine) => [machine.id, machine]));
+  const rooms = new Map(site.rooms.map((room) => [room.id, room.places - site.places.filter((p) => p.room === room.id).length]));
+  const circuits = new Map(
+    site.circuits.map((circuit) => {
+      const plugs = site.places.filter((p) => p.circuit === circuit.id).reduce((n, p) => n + plugsOf(byId.get(p.machine) ?? { id: p.machine, lines: [] }, catalog), 0);
+      return [circuit.id, circuit.sockets - plugs];
+    }),
+  );
+  return { rooms, circuits };
+}
 
 /** This function gives the id that a rule of the placement takes from the free counts. A map with no id gives `undefined`. */
 function pick(free: ReadonlyMap<string, number>, placement: Placement): string | undefined {
@@ -338,14 +420,7 @@ export function placeMachines(
   if (site.rooms.length === 0) problems.push("The site has no room for the new machines.");
   if (site.circuits.length === 0) problems.push("The site has no circuit for the new machines.");
   if (problems.length > 0) return { ok: false, problems };
-  const byId = new Map(fixed.map((machine) => [machine.id, machine]));
-  const rooms = new Map(site.rooms.map((room) => [room.id, room.places - site.places.filter((p) => p.room === room.id).length]));
-  const circuits = new Map(
-    site.circuits.map((circuit) => {
-      const plugs = site.places.filter((p) => p.circuit === circuit.id).reduce((n, p) => n + plugsOf(byId.get(p.machine) ?? { id: p.machine, lines: [] }, catalog), 0);
-      return [circuit.id, circuit.sockets - plugs];
-    }),
-  );
+  const { rooms, circuits } = freeCounts(site, fixed, catalog);
   const places: Place[] = [];
   for (const machine of added) {
     const room = pick(rooms, placement);

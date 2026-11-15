@@ -9,6 +9,7 @@ import {
   DESIGN_ENGINE,
   designOf,
   designSpace,
+  freeCounts,
   placeMachines,
   PLACEMENT_STAGE,
   type DesignInput,
@@ -19,6 +20,8 @@ import { evaluateDesign } from "./evaluate.ts";
 import type { Machine } from "./machine.ts";
 import { readCatalog, type Part } from "./parts.ts";
 import { FIT_RULES } from "./rules.ts";
+import { SITE_RULES } from "./site-formulas.ts";
+import type { Site } from "./site.ts";
 import { SAMPLE_MACHINE, SAMPLE_PARTS, SAMPLE_SITE } from "./sample.ts";
 
 const catalogOf = (parts: readonly Part[]): ReadonlyMap<string, Part> => {
@@ -221,5 +224,79 @@ describe("the check of a config", () => {
     expect(three.value.verdict).toBe("breaks");
     const broken = three.value.site.filter((finding) => finding.verdict === "breaks").map((finding) => `${finding.id}:${finding.rule}`);
     expect(broken).toContain("room-a:room-places");
+  });
+});
+
+describe("the limits of the site on the copies", () => {
+  const brokenRules = (checked: ReturnType<typeof checkDesignConfig>): string[] => {
+    if (!checked.ok) throw new Error(checked.problems.join(" "));
+    return checked.value.site.filter((finding) => finding.verdict === "breaks").map((finding) => finding.rule);
+  };
+
+  it("lowers the max of the copies to the free places of the sample site, with the reason of each limit", () => {
+    const limited = spaceOf({ site: INPUT });
+    expect(limited.limits).toEqual([
+      { rule: "room-places", free: 2, each: 1, max: 2 },
+      { rule: "circuit-plugs", free: 4, each: 1, max: 4 },
+    ]);
+    expect(limited.copies).toEqual({ min: 1, max: 2 });
+    expect(checkSpace(limited.space)).toEqual([]);
+    expect(checkConfig(limited.space, sampleConfig(2, "spread"))).toEqual([]);
+    expect(checkConfig(limited.space, sampleConfig(3, "fill")).length).toBeGreaterThan(0);
+    expect(brokenRules(checkDesignConfig(DERIVED, sampleConfig(3, "spread"), INPUT))).toContain("room-places");
+    expect(DERIVED.limits).toEqual([]);
+  });
+
+  it("takes a limit only from a rule of the list", () => {
+    const limited = spaceOf({ site: INPUT, siteRules: SITE_RULES.filter((rule) => rule.id !== "room-places") });
+    expect(limited.limits.map((limit) => limit.rule)).toEqual(["circuit-plugs"]);
+    expect(limited.copies).toEqual({ min: 1, max: 4 });
+  });
+
+  it("gives a problem when the site has no free place for one copy", () => {
+    const full = { ...SAMPLE_SITE, rooms: SAMPLE_SITE.rooms.filter((room) => room.id === "room-a") };
+    const made = designSpace(CATALOG, { site: { site: full, fixed: INPUT.fixed ?? [] } });
+    expect(made).toEqual({ ok: false, problems: ["The site has room for 0 new machines by the rule room-places, less than the min 1 of the copies."] });
+  });
+
+  it("holds on random sites: a count above the max breaks the rule of the limit, and fill places the max", () => {
+    const drawn = fc.record({
+      places: fc.array(fc.integer({ min: 0, max: 3 }), { minLength: 1, maxLength: 3 }),
+      sockets: fc.array(fc.integer({ min: 0, max: 4 }), { minLength: 1, maxLength: 3 }),
+      fixed: fc.array(fc.tuple(fc.nat(), fc.nat()), { maxLength: 4 }),
+    });
+    fc.assert(
+      fc.property(drawn, ({ places, sockets, fixed }) => {
+        const machines: Machine[] = fixed.map((_, i) => ({ ...SAMPLE_MACHINE, id: `fixed-${String(i)}` }));
+        const site: Site = {
+          ...SAMPLE_SITE,
+          rooms: places.map((n, i) => ({ id: `room-${String(i)}`, places: n, heatLimit: quantity(1e6, "W"), noiseLimit: quantity(200, "dBA") })),
+          circuits: sockets.map((n, i) => ({ id: `circuit-${String(i)}`, voltage: quantity(120, "V"), breaker: quantity(1000, "A"), sockets: n, otherLoad: quantity(0, "W") })),
+          places: fixed.map(([r, c], i) => ({ machine: `fixed-${String(i)}`, room: `room-${String(r % places.length)}`, circuit: `circuit-${String(c % sockets.length)}` })),
+        };
+        const input: DesignInput = { catalog: CATALOG, site, fixed: machines };
+        const made = designSpace(CATALOG, { site: input });
+        if (!made.ok) {
+          expect(made.problems[0]).toMatch(/^The site has room for 0 new machines/);
+          expect(brokenRules(checkDesignConfig(DERIVED, sampleConfig(1, "spread"), input)).some((rule) => rule === "room-places" || rule === "circuit-plugs")).toBe(true);
+          return;
+        }
+        const { max } = made.value.copies;
+        const least = made.value.limits.filter((limit) => limit.max === max).map((limit) => limit.rule);
+        if (max < DERIVED.copies.max) {
+          for (const placement of ["fill", "spread"] as const) {
+            expect(brokenRules(checkDesignConfig(DERIVED, sampleConfig(max + 1, placement), input)).some((rule) => least.includes(rule))).toBe(true);
+          }
+        }
+        const free = freeCounts(site, machines, CATALOG);
+        if ([...free.rooms.values(), ...free.circuits.values()].every((n) => n >= 0)) {
+          // A range of one count has no param, so the config of the limited space has no count of copies.
+          const config = sampleConfig(max, "fill");
+          const one = max === made.value.copies.min ? { ...config, stages: { ...config.stages, [COPIES_STAGE]: { option: COPIES_STAGE } } } : config;
+          expect(brokenRules(checkDesignConfig(made.value, one, input))).toEqual([]);
+        }
+      }),
+      { numRuns: 80, seed: 20261115 },
+    );
   });
 });
