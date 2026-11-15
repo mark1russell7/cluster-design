@@ -3,7 +3,27 @@
   "name": "@mark1russell7/cluster-design",
   "version": "0.1.2",
   "description": "The design of a computer cluster as math: the records of the parts, and the rules that tell which parts fit in one machine.",
-  "private": true,
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/mark1russell7/cluster-design.git",
+    "directory": "packages/cluster-design"
+  },
+  "homepage": "https://github.com/mark1russell7/cluster-design/tree/main/packages/cluster-design#readme",
+  "bugs": {
+    "url": "https://github.com/mark1russell7/cluster-design/issues"
+  },
+  "keywords": [
+    "cluster",
+    "homelab",
+    "ci-runners",
+    "hardware",
+    "fit-rules",
+    "power",
+    "ups",
+    "vex",
+    "design-space"
+  ],
   "type": "module",
   "main": "./src/index.ts",
   "exports": {
@@ -11,7 +31,11 @@
     "./sample": "./src/sample.ts",
     "./package.json": "./package.json"
   },
+  "files": [
+    "build"
+  ],
   "scripts": {
+    "build": "tsdown",
     "test": "vitest run",
     "test:watch": "vitest",
     "typecheck": "tsc -p tsconfig.json && tsc -p tsconfig.test.json"
@@ -21,6 +45,7 @@
     "@types/node": "^26.6.5",
     "@vitest/coverage-v8": "^5.0.3",
     "fast-check": "^4.10.2",
+    "tsdown": "^0.23.1",
     "typescript": "^7.0.2",
     "vitest": "^5.0.3"
   },
@@ -32,5 +57,26 @@
     "@mark1russell7/vex": "^0.18.0",
     "@mark1russell7/vex-domains": "^0.18.0",
     "zod": "^4.6.7"
+  },
+  "engines": {
+    "node": ">=22"
+  },
+  "publishConfig": {
+    "access": "public",
+    "main": "./build/index.js",
+    "types": "./build/index.d.ts",
+    "exports": {
+      ".": {
+        "types": "./build/index.d.ts",
+        "import": "./build/index.js",
+        "default": "./build/index.js"
+      },
+      "./sample": {
+        "types": "./build/sample.d.ts",
+        "import": "./build/sample.js",
+        "default": "./build/sample.js"
+      },
+      "./package.json": "./package.json"
+    }
   }
 }
