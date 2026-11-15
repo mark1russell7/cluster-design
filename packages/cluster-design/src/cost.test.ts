@@ -1,5 +1,6 @@
 import { quantity, type Quantity } from "@mark1russell7/quantity";
 import fc from "fast-check";
+import { uniformDouble } from "@mark1russell7/rigor-testkit/arbitrary";
 import { describe, expect, it } from "vitest";
 import { MACHINE_COST_MEASURES, PRICES_FORMAT, readPrices, SITE_COST_MEASURES, type CostOptions, type PriceList } from "./cost.ts";
 import { designSpace, designOf, type DesignInput } from "./design-space.ts";
@@ -226,7 +227,7 @@ describe("the cost of the electricity over the horizon", () => {
   });
 
   it("grows with the busy share and with the horizon", () => {
-    const share = fc.double({ min: 0, max: 1, noNaN: true });
+    const share = uniformDouble({ min: 0, max: 1 });
     const months = fc.integer({ min: 0, max: 120 });
     fc.assert(
       fc.property(share, share, months, months, (a, b, m, n) => {
