@@ -2,7 +2,11 @@
 
 The design of a computer cluster as math. This package has the records of the parts, the machines of a design, and the fit rules that tell which parts fit in one machine. It also has the formulas of a machine: its power, its heat, its noise and its capacity. A site holds the machines. Its rules and measures give the load of each circuit, the heat and the noise of each room, and the cost of the electricity. The programs of backup power give the minutes and the charges of each battery of a site.
 
-The package is private. It is not on npm.
+```sh
+pnpm add @mark1russell7/cluster-design
+```
+
+The package has no prices, no site and no backup record of its own. They are input data.
 
 ## The model
 
