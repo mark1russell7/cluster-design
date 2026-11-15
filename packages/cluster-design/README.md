@@ -170,6 +170,46 @@ A rule gives the verdict `unread` when it cannot read a value. For example, a ma
 
 The programs of a site use the programs of a machine. Thus a site and its machines always agree. The rule `circuit-load` reads the programs of `load` and `limit`, and a property test holds that the rule and the measures agree. A month is a mean month of the Gregorian calendar: 730.485 hours, from the unit `mo` of `@mark1russell7/quantity`.
 
+## The design space
+
+A **design space** holds each design that adds copies of one new machine to a site. Each design is a config of a space of `@mark1russell7/strategy-space`. Thus a search can go through the designs, and each design has a stable id.
+
+| Stage | Options | Param |
+| --- | --- | --- |
+| one stage for each slot of the new machine | the parts of the class of the slot | `count`, when the slot has a range |
+| `copies` | `copies` | `count`, the count of the new machines |
+| `placement` | `fill` and `spread` | none |
+
+The default slots are one processor, one board, 1 to 4 memory kits and two kinds of drive with 1 to 4 drives each. Then one power supply, one case and one cooler follow. The second drive, the fans and the graphics card are optional. The first slot of a class has the name of the class, and the next one has the name `<class>-2`.
+
+```ts
+import { checkDesignConfig, designSpace } from "@mark1russell7/cluster-design";
+
+const made = designSpace(catalog); // the space of the catalog, with its constraints
+if (!made.ok) throw new Error(made.problems.join("\n"));
+
+const verdict = checkDesignConfig(made.value, config, { catalog, site, fixed }); // one verdict, with the findings
+```
+
+### The constraints
+
+The fit rules give the constraints of the space. Each constraint has its reason in `derived`, and each part that a rule removes is in `excluded`.
+
+- A fit rule of one class removes a part that breaks the rule at each count of its slot.
+- A fit rule of two classes forbids a pair of parts that breaks the rule at each pair of counts. For example, a processor of the socket S2 does not go on a board of the socket S1.
+- Two slots of one class with the same range take their parts in the order of the catalog. Thus a design does not have the same part in two slots, and two orders of one machine are one config.
+
+The derivation reads only the classes with one slot, because there each machine has the same lines of the rule. A property test holds that each rule reads only the lines of its classes. A second property test holds that each config that a constraint removes breaks a fit rule. Thus a constraint removes only the designs that the check also refuses. The option `derive: false` gives the space with no constraint from the rules.
+
+### The check of a config
+
+`designOf` makes the design of a config. The new machines get the ids `new-1`, `new-2` and on, and the option `prefix` changes the start of the id. The rule of the placement puts each new machine on the site:
+
+- `fill` takes the first room with a free place and the first circuit with a free socket.
+- `spread` takes the room with the most free places and the circuit with the most free sockets.
+
+When no room or circuit is free, both rules take the first one. The rules of the site then refuse the design. `checkDesignConfig` applies the fit rules to one copy of the new machine and the rules of the site to the whole site. The verdict is `fits` only when each finding fits.
+
 ## Units
 
 Each amount field of `PART_CLASSES` names the unit that the rules read. `designTree` converts each amount to that unit with `valueIn` of `@mark1russell7/quantity`, before the evaluation. Thus a case with a cooler height of 16 cm and a cooler of 155 mm fit.
