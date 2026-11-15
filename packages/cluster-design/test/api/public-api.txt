@@ -1,0 +1,1460 @@
+# The public API of @mark1russell7/cluster-design
+#
+# The names of each entry of the exports field, and the declaration of each name, without comments
+# and private members. The command `api-report check` compares this file with the built .d.ts files.
+# To accept a change of the API, start the build, then `api-report update`, and review the diff.
+
+## . (build/index.d.ts): names
+
+BACKUP_CEILING_HIGH: build/index.d.ts#BACKUP_CEILING_HIGH
+BACKUP_CEILING_LOW: build/index.d.ts#BACKUP_CEILING_LOW
+BACKUP_CHARGE: build/index.d.ts#BACKUP_CHARGE
+BACKUP_CHARGES: build/index.d.ts#BACKUP_CHARGES
+BACKUP_CHARGES_CEILING: build/index.d.ts#BACKUP_CHARGES_CEILING
+BACKUP_FORMAT: build/index.d.ts#BACKUP_FORMAT
+BACKUP_LIMIT: build/index.d.ts#BACKUP_LIMIT
+BACKUP_LOAD_HIGH: build/index.d.ts#BACKUP_LOAD_HIGH
+BACKUP_LOAD_LOW: build/index.d.ts#BACKUP_LOAD_LOW
+BACKUP_MEASURES: build/index.d.ts#BACKUP_MEASURES
+BACKUP_MINUTES_HIGH: build/index.d.ts#BACKUP_MINUTES_HIGH
+BACKUP_MINUTES_LOW: build/index.d.ts#BACKUP_MINUTES_LOW
+BACKUP_PLUGS: build/index.d.ts#BACKUP_PLUGS
+BACKUP_PRICE_PER_CHARGE: build/index.d.ts#BACKUP_PRICE_PER_CHARGE
+BACKUP_PRICE_PER_MINUTE: build/index.d.ts#BACKUP_PRICE_PER_MINUTE
+BACKUP_RANK_BY_CHARGES: build/index.d.ts#BACKUP_RANK_BY_CHARGES
+BACKUP_RANK_BY_MINUTES: build/index.d.ts#BACKUP_RANK_BY_MINUTES
+BACKUP_RULES: build/index.d.ts#BACKUP_RULES
+Backup: build/index.d.ts#Backup
+BackupCheckOptions: build/index.d.ts#BackupCheckOptions
+BackupCheckResult: build/index.d.ts#BackupCheckResult
+BackupEvaluation: build/index.d.ts#BackupEvaluation
+BackupEvaluationResult: build/index.d.ts#BackupEvaluationResult
+BackupFinding: build/index.d.ts#BackupFinding
+BackupLoad: build/index.d.ts#BackupLoad
+BackupMeasure: build/index.d.ts#BackupMeasure
+BackupMeasureOptions: build/index.d.ts#BackupMeasureOptions
+BackupMeasureResult: build/index.d.ts#BackupMeasureResult
+BackupMeasureValue: build/index.d.ts#BackupMeasureValue
+BackupOptions: build/index.d.ts#BackupOptions
+BackupResult: build/index.d.ts#BackupResult
+BackupRule: build/index.d.ts#BackupRule
+BackupSource: build/index.d.ts#BackupSource
+BackupSpaceResult: build/index.d.ts#BackupSpaceResult
+Basis: build/index.d.ts#Basis
+BatteryCapacity: build/index.d.ts#BatteryCapacity
+CIRCUIT_CURRENT: build/index.d.ts#CIRCUIT_CURRENT
+CIRCUIT_IDLE_LOAD: build/index.d.ts#CIRCUIT_IDLE_LOAD
+CIRCUIT_LIMIT: build/index.d.ts#CIRCUIT_LIMIT
+CIRCUIT_LOAD: build/index.d.ts#CIRCUIT_LOAD
+CIRCUIT_PLUGS: build/index.d.ts#CIRCUIT_PLUGS
+CLUSTER_KEY: build/site.chunk.d.ts#CLUSTER_KEY
+CONTINUOUS_LOAD: build/index.d.ts#CONTINUOUS_LOAD
+COPIES_STAGE: build/index.d.ts#COPIES_STAGE
+CORES: build/index.d.ts#CORES
+COUNT_PARAM: build/index.d.ts#COUNT_PARAM
+CalibratedSource: build/index.d.ts#CalibratedSource
+CatalogResult: build/site.chunk.d.ts#CatalogResult
+CheckOptions: build/index.d.ts#CheckOptions
+CheckResult: build/index.d.ts#CheckResult
+Circuit: build/site.chunk.d.ts#Circuit
+CopiesLimit: build/index.d.ts#CopiesLimit
+CountRange: build/index.d.ts#CountRange
+DEFAULT_CONTINUOUS_LOAD: build/index.d.ts#DEFAULT_CONTINUOUS_LOAD
+DEFAULT_CONTINUOUS_SHARE: build/index.d.ts#DEFAULT_CONTINUOUS_SHARE
+DEFAULT_COPIES: build/index.d.ts#DEFAULT_COPIES
+DEFAULT_JOB: build/index.d.ts#DEFAULT_JOB
+DEFAULT_PSU_LOAD: build/index.d.ts#DEFAULT_PSU_LOAD
+DEFAULT_RESERVE: build/index.d.ts#DEFAULT_RESERVE
+DEFAULT_SLOTS: build/index.d.ts#DEFAULT_SLOTS
+DESIGN_ENGINE: build/index.d.ts#DESIGN_ENGINE
+DESIGN_OBJECTIVES: build/index.d.ts#DESIGN_OBJECTIVES
+DESIGN_SPACE_VERSION: build/index.d.ts#DESIGN_SPACE_VERSION
+DESIGN_SWEEP_EVALUATOR: build/index.d.ts#DESIGN_SWEEP_EVALUATOR
+DerivedConstraint: build/index.d.ts#DerivedConstraint
+Design: build/index.d.ts#Design
+DesignCheckOptions: build/index.d.ts#DesignCheckOptions
+DesignEvaluation: build/index.d.ts#DesignEvaluation
+DesignInput: build/index.d.ts#DesignInput
+DesignObjective: build/index.d.ts#DesignObjective
+type DesignOptions: build/index.d.ts#DesignOptions
+DesignSpace: build/index.d.ts#DesignSpace
+DesignSpaceOptions: build/index.d.ts#DesignSpaceOptions
+DesignSweep: build/index.d.ts#DesignSweep
+DesignSweepOptions: build/index.d.ts#DesignSweepOptions
+DesignTree: build/site.chunk.d.ts#DesignTree
+DesignTreeResult: build/site.chunk.d.ts#DesignTreeResult
+DesignVerdict: build/index.d.ts#DesignVerdict
+ENERGY_FROM_CAPACITY: build/index.d.ts#ENERGY_FROM_CAPACITY
+Evaluation: build/index.d.ts#Evaluation
+Exclusion: build/index.d.ts#Exclusion
+FIT_RULES: build/index.d.ts#FIT_RULES
+FieldSpec: build/site.chunk.d.ts#FieldSpec
+FieldValue: build/site.chunk.d.ts#FieldValue
+Finding: build/index.d.ts#Finding
+FitRule: build/index.d.ts#FitRule
+FreeCounts: build/index.d.ts#FreeCounts
+HOURS_PER_MONTH: build/index.d.ts#HOURS_PER_MONTH
+IDLE_DRAW: build/index.d.ts#IDLE_DRAW
+JOB_MEMORY: build/index.d.ts#JOB_MEMORY
+JOB_THREADS: build/index.d.ts#JOB_THREADS
+MACHINE_MEASURES: build/index.d.ts#MACHINE_MEASURES
+MEMORY: build/index.d.ts#MEMORY
+MINUTES_PER_HOUR: build/index.d.ts#MINUTES_PER_HOUR
+Machine: build/site.chunk.d.ts#Machine
+Measure: build/index.d.ts#Measure
+MeasureOptions: build/index.d.ts#MeasureOptions
+MeasureResult: build/index.d.ts#MeasureResult
+MeasureValue: build/index.d.ts#MeasureValue
+NOISE: build/index.d.ts#NOISE
+NOISE_ENERGY: build/index.d.ts#NOISE_ENERGY
+NOISY_CLASSES: build/index.d.ts#NOISY_CLASSES
+OWN_USE_FROM_POINTS: build/index.d.ts#OWN_USE_FROM_POINTS
+Outcome: build/index.d.ts#Outcome
+PART_CLASSES: build/site.chunk.d.ts#PART_CLASSES
+PART_CLASS_NAMES: build/site.chunk.d.ts#PART_CLASS_NAMES
+PLACEMENTS: build/index.d.ts#PLACEMENTS
+PLACEMENT_STAGE: build/index.d.ts#PLACEMENT_STAGE
+POWERED_CLASSES: build/index.d.ts#POWERED_CLASSES
+POWER_DRAW: build/index.d.ts#POWER_DRAW
+POWER_LIMIT: build/index.d.ts#POWER_LIMIT
+POWER_OUTPUT: build/index.d.ts#POWER_OUTPUT
+PSU_LOAD: build/index.d.ts#PSU_LOAD
+Part: build/site.chunk.d.ts#Part
+PartClass: build/site.chunk.d.ts#PartClass
+PartLine: build/site.chunk.d.ts#PartLine
+PartOf: build/site.chunk.d.ts#PartOf
+Place: build/site.chunk.d.ts#Place
+Placement: build/index.d.ts#Placement
+RESERVE_MEMORY: build/index.d.ts#RESERVE_MEMORY
+RESERVE_THREADS: build/index.d.ts#RESERVE_THREADS
+ROOM_HEAT: build/index.d.ts#ROOM_HEAT
+ROOM_IDLE_HEAT: build/index.d.ts#ROOM_IDLE_HEAT
+ROOM_MACHINES: build/index.d.ts#ROOM_MACHINES
+ROOM_NOISE: build/index.d.ts#ROOM_NOISE
+RUNNER_SLOTS: build/index.d.ts#RUNNER_SLOTS
+Room: build/site.chunk.d.ts#Room
+RuntimePoint: build/index.d.ts#RuntimePoint
+SITE_COST: build/index.d.ts#SITE_COST
+SITE_FIELDS: build/site.chunk.d.ts#SITE_FIELDS
+SITE_FORMAT: build/site.chunk.d.ts#SITE_FORMAT
+SITE_IDLE_COST: build/index.d.ts#SITE_IDLE_COST
+SITE_IDLE_POWER: build/index.d.ts#SITE_IDLE_POWER
+SITE_KEY: build/site.chunk.d.ts#SITE_KEY
+SITE_MEASURES: build/index.d.ts#SITE_MEASURES
+SITE_POWER: build/index.d.ts#SITE_POWER
+SITE_RULES: build/index.d.ts#SITE_RULES
+SITE_RUNNER_SLOTS: build/index.d.ts#SITE_RUNNER_SLOTS
+STORAGE: build/index.d.ts#STORAGE
+type Share: build/index.d.ts#Share
+Site: build/site.chunk.d.ts#Site
+SiteCheckOptions: build/index.d.ts#SiteCheckOptions
+SiteCheckResult: build/index.d.ts#SiteCheckResult
+SiteEvaluation: build/index.d.ts#SiteEvaluation
+SiteEvaluationResult: build/index.d.ts#SiteEvaluationResult
+SiteFinding: build/index.d.ts#SiteFinding
+SiteLevel: build/index.d.ts#SiteLevel
+SiteMeasure: build/index.d.ts#SiteMeasure
+SiteMeasureOptions: build/index.d.ts#SiteMeasureOptions
+SiteMeasureResult: build/index.d.ts#SiteMeasureResult
+SiteMeasureValue: build/index.d.ts#SiteMeasureValue
+SiteOptions: build/index.d.ts#SiteOptions
+SiteResult: build/site.chunk.d.ts#SiteResult
+SiteRule: build/index.d.ts#SiteRule
+SiteTree: build/site.chunk.d.ts#SiteTree
+SiteTreeResult: build/site.chunk.d.ts#SiteTreeResult
+Slot: build/index.d.ts#Slot
+StageSlot: build/index.d.ts#StageSlot
+THREADS: build/index.d.ts#THREADS
+USABLE_FROM_POINTS: build/index.d.ts#USABLE_FROM_POINTS
+Verdict: build/index.d.ts#Verdict
+WALL_IDLE_POWER: build/index.d.ts#WALL_IDLE_POWER
+WALL_POWER: build/index.d.ts#WALL_POWER
+amountOf: build/index.d.ts#amountOf
+backupSchema: build/index.d.ts#backupSchema
+backupSpace: build/index.d.ts#backupSpace
+checkBackup: build/index.d.ts#checkBackup
+checkDesign: build/index.d.ts#checkDesign
+checkDesignConfig: build/index.d.ts#checkDesignConfig
+checkSite: build/index.d.ts#checkSite
+designOf: build/index.d.ts#designOf
+designSpace: build/index.d.ts#designSpace
+designTree: build/site.chunk.d.ts#designTree
+detailOf: build/index.d.ts#detailOf
+evaluateBackup: build/index.d.ts#evaluateBackup
+evaluateDesign: build/index.d.ts#evaluateDesign
+evaluateSite: build/index.d.ts#evaluateSite
+fieldSchema: build/site.chunk.d.ts#fieldSchema
+fieldValue: build/site.chunk.d.ts#fieldValue
+freeCounts: build/index.d.ts#freeCounts
+levelOf: build/index.d.ts#levelOf
+lineRecord: build/site.chunk.d.ts#lineRecord
+machineSchema: build/site.chunk.d.ts#machineSchema
+measureBackup: build/index.d.ts#measureBackup
+measureDesign: build/index.d.ts#measureDesign
+measureSite: build/index.d.ts#measureSite
+overall: build/index.d.ts#overall
+partSchema: build/site.chunk.d.ts#partSchema
+placeMachines: build/index.d.ts#placeMachines
+readBackup: build/index.d.ts#readBackup
+readCatalog: build/site.chunk.d.ts#readCatalog
+readSite: build/site.chunk.d.ts#readSite
+siteSchema: build/site.chunk.d.ts#siteSchema
+siteTree: build/site.chunk.d.ts#siteTree
+sweepDesigns: build/index.d.ts#sweepDesigns
+verdictOf: build/index.d.ts#verdictOf
+
+## ./sample (build/sample.d.ts): names
+
+SAMPLE_MACHINE: build/sample.d.ts#SAMPLE_MACHINE
+SAMPLE_PARTS: build/sample.d.ts#SAMPLE_PARTS
+SAMPLE_SITE: build/sample.d.ts#SAMPLE_SITE
+
+## Declarations
+
+### build/index.d.ts#BACKUP_CEILING_HIGH
+export declare const BACKUP_CEILING_HIGH: Expr;
+
+### build/index.d.ts#BACKUP_CEILING_LOW
+export declare const BACKUP_CEILING_LOW: Expr;
+
+### build/index.d.ts#BACKUP_CHARGE
+export declare const BACKUP_CHARGE: Expr;
+
+### build/index.d.ts#BACKUP_CHARGES
+export declare const BACKUP_CHARGES: Expr;
+
+### build/index.d.ts#BACKUP_CHARGES_CEILING
+export declare const BACKUP_CHARGES_CEILING: Expr;
+
+### build/index.d.ts#BACKUP_FORMAT
+export declare const BACKUP_FORMAT = "backup/1";
+
+### build/index.d.ts#BACKUP_LIMIT
+export declare const BACKUP_LIMIT: Expr;
+
+### build/index.d.ts#BACKUP_LOAD_HIGH
+export declare const BACKUP_LOAD_HIGH: Expr;
+
+### build/index.d.ts#BACKUP_LOAD_LOW
+export declare const BACKUP_LOAD_LOW: Expr;
+
+### build/index.d.ts#BACKUP_MEASURES
+export declare const BACKUP_MEASURES: readonly BackupMeasure[];
+
+### build/index.d.ts#BACKUP_MINUTES_HIGH
+export declare const BACKUP_MINUTES_HIGH: Expr;
+
+### build/index.d.ts#BACKUP_MINUTES_LOW
+export declare const BACKUP_MINUTES_LOW: Expr;
+
+### build/index.d.ts#BACKUP_PLUGS
+export declare const BACKUP_PLUGS: Expr;
+
+### build/index.d.ts#BACKUP_PRICE_PER_CHARGE
+export declare const BACKUP_PRICE_PER_CHARGE: Expr;
+
+### build/index.d.ts#BACKUP_PRICE_PER_MINUTE
+export declare const BACKUP_PRICE_PER_MINUTE: Expr;
+
+### build/index.d.ts#BACKUP_RANK_BY_CHARGES
+export declare const BACKUP_RANK_BY_CHARGES: Expr;
+
+### build/index.d.ts#BACKUP_RANK_BY_MINUTES
+export declare const BACKUP_RANK_BY_MINUTES: Expr;
+
+### build/index.d.ts#BACKUP_RULES
+export declare const BACKUP_RULES: readonly BackupRule[];
+
+### build/index.d.ts#Backup
+export interface Backup {
+  readonly format: typeof BACKUP_FORMAT;
+  readonly loads: readonly BackupLoad[];
+  readonly sources: readonly BackupSource[];
+}
+
+### build/index.d.ts#BackupCheckOptions
+export interface BackupCheckOptions extends BackupOptions {
+  readonly rules?: readonly BackupRule[];
+}
+
+### build/index.d.ts#BackupCheckResult
+export type BackupCheckResult = {
+  readonly ok: true;
+  readonly findings: readonly BackupFinding[];
+} | {
+  readonly ok: false;
+  readonly problems: readonly string[];
+};
+
+### build/index.d.ts#BackupEvaluation
+export interface BackupEvaluation<T> {
+  readonly source: string;
+  readonly item: T;
+  readonly result: Result<unknown>;
+}
+
+### build/index.d.ts#BackupEvaluationResult
+export type BackupEvaluationResult<T> = {
+  readonly ok: true;
+  readonly sources: readonly CalibratedSource[];
+  readonly evaluations: readonly BackupEvaluation<T>[];
+} | {
+  readonly ok: false;
+  readonly problems: readonly string[];
+};
+
+### build/index.d.ts#BackupFinding
+export interface BackupFinding {
+  readonly source: string;
+  readonly rule: string;
+  readonly sentence: string;
+  readonly verdict: Verdict;
+  readonly detail?: string;
+}
+
+### build/index.d.ts#BackupLoad
+export interface BackupLoad {
+  readonly id: string;
+  readonly low: Quantity;
+  readonly high: Quantity;
+  readonly plugs: readonly string[];
+  readonly charge?: Quantity;
+}
+
+### build/index.d.ts#BackupMeasure
+export interface BackupMeasure {
+  readonly id: string;
+  readonly sentence: string;
+  readonly unit: string;
+  readonly program: Expr;
+}
+
+### build/index.d.ts#BackupMeasureOptions
+export interface BackupMeasureOptions extends BackupOptions {
+  readonly measures?: readonly BackupMeasure[];
+}
+
+### build/index.d.ts#BackupMeasureResult
+export type BackupMeasureResult = {
+  readonly ok: true;
+  readonly sources: readonly CalibratedSource[];
+  readonly values: readonly BackupMeasureValue[];
+} | {
+  readonly ok: false;
+  readonly problems: readonly string[];
+};
+
+### build/index.d.ts#BackupMeasureValue
+export interface BackupMeasureValue {
+  readonly source: string;
+  readonly measure: string;
+  readonly unit: string;
+  readonly value?: number;
+  readonly detail?: string;
+}
+
+### build/index.d.ts#BackupOptions
+export interface BackupOptions {
+  readonly continuousShare?: number;
+}
+
+### build/index.d.ts#BackupResult
+export type BackupResult = {
+  readonly ok: true;
+  readonly value: Backup;
+} | {
+  readonly ok: false;
+  readonly problems: readonly string[];
+};
+
+### build/index.d.ts#BackupRule
+export interface BackupRule {
+  readonly id: string;
+  readonly sentence: string;
+  readonly program: Expr;
+}
+
+### build/index.d.ts#BackupSource
+export interface BackupSource {
+  readonly id: string;
+  readonly need: string;
+  readonly rated: Quantity;
+  readonly outputs: readonly string[];
+  readonly carries: readonly string[];
+  readonly energy?: Quantity;
+  readonly capacity?: BatteryCapacity;
+  readonly usable?: number;
+  readonly ownUse?: Quantity;
+  readonly points?: readonly [RuntimePoint, RuntimePoint];
+  readonly continuousShare?: number;
+  readonly price?: Quantity;
+}
+
+### build/index.d.ts#BackupSpaceResult
+export type BackupSpaceResult = {
+  readonly ok: true;
+  readonly sources: readonly CalibratedSource[];
+  readonly space: Space;
+} | {
+  readonly ok: false;
+  readonly problems: readonly string[];
+};
+
+### build/index.d.ts#Basis
+export type Basis = "input" | "capacity" | "points";
+
+### build/index.d.ts#BatteryCapacity
+export interface BatteryCapacity {
+  readonly charge: Quantity;
+  readonly voltage: Quantity;
+}
+
+### build/index.d.ts#CIRCUIT_CURRENT
+export declare const CIRCUIT_CURRENT: Expr;
+
+### build/index.d.ts#CIRCUIT_IDLE_LOAD
+export declare const CIRCUIT_IDLE_LOAD: Expr;
+
+### build/index.d.ts#CIRCUIT_LIMIT
+export declare const CIRCUIT_LIMIT: Expr;
+
+### build/index.d.ts#CIRCUIT_LOAD
+export declare const CIRCUIT_LOAD: Expr;
+
+### build/index.d.ts#CIRCUIT_PLUGS
+export declare const CIRCUIT_PLUGS: Expr;
+
+### build/index.d.ts#CONTINUOUS_LOAD
+export declare const CONTINUOUS_LOAD = "continuousLoad";
+
+### build/index.d.ts#COPIES_STAGE
+export declare const COPIES_STAGE = "copies";
+
+### build/index.d.ts#CORES
+export declare const CORES: Expr;
+
+### build/index.d.ts#COUNT_PARAM
+export declare const COUNT_PARAM = "count";
+
+### build/index.d.ts#CalibratedSource
+export interface CalibratedSource extends BackupSource {
+  readonly continuousShare: number;
+  readonly basis: {
+    readonly energy?: Basis;
+    readonly usable?: Basis;
+    readonly ownUse?: Basis;
+  };
+}
+
+### build/index.d.ts#CheckOptions
+export interface CheckOptions extends DesignOptions {
+  readonly rules?: readonly FitRule[];
+}
+
+### build/index.d.ts#CheckResult
+export type CheckResult = {
+  readonly ok: true;
+  readonly findings: readonly Finding[];
+} | {
+  readonly ok: false;
+  readonly problems: readonly string[];
+};
+
+### build/index.d.ts#CopiesLimit
+export interface CopiesLimit {
+  readonly rule: string;
+  readonly free: number;
+  readonly each: number;
+  readonly max: number;
+}
+
+### build/index.d.ts#CountRange
+export interface CountRange {
+  readonly min: number;
+  readonly max: number;
+}
+
+### build/index.d.ts#DEFAULT_CONTINUOUS_LOAD
+export declare const DEFAULT_CONTINUOUS_LOAD = .8;
+
+### build/index.d.ts#DEFAULT_CONTINUOUS_SHARE
+export declare const DEFAULT_CONTINUOUS_SHARE = .8;
+
+### build/index.d.ts#DEFAULT_COPIES
+export declare const DEFAULT_COPIES: CountRange;
+
+### build/index.d.ts#DEFAULT_JOB
+export declare const DEFAULT_JOB: Share;
+
+### build/index.d.ts#DEFAULT_PSU_LOAD
+export declare const DEFAULT_PSU_LOAD = .8;
+
+### build/index.d.ts#DEFAULT_RESERVE
+export declare const DEFAULT_RESERVE: Share;
+
+### build/index.d.ts#DEFAULT_SLOTS
+export declare const DEFAULT_SLOTS: readonly Slot[];
+
+### build/index.d.ts#DESIGN_ENGINE
+export declare const DESIGN_ENGINE = "cluster-design";
+
+### build/index.d.ts#DESIGN_OBJECTIVES
+export declare const DESIGN_OBJECTIVES: readonly DesignObjective[];
+
+### build/index.d.ts#DESIGN_SPACE_VERSION
+export declare const DESIGN_SPACE_VERSION = "1";
+
+### build/index.d.ts#DESIGN_SWEEP_EVALUATOR
+export declare const DESIGN_SWEEP_EVALUATOR = "cluster-design-sweep/1";
+
+### build/index.d.ts#DerivedConstraint
+export interface DerivedConstraint {
+  readonly constraint: SpaceConstraint;
+  readonly reason: string;
+}
+
+### build/index.d.ts#Design
+export interface Design {
+  readonly machines: readonly Machine[];
+  readonly site: Site;
+  readonly added: readonly Machine[];
+}
+
+### build/index.d.ts#DesignCheckOptions
+export interface DesignCheckOptions extends DesignOptions, SiteOptions {
+  readonly fitRules?: readonly FitRule[];
+  readonly siteRules?: readonly SiteRule[];
+}
+
+### build/index.d.ts#DesignEvaluation
+export type DesignEvaluation<T> = {
+  readonly ok: true;
+  readonly evaluations: readonly Evaluation<T>[];
+} | {
+  readonly ok: false;
+  readonly problems: readonly string[];
+};
+
+### build/index.d.ts#DesignInput
+export interface DesignInput {
+  readonly catalog: ReadonlyMap<string, Part>;
+  readonly site: Site;
+  readonly fixed?: readonly Machine[];
+  readonly prefix?: string;
+}
+
+### build/index.d.ts#DesignObjective
+export interface DesignObjective {
+  readonly name: string;
+  readonly goal: Goal;
+  readonly measure: string;
+}
+
+### build/index.d.ts#DesignOptions
+interface DesignOptions {
+  readonly psuLoad?: number;
+  readonly job?: Share;
+  readonly reserve?: Share;
+}
+
+### build/index.d.ts#DesignSpace
+export interface DesignSpace {
+  readonly space: StrategySpace;
+  readonly slots: readonly StageSlot[];
+  readonly copies: CountRange;
+  readonly excluded: readonly Exclusion[];
+  readonly derived: readonly DerivedConstraint[];
+  readonly limits: readonly CopiesLimit[];
+}
+
+### build/index.d.ts#DesignSpaceOptions
+export interface DesignSpaceOptions extends DesignOptions {
+  readonly slots?: readonly Slot[];
+  readonly copies?: CountRange;
+  readonly rules?: readonly FitRule[];
+  readonly derive?: boolean;
+  readonly site?: Pick<DesignInput, "site" | "fixed">;
+  readonly siteRules?: readonly SiteRule[];
+}
+
+### build/index.d.ts#DesignSweep
+export interface DesignSweep {
+  readonly run: SweepRun;
+  readonly unread: Readonly<Record<string, readonly string[]>>;
+}
+
+### build/index.d.ts#DesignSweepOptions
+export interface DesignSweepOptions extends DesignCheckOptions {
+  readonly enumerate: GridOptions | SweepSample;
+  readonly objectives?: readonly DesignObjective[];
+  readonly measures?: readonly SiteMeasure[];
+}
+
+### build/index.d.ts#DesignVerdict
+export interface DesignVerdict {
+  readonly id: string;
+  readonly verdict: Verdict;
+  readonly machine: readonly Finding[];
+  readonly site: readonly SiteFinding[];
+  readonly design: Design;
+}
+
+### build/index.d.ts#ENERGY_FROM_CAPACITY
+export declare const ENERGY_FROM_CAPACITY: Expr;
+
+### build/index.d.ts#Evaluation
+export interface Evaluation<T> {
+  readonly machine: string;
+  readonly item: T;
+  readonly result: Result<unknown>;
+}
+
+### build/index.d.ts#Exclusion
+export interface Exclusion {
+  readonly stage: string;
+  readonly part: string;
+  readonly rule: string;
+}
+
+### build/index.d.ts#FIT_RULES
+export declare const FIT_RULES: readonly FitRule[];
+
+### build/index.d.ts#Finding
+export interface Finding {
+  readonly machine: string;
+  readonly rule: string;
+  readonly sentence: string;
+  readonly verdict: Verdict;
+  readonly detail?: string;
+}
+
+### build/index.d.ts#FitRule
+export interface FitRule {
+  readonly id: string;
+  readonly sentence: string;
+  readonly classes: readonly PartClass[];
+  readonly program: Expr;
+}
+
+### build/index.d.ts#FreeCounts
+export interface FreeCounts {
+  readonly rooms: Map<string, number>;
+  readonly circuits: Map<string, number>;
+}
+
+### build/index.d.ts#HOURS_PER_MONTH
+export declare const HOURS_PER_MONTH: number;
+
+### build/index.d.ts#IDLE_DRAW
+export declare const IDLE_DRAW: Expr;
+
+### build/index.d.ts#JOB_MEMORY
+export declare const JOB_MEMORY = "jobMemory";
+
+### build/index.d.ts#JOB_THREADS
+export declare const JOB_THREADS = "jobThreads";
+
+### build/index.d.ts#MACHINE_MEASURES
+export declare const MACHINE_MEASURES: readonly Measure[];
+
+### build/index.d.ts#MEMORY
+export declare const MEMORY: Expr;
+
+### build/index.d.ts#MINUTES_PER_HOUR
+export declare const MINUTES_PER_HOUR: number;
+
+### build/index.d.ts#Measure
+export interface Measure {
+  readonly id: string;
+  readonly sentence: string;
+  readonly unit: string;
+  readonly program: Expr;
+}
+
+### build/index.d.ts#MeasureOptions
+export interface MeasureOptions extends DesignOptions {
+  readonly measures?: readonly Measure[];
+}
+
+### build/index.d.ts#MeasureResult
+export type MeasureResult = {
+  readonly ok: true;
+  readonly values: readonly MeasureValue[];
+} | {
+  readonly ok: false;
+  readonly problems: readonly string[];
+};
+
+### build/index.d.ts#MeasureValue
+export interface MeasureValue {
+  readonly machine: string;
+  readonly measure: string;
+  readonly unit: string;
+  readonly value?: number;
+  readonly detail?: string;
+}
+
+### build/index.d.ts#NOISE
+export declare const NOISE: Expr;
+
+### build/index.d.ts#NOISE_ENERGY
+export declare const NOISE_ENERGY: Expr;
+
+### build/index.d.ts#NOISY_CLASSES
+export declare const NOISY_CLASSES: readonly PartClass[];
+
+### build/index.d.ts#OWN_USE_FROM_POINTS
+export declare const OWN_USE_FROM_POINTS: Expr;
+
+### build/index.d.ts#Outcome
+export type Outcome<T> = {
+  readonly ok: true;
+  readonly value: T;
+} | {
+  readonly ok: false;
+  readonly problems: readonly string[];
+};
+
+### build/index.d.ts#PLACEMENTS
+export declare const PLACEMENTS: readonly ["fill", "spread"];
+
+### build/index.d.ts#PLACEMENT_STAGE
+export declare const PLACEMENT_STAGE = "placement";
+
+### build/index.d.ts#POWERED_CLASSES
+export declare const POWERED_CLASSES: readonly PartClass[];
+
+### build/index.d.ts#POWER_DRAW
+export declare const POWER_DRAW: Expr;
+
+### build/index.d.ts#POWER_LIMIT
+export declare const POWER_LIMIT: Expr;
+
+### build/index.d.ts#POWER_OUTPUT
+export declare const POWER_OUTPUT: Expr;
+
+### build/index.d.ts#PSU_LOAD
+export declare const PSU_LOAD = "psuLoad";
+
+### build/index.d.ts#Placement
+export type Placement = (typeof PLACEMENTS)[number];
+
+### build/index.d.ts#RESERVE_MEMORY
+export declare const RESERVE_MEMORY = "reserveMemory";
+
+### build/index.d.ts#RESERVE_THREADS
+export declare const RESERVE_THREADS = "reserveThreads";
+
+### build/index.d.ts#ROOM_HEAT
+export declare const ROOM_HEAT: Expr;
+
+### build/index.d.ts#ROOM_IDLE_HEAT
+export declare const ROOM_IDLE_HEAT: Expr;
+
+### build/index.d.ts#ROOM_MACHINES
+export declare const ROOM_MACHINES: Expr;
+
+### build/index.d.ts#ROOM_NOISE
+export declare const ROOM_NOISE: Expr;
+
+### build/index.d.ts#RUNNER_SLOTS
+export declare const RUNNER_SLOTS: Expr;
+
+### build/index.d.ts#RuntimePoint
+export interface RuntimePoint {
+  readonly load: Quantity;
+  readonly time: Quantity;
+}
+
+### build/index.d.ts#SITE_COST
+export declare const SITE_COST: Expr;
+
+### build/index.d.ts#SITE_IDLE_COST
+export declare const SITE_IDLE_COST: Expr;
+
+### build/index.d.ts#SITE_IDLE_POWER
+export declare const SITE_IDLE_POWER: Expr;
+
+### build/index.d.ts#SITE_MEASURES
+export declare const SITE_MEASURES: readonly SiteMeasure[];
+
+### build/index.d.ts#SITE_POWER
+export declare const SITE_POWER: Expr;
+
+### build/index.d.ts#SITE_RULES
+export declare const SITE_RULES: readonly SiteRule[];
+
+### build/index.d.ts#SITE_RUNNER_SLOTS
+export declare const SITE_RUNNER_SLOTS: Expr;
+
+### build/index.d.ts#STORAGE
+export declare const STORAGE: Expr;
+
+### build/index.d.ts#Share
+interface Share {
+  readonly threads: number;
+  readonly memory: number;
+}
+
+### build/index.d.ts#SiteCheckOptions
+export interface SiteCheckOptions extends SiteOptions {
+  readonly rules?: readonly SiteRule[];
+}
+
+### build/index.d.ts#SiteCheckResult
+export type SiteCheckResult = {
+  readonly ok: true;
+  readonly findings: readonly SiteFinding[];
+} | {
+  readonly ok: false;
+  readonly problems: readonly string[];
+};
+
+### build/index.d.ts#SiteEvaluation
+export interface SiteEvaluation<T> {
+  readonly level: SiteLevel;
+  readonly id: string;
+  readonly item: T;
+  readonly result: Result<unknown>;
+}
+
+### build/index.d.ts#SiteEvaluationResult
+export type SiteEvaluationResult<T> = {
+  readonly ok: true;
+  readonly evaluations: readonly SiteEvaluation<T>[];
+} | {
+  readonly ok: false;
+  readonly problems: readonly string[];
+};
+
+### build/index.d.ts#SiteFinding
+export interface SiteFinding {
+  readonly level: SiteLevel;
+  readonly id: string;
+  readonly rule: string;
+  readonly sentence: string;
+  readonly verdict: Verdict;
+  readonly detail?: string;
+}
+
+### build/index.d.ts#SiteLevel
+export type SiteLevel = "site" | "circuit" | "room";
+
+### build/index.d.ts#SiteMeasure
+export interface SiteMeasure {
+  readonly id: string;
+  readonly sentence: string;
+  readonly unit: string;
+  readonly level: SiteLevel;
+  readonly program: Expr;
+}
+
+### build/index.d.ts#SiteMeasureOptions
+export interface SiteMeasureOptions extends SiteOptions {
+  readonly measures?: readonly SiteMeasure[];
+}
+
+### build/index.d.ts#SiteMeasureResult
+export type SiteMeasureResult = {
+  readonly ok: true;
+  readonly values: readonly SiteMeasureValue[];
+} | {
+  readonly ok: false;
+  readonly problems: readonly string[];
+};
+
+### build/index.d.ts#SiteMeasureValue
+export interface SiteMeasureValue {
+  readonly level: SiteLevel;
+  readonly id: string;
+  readonly measure: string;
+  readonly unit: string;
+  readonly value?: number;
+  readonly detail?: string;
+}
+
+### build/index.d.ts#SiteOptions
+export interface SiteOptions extends DesignOptions {
+  readonly continuousLoad?: number;
+}
+
+### build/index.d.ts#SiteRule
+export interface SiteRule {
+  readonly id: string;
+  readonly sentence: string;
+  readonly level: SiteLevel;
+  readonly program: Expr;
+}
+
+### build/index.d.ts#Slot
+export interface Slot extends CountRange {
+  readonly class: PartClass;
+  readonly optional?: boolean;
+}
+
+### build/index.d.ts#StageSlot
+export interface StageSlot extends Slot {
+  readonly stage: string;
+}
+
+### build/index.d.ts#THREADS
+export declare const THREADS: Expr;
+
+### build/index.d.ts#USABLE_FROM_POINTS
+export declare const USABLE_FROM_POINTS: Expr;
+
+### build/index.d.ts#Verdict
+export type Verdict = "fits" | "breaks" | "unread";
+
+### build/index.d.ts#WALL_IDLE_POWER
+export declare const WALL_IDLE_POWER: Expr;
+
+### build/index.d.ts#WALL_POWER
+export declare const WALL_POWER: Expr;
+
+### build/index.d.ts#amountOf
+export declare function amountOf(result: Result<unknown>): {
+  readonly value?: number;
+  readonly detail?: string;
+};
+
+### build/index.d.ts#backupSchema
+export declare const backupSchema: z.ZodType<Backup>;
+
+### build/index.d.ts#backupSpace
+export declare function backupSpace(backup: Backup, options?: BackupOptions): BackupSpaceResult;
+
+### build/index.d.ts#checkBackup
+export declare function checkBackup(backup: Backup, options?: BackupCheckOptions): BackupCheckResult;
+
+### build/index.d.ts#checkDesign
+export declare function checkDesign(machines: readonly Machine[], catalog: ReadonlyMap<string, Part>, options?: CheckOptions): CheckResult;
+
+### build/index.d.ts#checkDesignConfig
+export declare function checkDesignConfig(design: DesignSpace, config: StrategyConfig, input: DesignInput, options?: DesignCheckOptions): Outcome<DesignVerdict>;
+
+### build/index.d.ts#checkSite
+export declare function checkSite(site: Site, machines: readonly Machine[], catalog: ReadonlyMap<string, Part>, options?: SiteCheckOptions): SiteCheckResult;
+
+### build/index.d.ts#designOf
+export declare function designOf(design: DesignSpace, config: StrategyConfig, input: DesignInput): Outcome<Design>;
+
+### build/index.d.ts#designSpace
+export declare function designSpace(catalog: ReadonlyMap<string, Part>, options?: DesignSpaceOptions): Outcome<DesignSpace>;
+
+### build/index.d.ts#detailOf
+export declare function detailOf(error: VexError): string;
+
+### build/index.d.ts#evaluateBackup
+export declare function evaluateBackup<T extends {
+  readonly program: Expr;
+}>(backup: Backup, items: readonly T[], options?: BackupOptions): BackupEvaluationResult<T>;
+
+### build/index.d.ts#evaluateDesign
+export declare function evaluateDesign<T extends {
+  readonly program: Expr;
+}>(machines: readonly Machine[], catalog: ReadonlyMap<string, Part>, items: readonly T[], options?: DesignOptions): DesignEvaluation<T>;
+
+### build/index.d.ts#evaluateSite
+export declare function evaluateSite<T extends {
+  readonly level: SiteLevel;
+  readonly program: Expr;
+}>(site: Site, machines: readonly Machine[], catalog: ReadonlyMap<string, Part>, items: readonly T[], options?: SiteOptions): SiteEvaluationResult<T>;
+
+### build/index.d.ts#freeCounts
+export declare function freeCounts(site: Site, fixed: readonly Machine[], catalog: ReadonlyMap<string, Part>): FreeCounts;
+
+### build/index.d.ts#levelOf
+export declare const levelOf: (energy: Expr) => Expr;
+
+### build/index.d.ts#measureBackup
+export declare function measureBackup(backup: Backup, options?: BackupMeasureOptions): BackupMeasureResult;
+
+### build/index.d.ts#measureDesign
+export declare function measureDesign(machines: readonly Machine[], catalog: ReadonlyMap<string, Part>, options?: MeasureOptions): MeasureResult;
+
+### build/index.d.ts#measureSite
+export declare function measureSite(site: Site, machines: readonly Machine[], catalog: ReadonlyMap<string, Part>, options?: SiteMeasureOptions): SiteMeasureResult;
+
+### build/index.d.ts#overall
+export declare function overall(findings: readonly Pick<Finding, "verdict">[]): Verdict;
+
+### build/index.d.ts#placeMachines
+export declare function placeMachines(site: Site, fixed: readonly Machine[], added: readonly Machine[], catalog: ReadonlyMap<string, Part>, placement: Placement): Outcome<readonly Place[]>;
+
+### build/index.d.ts#readBackup
+export declare function readBackup(value: unknown): BackupResult;
+
+### build/index.d.ts#sweepDesigns
+export declare function sweepDesigns(design: DesignSpace, input: DesignInput, options: DesignSweepOptions): Outcome<DesignSweep>;
+
+### build/index.d.ts#verdictOf
+export declare function verdictOf(result: Result<unknown>): {
+  readonly verdict: Verdict;
+  readonly detail?: string;
+};
+
+### build/sample.d.ts#SAMPLE_MACHINE
+export declare const SAMPLE_MACHINE: Machine;
+
+### build/sample.d.ts#SAMPLE_PARTS
+export declare const SAMPLE_PARTS: readonly Part[];
+
+### build/sample.d.ts#SAMPLE_SITE
+export declare const SAMPLE_SITE: Site;
+
+### build/site.chunk.d.ts#CLUSTER_KEY
+declare const CLUSTER_KEY = "cluster";
+
+### build/site.chunk.d.ts#CatalogResult
+type CatalogResult = {
+  readonly ok: true;
+  readonly value: ReadonlyMap<string, Part>;
+} | {
+  readonly ok: false;
+  readonly problems: readonly string[];
+};
+
+### build/site.chunk.d.ts#Circuit
+interface Circuit {
+  readonly id: string;
+  readonly voltage: Quantity;
+  readonly breaker: Quantity;
+  readonly sockets: number;
+  readonly otherLoad: Quantity;
+}
+
+### build/site.chunk.d.ts#DesignTree
+interface DesignTree {
+  readonly space: Space<string, unknown>;
+  readonly keys: ReadonlyMap<string, string>;
+}
+
+### build/site.chunk.d.ts#DesignTreeResult
+type DesignTreeResult = {
+  readonly ok: true;
+  readonly value: DesignTree;
+} | {
+  readonly ok: false;
+  readonly problems: readonly string[];
+};
+
+### build/site.chunk.d.ts#FieldSpec
+type FieldSpec = {
+  readonly kind: "text";
+} | {
+  readonly kind: "texts";
+} | {
+  readonly kind: "count";
+} | {
+  readonly kind: "choice";
+  readonly options: readonly string[];
+} | {
+  readonly kind: "amount";
+  readonly quantity: Kind;
+  readonly unit: string;
+};
+
+### build/site.chunk.d.ts#FieldValue
+type FieldValue<F> = F extends {
+  readonly kind: "text";
+} ? string : F extends {
+  readonly kind: "texts";
+} ? readonly string[] : F extends {
+  readonly kind: "count";
+} ? number : F extends {
+  readonly kind: "choice";
+  readonly options: readonly (infer O)[];
+} ? O : Quantity;
+
+### build/site.chunk.d.ts#Machine
+interface Machine {
+  readonly id: string;
+  readonly lines: readonly PartLine[];
+}
+
+### build/site.chunk.d.ts#PART_CLASSES
+declare const PART_CLASSES: {
+  readonly cpu: {
+    readonly socket: {
+      readonly kind: "text";
+    };
+    readonly cores: {
+      readonly kind: "count";
+    };
+    readonly threads: {
+      readonly kind: "count";
+    };
+    readonly tdp: {
+      readonly kind: "amount";
+      readonly quantity: "power";
+      readonly unit: "W";
+    };
+    readonly power: {
+      readonly kind: "amount";
+      readonly quantity: "power";
+      readonly unit: "W";
+    };
+    readonly idlePower: {
+      readonly kind: "amount";
+      readonly quantity: "power";
+      readonly unit: "W";
+    };
+  };
+  readonly board: {
+    readonly socket: {
+      readonly kind: "text";
+    };
+    readonly sockets: {
+      readonly kind: "count";
+    };
+    readonly formFactor: {
+      readonly kind: "text";
+    };
+    readonly memoryType: {
+      readonly kind: "text";
+    };
+    readonly memorySlots: {
+      readonly kind: "count";
+    };
+    readonly maxMemory: {
+      readonly kind: "amount";
+      readonly quantity: "data";
+      readonly unit: "GiB";
+    };
+    readonly m2Slots: {
+      readonly kind: "count";
+    };
+    readonly sataPorts: {
+      readonly kind: "count";
+    };
+    readonly power: {
+      readonly kind: "amount";
+      readonly quantity: "power";
+      readonly unit: "W";
+    };
+    readonly idlePower: {
+      readonly kind: "amount";
+      readonly quantity: "power";
+      readonly unit: "W";
+    };
+  };
+  readonly memory: {
+    readonly memoryType: {
+      readonly kind: "text";
+    };
+    readonly modules: {
+      readonly kind: "count";
+    };
+    readonly moduleSize: {
+      readonly kind: "amount";
+      readonly quantity: "data";
+      readonly unit: "GiB";
+    };
+    readonly power: {
+      readonly kind: "amount";
+      readonly quantity: "power";
+      readonly unit: "W";
+    };
+    readonly idlePower: {
+      readonly kind: "amount";
+      readonly quantity: "power";
+      readonly unit: "W";
+    };
+  };
+  readonly storage: {
+    readonly interface: {
+      readonly kind: "choice";
+      readonly options: readonly ["m.2", "sata"];
+    };
+    readonly capacity: {
+      readonly kind: "amount";
+      readonly quantity: "data";
+      readonly unit: "GB";
+    };
+    readonly power: {
+      readonly kind: "amount";
+      readonly quantity: "power";
+      readonly unit: "W";
+    };
+    readonly idlePower: {
+      readonly kind: "amount";
+      readonly quantity: "power";
+      readonly unit: "W";
+    };
+    readonly noise: {
+      readonly kind: "amount";
+      readonly quantity: "level";
+      readonly unit: "dBA";
+    };
+  };
+  readonly psu: {
+    readonly formFactor: {
+      readonly kind: "text";
+    };
+    readonly output: {
+      readonly kind: "amount";
+      readonly quantity: "power";
+      readonly unit: "W";
+    };
+    readonly efficiency: {
+      readonly kind: "amount";
+      readonly quantity: "ratio";
+      readonly unit: "%";
+    };
+    readonly idleEfficiency: {
+      readonly kind: "amount";
+      readonly quantity: "ratio";
+      readonly unit: "%";
+    };
+    readonly noise: {
+      readonly kind: "amount";
+      readonly quantity: "level";
+      readonly unit: "dBA";
+    };
+  };
+  readonly case: {
+    readonly boardFormFactors: {
+      readonly kind: "texts";
+    };
+    readonly psuFormFactors: {
+      readonly kind: "texts";
+    };
+    readonly gpuLength: {
+      readonly kind: "amount";
+      readonly quantity: "length";
+      readonly unit: "mm";
+    };
+    readonly coolerHeight: {
+      readonly kind: "amount";
+      readonly quantity: "length";
+      readonly unit: "mm";
+    };
+    readonly fanSlots: {
+      readonly kind: "count";
+    };
+  };
+  readonly cooler: {
+    readonly sockets: {
+      readonly kind: "texts";
+    };
+    readonly height: {
+      readonly kind: "amount";
+      readonly quantity: "length";
+      readonly unit: "mm";
+    };
+    readonly rating: {
+      readonly kind: "amount";
+      readonly quantity: "power";
+      readonly unit: "W";
+    };
+    readonly power: {
+      readonly kind: "amount";
+      readonly quantity: "power";
+      readonly unit: "W";
+    };
+    readonly idlePower: {
+      readonly kind: "amount";
+      readonly quantity: "power";
+      readonly unit: "W";
+    };
+    readonly noise: {
+      readonly kind: "amount";
+      readonly quantity: "level";
+      readonly unit: "dBA";
+    };
+  };
+  readonly fan: {
+    readonly power: {
+      readonly kind: "amount";
+      readonly quantity: "power";
+      readonly unit: "W";
+    };
+    readonly idlePower: {
+      readonly kind: "amount";
+      readonly quantity: "power";
+      readonly unit: "W";
+    };
+    readonly noise: {
+      readonly kind: "amount";
+      readonly quantity: "level";
+      readonly unit: "dBA";
+    };
+  };
+  readonly gpu: {
+    readonly length: {
+      readonly kind: "amount";
+      readonly quantity: "length";
+      readonly unit: "mm";
+    };
+    readonly power: {
+      readonly kind: "amount";
+      readonly quantity: "power";
+      readonly unit: "W";
+    };
+    readonly idlePower: {
+      readonly kind: "amount";
+      readonly quantity: "power";
+      readonly unit: "W";
+    };
+    readonly noise: {
+      readonly kind: "amount";
+      readonly quantity: "level";
+      readonly unit: "dBA";
+    };
+  };
+};
+
+### build/site.chunk.d.ts#PART_CLASS_NAMES
+declare const PART_CLASS_NAMES: readonly PartClass[];
+
+### build/site.chunk.d.ts#Part
+type Part = { [C in PartClass]: PartOf<C>; }[PartClass];
+
+### build/site.chunk.d.ts#PartClass
+type PartClass = keyof typeof PART_CLASSES;
+
+### build/site.chunk.d.ts#PartLine
+interface PartLine {
+  readonly part: string;
+  readonly count: number;
+}
+
+### build/site.chunk.d.ts#PartOf
+type PartOf<C extends PartClass> = {
+  readonly id: string;
+  readonly class: C;
+  readonly name: string;
+} & { readonly [K in keyof (typeof PART_CLASSES)[C]]: FieldValue<(typeof PART_CLASSES)[C][K]>; };
+
+### build/site.chunk.d.ts#Place
+interface Place {
+  readonly machine: string;
+  readonly circuit: string;
+  readonly room: string;
+}
+
+### build/site.chunk.d.ts#Room
+interface Room {
+  readonly id: string;
+  readonly places: number;
+  readonly heatLimit: Quantity;
+  readonly noiseLimit: Quantity;
+}
+
+### build/site.chunk.d.ts#SITE_FIELDS
+declare const SITE_FIELDS: {
+  readonly site: {
+    readonly price: {
+      readonly kind: "amount";
+      readonly quantity: "energy-price";
+      readonly unit: "USD/kWh";
+    };
+  };
+  readonly circuit: {
+    readonly voltage: {
+      readonly kind: "amount";
+      readonly quantity: "voltage";
+      readonly unit: "V";
+    };
+    readonly breaker: {
+      readonly kind: "amount";
+      readonly quantity: "current";
+      readonly unit: "A";
+    };
+    readonly sockets: {
+      readonly kind: "count";
+    };
+    readonly otherLoad: {
+      readonly kind: "amount";
+      readonly quantity: "power";
+      readonly unit: "W";
+    };
+  };
+  readonly room: {
+    readonly places: {
+      readonly kind: "count";
+    };
+    readonly heatLimit: {
+      readonly kind: "amount";
+      readonly quantity: "power";
+      readonly unit: "W";
+    };
+    readonly noiseLimit: {
+      readonly kind: "amount";
+      readonly quantity: "level";
+      readonly unit: "dBA";
+    };
+  };
+};
+
+### build/site.chunk.d.ts#SITE_FORMAT
+declare const SITE_FORMAT = "site/1";
+
+### build/site.chunk.d.ts#SITE_KEY
+declare const SITE_KEY = "site";
+
+### build/site.chunk.d.ts#Site
+interface Site {
+  readonly format: typeof SITE_FORMAT;
+  readonly price: Quantity;
+  readonly circuits: readonly Circuit[];
+  readonly rooms: readonly Room[];
+  readonly places: readonly Place[];
+}
+
+### build/site.chunk.d.ts#SiteResult
+type SiteResult = {
+  readonly ok: true;
+  readonly value: Site;
+} | {
+  readonly ok: false;
+  readonly problems: readonly string[];
+};
+
+### build/site.chunk.d.ts#SiteTree
+interface SiteTree {
+  readonly space: Space<string, unknown>;
+  readonly circuits: ReadonlyMap<string, string>;
+  readonly rooms: ReadonlyMap<string, string>;
+  readonly machines: ReadonlyMap<string, string>;
+}
+
+### build/site.chunk.d.ts#SiteTreeResult
+type SiteTreeResult = {
+  readonly ok: true;
+  readonly value: SiteTree;
+} | {
+  readonly ok: false;
+  readonly problems: readonly string[];
+};
+
+### build/site.chunk.d.ts#designTree
+declare function designTree(machines: readonly Machine[], catalog: ReadonlyMap<string, Part>): DesignTreeResult;
+
+### build/site.chunk.d.ts#fieldSchema
+declare const fieldSchema: (spec: FieldSpec) => z.ZodType;
+
+### build/site.chunk.d.ts#fieldValue
+declare const fieldValue: (spec: FieldSpec, value: unknown) => unknown;
+
+### build/site.chunk.d.ts#lineRecord
+declare function lineRecord(part: Part, count: number): Readonly<Record<string, unknown>>;
+
+### build/site.chunk.d.ts#machineSchema
+declare const machineSchema: z.ZodType<Machine>;
+
+### build/site.chunk.d.ts#partSchema
+declare const partSchema: z.ZodType<Part>;
+
+### build/site.chunk.d.ts#readCatalog
+declare function readCatalog(values: readonly unknown[]): CatalogResult;
+
+### build/site.chunk.d.ts#readSite
+declare function readSite(value: unknown): SiteResult;
+
+### build/site.chunk.d.ts#siteSchema
+declare const siteSchema: z.ZodType<Site>;
+
+### build/site.chunk.d.ts#siteTree
+declare function siteTree(site: Site, machines: readonly Machine[], catalog: ReadonlyMap<string, Part>): SiteTreeResult;
