@@ -49,7 +49,7 @@ CIRCUIT_LIMIT: build/site.chunk.d.ts#CIRCUIT_LIMIT
 CIRCUIT_LOAD: build/site.chunk.d.ts#CIRCUIT_LOAD
 CIRCUIT_PLUGS: build/site.chunk.d.ts#CIRCUIT_PLUGS
 CLUSTER_KEY: build/site.chunk.d.ts#CLUSTER_KEY
-CONTINUOUS_LOAD: build/site.chunk.d.ts#CONTINUOUS_LOAD
+CONTINUOUS_LOAD: @mark1russell7/electrical#CONTINUOUS_LOAD (external)
 COPIES_STAGE: build/index.d.ts#COPIES_STAGE
 CORES: build/index.d.ts#CORES
 COUNT_PARAM: build/index.d.ts#COUNT_PARAM
@@ -62,7 +62,7 @@ CopiesLimit: build/index.d.ts#CopiesLimit
 CostOptions: build/site.chunk.d.ts#CostOptions
 CountRange: build/index.d.ts#CountRange
 DEFAULT_BUSY: build/site.chunk.d.ts#DEFAULT_BUSY
-DEFAULT_CONTINUOUS_LOAD: build/index.d.ts#DEFAULT_CONTINUOUS_LOAD
+DEFAULT_CONTINUOUS_LOAD: @mark1russell7/electrical#DEFAULT_CONTINUOUS_LOAD (external)
 DEFAULT_CONTINUOUS_SHARE: build/index.d.ts#DEFAULT_CONTINUOUS_SHARE
 DEFAULT_COPIES: build/index.d.ts#DEFAULT_COPIES
 DEFAULT_HORIZON: build/site.chunk.d.ts#DEFAULT_HORIZON
@@ -508,9 +508,6 @@ export interface CountRange {
   readonly min: number;
   readonly max: number;
 }
-
-### build/index.d.ts#DEFAULT_CONTINUOUS_LOAD
-export declare const DEFAULT_CONTINUOUS_LOAD = .8;
 
 ### build/index.d.ts#DEFAULT_CONTINUOUS_SHARE
 export declare const DEFAULT_CONTINUOUS_SHARE = .8;
@@ -991,9 +988,6 @@ declare const CIRCUIT_PLUGS: Expr;
 
 ### build/site.chunk.d.ts#CLUSTER_KEY
 declare const CLUSTER_KEY = "cluster";
-
-### build/site.chunk.d.ts#CONTINUOUS_LOAD
-declare const CONTINUOUS_LOAD = "continuousLoad";
 
 ### build/site.chunk.d.ts#CatalogResult
 type CatalogResult = {
