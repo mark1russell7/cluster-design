@@ -2,7 +2,8 @@
  * The study of the genetic search against a seeded sample, over the design space of the sample site.
  *
  * The truth is the sweep of the grid of the space at 4 levels: each config of the space. Its front is the set of the
- * distinct objective vectors of rank 1. For each budget and each seed, the script runs two arms with one count of
+ * distinct objective vectors of rank 1. The option `--space split` adds the split of work of the new machine (sessions
+ * from 0 to 8 and services from 0 to 2) and the units of each work class as objectives. The front of that space is larger. For each budget and each seed, the script runs two arms with one count of
  * evaluations:
  *
  * - The sample arm sweeps a seeded sample of `budget` configs. A repeat of a config gets no evaluation.
@@ -11,7 +12,7 @@
  * The measure of an arm is its front recall: the share of the vectors of the true front among its feasible rows. The
  * noise is the SD of the recall of the sample arm over the seeds. A mean difference within 2 SD is no result.
  *
- * Run: node scripts/study-evolve.ts [--seeds 10] [--budgets 200,400] [--out study-evolve.json]
+ * Run: node scripts/study-evolve.ts [--seeds 10] [--budgets 200,400] [--space base|split] [--levels 4] [--out study-evolve.json]
  */
 import { readFileSync, writeFileSync } from "node:fs";
 import { parseArgs } from "node:util";
@@ -22,8 +23,12 @@ import {
   evolveDesigns,
   readCatalog,
   sweepDesigns,
+  workObjectives,
   type DesignInput,
+  type DesignObjective,
   type DesignSpace,
+  type DesignSpaceOptions,
+  type WorkClass,
 } from "../packages/cluster-design/src/index.ts";
 import { SAMPLE_MACHINE, SAMPLE_PARTS, SAMPLE_SITE } from "../packages/cluster-design/src/sample.ts";
 
@@ -49,6 +54,8 @@ const { values: args } = parseArgs({
   options: {
     seeds: { type: "string", default: "10" },
     budgets: { type: "string", default: "200,400" },
+    space: { type: "string", default: "base" },
+    levels: { type: "string", default: "4" },
     out: { type: "string", default: "study-evolve.json" },
   },
 });
@@ -56,22 +63,36 @@ const seedCount = Number(args.seeds);
 const budgets = args.budgets.split(",").map(Number);
 if (!Number.isInteger(seedCount) || seedCount < 2) throw new RangeError(`The count of the seeds is ${args.seeds}, and the noise needs 2 or more.`);
 if (budgets.some((b) => !Number.isInteger(b) || b < 2)) throw new RangeError(`The budgets ${args.budgets} are not whole numbers of 2 or more.`);
+if (args.space !== "base" && args.space !== "split") throw new RangeError(`The space is ${args.space}, and the study knows base and split.`);
+const levels = Number(args.levels);
+if (!Number.isInteger(levels) || levels < 2) throw new RangeError(`The levels ${args.levels} are not a whole number of 2 or more.`);
 const seeds = Array.from({ length: seedCount }, (_, i) => i + 1);
+
+/** The work classes of the split space: a session of 1 thread and 4 GiB, and a service of 2 threads and 8 GiB. */
+const CLASSES: readonly WorkClass[] = [
+  { id: "session", threads: 1, memory: 4 },
+  { id: "service", threads: 2, memory: 8 },
+];
+const split = args.space === "split";
+const spaceOptions: Pick<DesignSpaceOptions, "work" | "split"> = split
+  ? { work: CLASSES, split: [{ class: "session", min: 0, max: 8 }, { class: "service", min: 0, max: 2 }] }
+  : {};
+const objectives: readonly DesignObjective[] = split ? [...DESIGN_OBJECTIVES, ...workObjectives(CLASSES)] : DESIGN_OBJECTIVES;
 
 const read = readCatalog(SAMPLE_PARTS);
 if (!read.ok) throw new Error(read.problems.join(" "));
 const input: DesignInput = { catalog: read.value, site: SAMPLE_SITE, fixed: [SAMPLE_MACHINE, { ...SAMPLE_MACHINE, id: "node-2" }] };
-const made = designSpace(read.value, { site: input });
+const made = designSpace(read.value, { site: input, ...spaceOptions });
 if (!made.ok) throw new Error(made.problems.join(" "));
 const space: DesignSpace = made.value;
 
-const names = DESIGN_OBJECTIVES.map((objective) => objective.name);
+const names = objectives.map((objective) => objective.name);
 /** This function gives the key of the objective vector of a feasible row. */
 const keyOf = (row: StudyRow): string => names.map((name) => (row.values[name] ?? Number.NaN).toPrecision(12)).join(" ");
 const feasibleKeys = (rows: readonly StudyRow[]): Set<string> => new Set(rows.filter((row) => row.status === "feasible").map(keyOf));
 
 const started = performance.now();
-const grid = sweepDesigns(space, input, { enumerate: { mode: "grid", levels: 4 } });
+const grid = sweepDesigns(space, input, { enumerate: { mode: "grid", levels }, objectives });
 if (!grid.ok) throw new Error(grid.problems.join(" "));
 const front = new Set(grid.value.run.rows.filter((row) => row.status === "feasible" && row.rank === 1).map(keyOf));
 if (front.size === 0) throw new Error("The grid has no feasible row, so the study has no front.");
@@ -85,10 +106,10 @@ const armOf = (rows: readonly StudyRow[], repeats: number): ArmRecord => {
 
 const studies = budgets.map((budget) => {
   const runs = seeds.map((seed) => {
-    const sampled = sweepDesigns(space, input, { enumerate: { mode: "sample", n: budget, seed } });
+    const sampled = sweepDesigns(space, input, { enumerate: { mode: "sample", n: budget, seed }, objectives });
     if (!sampled.ok) throw new Error(sampled.problems.join(" "));
     const sample = armOf(sampled.value.run.rows, sampled.value.run.repeats);
-    const evolved = evolveDesigns(space, input, { seed, evaluations: sample.rows });
+    const evolved = evolveDesigns(space, input, { seed, evaluations: sample.rows, objectives });
     if (!evolved.ok) throw new Error(evolved.problems.join(" "));
     const { run } = evolved.value;
     const evolve: ArmRecord = { ...armOf(run.rows, run.repeats), generations: run.generations, stop: run.stop };
@@ -121,7 +142,10 @@ const record = {
   schema: "cluster-design-study-evolve/1",
   commit: process.env["GITHUB_SHA"] ?? null,
   versions: { "strategy-search": version("strategy-search"), "strategy-space": version("strategy-space") },
-  measure: "front recall: the share of the distinct objective vectors of rank 1 of the grid at 4 levels among the feasible rows of an arm",
+  measure: `front recall: the share of the distinct objective vectors of rank 1 of the grid at ${String(levels)} levels among the feasible rows of an arm`,
+  space: args.space,
+  levels,
+  objectives: names,
   rule: "evolve-higher when the mean difference (evolve - sample) is above 2 SD of the sample recall over the seeds, sample-higher below -2 SD, else within-noise",
   grid: { rows: grid.value.run.rows.length, feasible: grid.value.run.counts.feasible, front: front.size, evaluator: grid.value.run.evaluator },
   seeds,
