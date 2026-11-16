@@ -69,7 +69,7 @@ export function formatMeasure(value: MeasureValue): string {
   return `${String(Math.round(value.value))} ${value.unit}`;
 }
 
-/** This record is the state of the demo: the count of each part, the load limit of the power supply and the units of each class of work. */
+/** This record is the state of the demo. It holds the count of each part, the load limit of the power supply and the units of the work. */
 export interface DemoState {
   readonly counts: ReadonlyMap<string, number>;
   readonly psuLoad: number;
@@ -152,7 +152,7 @@ export const PRESETS: readonly Preset[] = [
   },
 ];
 
-/** This function gives the machine of a state: one line for each part and one work line for each class, each with a count of 1 or more. */
+/** This function gives the machine of a state. Each part and each work class with a count of 1 or more gives one line. */
 export function machineOf(state: DemoState): Machine {
   const lines = SAMPLE_PARTS.flatMap((part) => {
     const count = state.counts.get(part.id) ?? 0;
@@ -253,8 +253,8 @@ const units = (count: number, id: string): string => {
 };
 
 /**
- * This function gives the sentence of the work of a result: the share of the work, the free share, and the CI jobs and
- * the units of each class that fit in the free share.
+ * This function gives the sentence of the work of a result. The sentence gives the share of the work and the free share.
+ * It also gives the CI jobs and the units of each class that fit in the free share.
  */
 export function workSentence(result: Pick<DemoResult, "measures">): string {
   const value = (id: string): number | undefined => result.measures.find((entry) => entry.measure === id)?.value;
