@@ -58,6 +58,7 @@ const pointOf = (id: string, breaks: readonly string[] = [], values: ViewPoint["
   values,
   breaks,
   lines: [],
+  work: [],
   places: [{ circuit: 0, room: 0 }],
 });
 
@@ -268,9 +269,10 @@ describe("the split of work", () => {
   it("opens a design in the builder with the work of each machine", () => {
     const point = SPLIT_POINTS.find((entry) => entry.status === "fits" && count(entry, "session") > 0);
     if (point === undefined) throw new Error("No design that fits has a session.");
-    const hash = builderHashOf(point, DEMO, SAMPLE_SITE_STATE, SPLIT);
+    const view: ViewState = { ...SPLIT, n: 250 };
+    const hash = builderHashOf(point, DEMO, SAMPLE_SITE_STATE, view);
     expect(Object.fromEntries(stateOf(hash)?.work ?? [])).toEqual(Object.fromEntries(point.work.map((line) => [line.class, line.count])));
-    expect(viewStateOf(hash)).toEqual(SPLIT);
+    expect(viewStateOf(hash)).toEqual(view);
   });
 
   it("shows the CI runner slots across and the sessions up when the split starts", () => {
