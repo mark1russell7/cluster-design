@@ -179,6 +179,8 @@ const measures = measureSite(site.value, machines, catalog); // the value of eac
 
 The option `continuousLoad` sets the continuous load limit of a circuit, as a ratio of the rating of its breaker. The default is 0.8, the limit that the electrical code of the United States sets for a continuous load. A machine that runs CI jobs for hours is a continuous load.
 
+The limit and the current of a circuit are the formulas `ratedLimit` and `loadCurrent` of [`@mark1russell7/electrical`](https://www.npmjs.com/package/@mark1russell7/electrical). That package is the home of the circuit math. This package gives the loads: the power of the machines on each circuit.
+
 ### The rules of a site
 
 | Rule | Level | The sentence that it holds |

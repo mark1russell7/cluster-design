@@ -2,6 +2,7 @@
  * The check and the measures of a site: each rule and each measure at each key of its level. A rule that cannot
  * read its values has the verdict `unread`. It does not get the verdict `fits`.
  */
+import { DEFAULT_CONTINUOUS_LOAD } from "@mark1russell7/electrical";
 import { evaluate, type Expr, type Result } from "@mark1russell7/vex";
 import { BoolDomain, NumDomain, TextDomain } from "@mark1russell7/vex-domains";
 import { verdictOf, type Verdict } from "./check.ts";
@@ -13,8 +14,9 @@ import { siteTree, SITE_KEY, type Site } from "./site.ts";
 import { CONTINUOUS_LOAD, SITE_MEASURES, SITE_RULES, siteWorkRules, type SiteLevel, type SiteMeasure, type SiteRule } from "./site-formulas.ts";
 import { variablesOf, type DesignOptions } from "./variables.ts";
 
-/** The default continuous load limit of a circuit: 80 percent of its rating, as the electrical codes ask for a continuous load. */
-export const DEFAULT_CONTINUOUS_LOAD = 0.8;
+// The default continuous load limit of a circuit: 80 percent of its rating, as the electrical codes ask for a continuous load.
+// Its home is the electrical package.
+export { DEFAULT_CONTINUOUS_LOAD };
 
 /**
  * These options change the evaluation of a site. A program of a site can read a machine of the site. Thus the options
