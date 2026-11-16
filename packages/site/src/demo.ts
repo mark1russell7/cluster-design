@@ -274,6 +274,17 @@ export function workSentence(result: Pick<DemoResult, "measures">): string {
   return `${taken} ${String(freeThreads)} threads and ${String(freeMemory)} GiB stay free: room for ${jobs}, or ${more.join(", or ")}.`;
 }
 
+/** This function gives the text of work lines, for example "4 sessions and 1 service". It gives "no other work" for no line. */
+export function workText(lines: readonly { readonly class: string; readonly count: number }[]): string {
+  const parts = lines
+    .filter((line) => line.count > 0)
+    .map((line) => {
+      const [one, many] = WORK_NAMES[line.class] ?? [line.class, line.class];
+      return `${String(line.count)} ${line.count === 1 ? one : many}`;
+    });
+  return parts.length === 0 ? "no other work" : parts.join(" and ");
+}
+
 /** This function writes a state as the hash of the address, so a visitor can share a machine. */
 export function hashOf(state: DemoState): string {
   const parts = [...state.counts].filter(([, count]) => count > 0).map(([id, count]) => `${id}=${String(count)}`);

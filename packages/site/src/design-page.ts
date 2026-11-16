@@ -4,10 +4,10 @@
  * list of the front. A visitor opens a design in the builder above with one click.
  */
 import { byId, h } from "@mark1russell7/site-pages/chrome";
-import { CATALOG, CLASS_LABELS, VERDICT_TEXT, type DemoState } from "./demo.ts";
+import { CATALOG, CLASS_LABELS, VERDICT_TEXT, workText, type DemoState } from "./demo.ts";
 import { CIRCUITS, ROOMS, type SiteState } from "./site-demo.ts";
 import {
-  AXES,
+  axesOf,
   axisOf,
   breakCounts,
   builderHashOf,
@@ -27,6 +27,7 @@ import {
   type ViewResult,
   type ViewState,
   whereOf,
+  withWork,
 } from "./design-view.ts";
 import type { SweepAnswer, SweepRequest } from "./design-worker.ts";
 
@@ -100,11 +101,24 @@ const placeText = (point: ViewPoint, index: number): string => {
   return place === undefined ? "" : `Machine ${String(index + 1)}: ${CIRCUITS[place.circuit].label}, ${ROOMS[place.room].label}`;
 };
 
+/** This record is a select of the page: its root, the function that sets its value and the function that sets its options. */
+interface Choice<T extends string> {
+  readonly root: HTMLElement;
+  readonly set: (value: T) => void;
+  readonly options: (options: readonly (readonly [T, string])[]) => void;
+}
+
 /** This function makes a select of the page, with a label above it. */
-function choice<T extends string>(label: string, options: readonly (readonly [T, string])[], pick: (value: T) => void): { readonly root: HTMLElement; readonly set: (value: T) => void } {
-  const select = h("select", {}, ...options.map(([value, text]) => h("option", { value }, text)));
+function choice<T extends string>(label: string, first: readonly (readonly [T, string])[], pick: (value: T) => void): Choice<T> {
+  let current = first;
+  const select = h("select", {});
+  const fill = (options: readonly (readonly [T, string])[]): void => {
+    current = options;
+    select.replaceChildren(...options.map(([value, text]) => h("option", { value }, text)));
+  };
+  fill(first);
   select.addEventListener("change", () => {
-    const found = options.find(([value]) => value === select.value);
+    const found = current.find(([value]) => value === select.value);
     if (found !== undefined) pick(found[0]);
   });
   return {
@@ -112,8 +126,15 @@ function choice<T extends string>(label: string, options: readonly (readonly [T,
     set: (value) => {
       select.value = value;
     },
+    options: fill,
   };
 }
+
+/** This function gives the options of an axis select: each goal of a view with or without the split of work. */
+const axisOptionsOf = (work: boolean): readonly (readonly [AxisId, string])[] => axesOf(work).map((axis) => [axis.id, axis.label] as const);
+
+/** This function gives a text with its first letter in upper case. */
+const capitalize = (text: string): string => text.charAt(0).toUpperCase() + text.slice(1);
 
 /** This function makes a mark of the legend: a small chart of one kind of mark. */
 function legendMark(kind: "front" | "fits" | "breaks"): SVGSVGElement {
@@ -149,13 +170,13 @@ export function mountDesigns(options: DesignPageOptions): DesignPage {
     options.changed();
   };
 
-  // The controls: the two goals, the count of designs, a new draw and the designs that break.
-  const axisOptions = AXES.map((axis) => [axis.id, axis.label] as const);
-  const across = choice<AxisId>("Across", axisOptions, (x) => {
+  // The controls: the two goals, the count of designs, a new draw, the designs that break and the split of work.
+  let shownWork = state.work;
+  const across = choice<AxisId>("Across", axisOptionsOf(shownWork), (x) => {
     change({ ...state, x, y: x === state.y ? state.x : state.y });
     draw();
   });
-  const up = choice<AxisId>("Up", axisOptions, (y) => {
+  const up = choice<AxisId>("Up", axisOptionsOf(shownWork), (y) => {
     change({ ...state, y, x: y === state.x ? state.y : state.x });
     draw();
   });
@@ -177,7 +198,20 @@ export function mountDesigns(options: DesignPageOptions): DesignPage {
     showBreaks = breaksBox.checked;
     drawChart();
   });
-  byId("design-controls").append(across.root, up.root, sizes.root, again, h("label", { class: "check" }, breaksBox, "Show the designs that break a rule"));
+  const workBox = h("input", { type: "checkbox", checked: state.work });
+  workBox.addEventListener("change", () => {
+    change(withWork(state, workBox.checked));
+    schedule(0);
+    draw();
+  });
+  byId("design-controls").append(
+    across.root,
+    up.root,
+    sizes.root,
+    again,
+    h("label", { class: "check" }, breaksBox, "Show the designs that break a rule"),
+    h("label", { class: "check" }, workBox, "Give each new machine sessions and services next to its CI jobs"),
+  );
 
   byId("design-legend").append(
     h("li", {}, legendMark("front"), "The front"),
@@ -336,7 +370,7 @@ export function mountDesigns(options: DesignPageOptions): DesignPage {
     const tiles = h(
       "dl",
       { class: "tiles" },
-      AXES.map((axis) => {
+      axesOf(state.work).map((axis) => {
         const number = point.values[axis.id];
         return h("div", { class: "tile" }, h("dt", {}, axis.label), h("dd", {}, number === undefined ? "–" : axis.format(number)));
       }),
@@ -362,6 +396,7 @@ export function mountDesigns(options: DesignPageOptions): DesignPage {
       tiles,
       h("h4", {}, "The parts of each machine"),
       h("ul", {}, parts),
+      ...(state.work ? [h("h4", {}, "The other work of each machine"), h("p", {}, capitalize(workText(point.work)))] : []),
       h("h4", {}, "The places"),
       h(
         "ul",
@@ -424,6 +459,12 @@ export function mountDesigns(options: DesignPageOptions): DesignPage {
   }
 
   function draw(): void {
+    if (shownWork !== state.work) {
+      shownWork = state.work;
+      across.options(axisOptionsOf(shownWork));
+      up.options(axisOptionsOf(shownWork));
+    }
+    workBox.checked = state.work;
     across.set(state.x);
     up.set(state.y);
     sizes.set(String(state.n));
