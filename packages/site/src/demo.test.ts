@@ -16,6 +16,7 @@ import {
   WORK_CLASSES,
   WORK_NAMES,
   workSentence,
+  workText,
   type DemoState,
 } from "./demo.ts";
 
@@ -125,6 +126,13 @@ describe("the work next to the CI jobs", () => {
 
   it("has a name for each class of work", () => {
     expect(WORK_CLASSES.map((entry) => WORK_NAMES[entry.id]?.[1])).toEqual(["sessions", "services"]);
+  });
+
+  it("gives the text of work lines, with one name for one unit", () => {
+    expect(workText([{ class: "session", count: 4 }, { class: "service", count: 1 }])).toBe("4 sessions and 1 service");
+    expect(workText([{ class: "session", count: 1 }, { class: "service", count: 0 }])).toBe("1 session");
+    expect(workText([{ class: "other", count: 2 }])).toBe("2 other");
+    expect(workText([])).toBe("no other work");
   });
 });
 

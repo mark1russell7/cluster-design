@@ -1,9 +1,10 @@
 import { FIT_RULES, SITE_RULES } from "@mark1russell7/cluster-design";
 import { describe, expect, it } from "vitest";
-import { stateOf, type DemoState } from "./demo.ts";
+import { stateOf, workText, type DemoState } from "./demo.ts";
 import {
   AXES,
   AXIS_IDS,
+  axesOf,
   axisOf,
   breakCounts,
   builderHashOf,
@@ -17,7 +18,11 @@ import {
   sweepView,
   viewHashOf,
   viewInputOf,
+  viewObjectives,
   viewStateOf,
+  VIEW_SPLIT,
+  WORK_AXIS_IDS,
+  withWork,
   valuesOf,
   whereOf,
   type Axis,
@@ -53,6 +58,7 @@ const pointOf = (id: string, breaks: readonly string[] = [], values: ViewPoint["
   values,
   breaks,
   lines: [],
+  work: [],
   places: [{ circuit: 0, room: 0 }],
 });
 
@@ -88,7 +94,7 @@ describe("the sweep of the view", () => {
     for (const point of POINTS) {
       if (point.status === "fits") {
         expect(point.breaks).toEqual([]);
-        expect(Object.keys(point.values).sort()).toEqual([...AXIS_IDS].sort());
+        expect(Object.keys(point.values).sort()).toEqual(axesOf(false).map((axis) => axis.id).sort());
       }
       if (point.status === "breaks") expect(point.breaks.length).toBeGreaterThan(0);
       expect(new Set(point.breaks).size).toBe(point.breaks.length);
@@ -153,7 +159,8 @@ describe("the sweep of the view", () => {
 });
 
 describe("the front of two goals", () => {
-  const pairs = AXES.flatMap((x) => AXES.filter((y) => y.id !== x.id).map((y) => [x, y] as const));
+  const goals = axesOf(false);
+  const pairs = goals.flatMap((x) => goals.filter((y) => y.id !== x.id).map((y) => [x, y] as const));
 
   it("holds the designs that no other design that fits beats, for each pair of goals", () => {
     for (const [x, y] of pairs) expect([...frontOn(POINTS, x, y)].sort()).toEqual([...referenceFront(POINTS, x, y)].sort());
@@ -213,10 +220,85 @@ describe("the first choice", () => {
   });
 });
 
+describe("the split of work", () => {
+  const SPLIT: ViewState = { ...VIEW, work: true };
+  const SPLIT_POINTS = pointsOf(SAMPLE_SITE_STATE, SPLIT);
+  const count = (point: ViewPoint, id: string): number => point.work.find((line) => line.class === id)?.count ?? 0;
+
+  it("has the work goals only with the split", () => {
+    expect(axesOf(false).map((axis) => axis.id)).toEqual(AXIS_IDS.filter((id) => !WORK_AXIS_IDS.includes(id)));
+    expect(axesOf(true)).toEqual(AXES);
+    expect(viewObjectives(false).map((objective) => objective.name)).not.toContain("work-session");
+    expect(viewObjectives(true).map((objective) => objective.measure)).toEqual([...AXIS_IDS]);
+  });
+
+  it("gives no work line to a design of a view without the split", () => {
+    expect(POINTS.every((point) => point.work.length === 0)).toBe(true);
+  });
+
+  it("gives each new machine work in the ranges of the split, and each goal to a design that fits", () => {
+    const fits = SPLIT_POINTS.filter((point) => point.status === "fits");
+    expect(fits.length).toBeGreaterThan(0);
+    for (const point of SPLIT_POINTS) {
+      for (const range of VIEW_SPLIT) {
+        expect(count(point, range.class)).toBeGreaterThanOrEqual(range.min);
+        expect(count(point, range.class)).toBeLessThanOrEqual(range.max);
+      }
+    }
+    for (const point of fits) {
+      expect(Object.keys(point.values).sort()).toEqual([...AXIS_IDS].sort());
+      expect(point.values["work-session"]).toBe(count(point, "session") * point.places.length);
+      expect(point.values["work-service"]).toBe(count(point, "service") * point.places.length);
+    }
+  });
+
+  it("trades sessions against CI runner slots: the front of the two goals holds more than one design", () => {
+    const front = frontOn(SPLIT_POINTS, axisOf("runner-slots"), axisOf("work-session"));
+    expect(front.size).toBeGreaterThan(1);
+    expect([...front].sort()).toEqual([...referenceFront(SPLIT_POINTS, axisOf("runner-slots"), axisOf("work-session"))].sort());
+  });
+
+  it("names the work of each machine of a design", () => {
+    const point = SPLIT_POINTS.find((entry) => count(entry, "session") > 0);
+    if (point === undefined) throw new Error("No design has a session.");
+    expect(nameOf(point).endsWith(`, each with ${workText(point.work)}`)).toBe(true);
+    const idle = SPLIT_POINTS.find((entry) => entry.work.every((line) => line.count === 0));
+    if (idle !== undefined) expect(nameOf(idle)).not.toContain("each with");
+  });
+
+  it("opens a design in the builder with the work of each machine", () => {
+    const point = SPLIT_POINTS.find((entry) => entry.status === "fits" && count(entry, "session") > 0);
+    if (point === undefined) throw new Error("No design that fits has a session.");
+    const view: ViewState = { ...SPLIT, n: 250 };
+    const hash = builderHashOf(point, DEMO, SAMPLE_SITE_STATE, view);
+    expect(Object.fromEntries(stateOf(hash)?.work ?? [])).toEqual(Object.fromEntries(point.work.map((line) => [line.class, line.count])));
+    expect(viewStateOf(hash)).toEqual(view);
+  });
+
+  it("shows the CI runner slots across and the sessions up when the split starts", () => {
+    expect(withWork(DEFAULT_VIEW, true)).toEqual({ ...DEFAULT_VIEW, work: true, x: "runner-slots", y: "work-session" });
+  });
+
+  it("changes each work goal to a free default goal when the split stops", () => {
+    expect(withWork({ ...SPLIT, x: "runner-slots", y: "work-session" }, false)).toEqual({ ...SPLIT, work: false, x: "runner-slots", y: "total-cost" });
+    expect(withWork({ ...SPLIT, x: "work-service", y: "work-session" }, false)).toEqual({ ...SPLIT, work: false, x: "total-cost", y: "runner-slots" });
+    expect(withWork({ ...SPLIT, x: "work-service", y: "total-cost" }, false)).toEqual({ ...SPLIT, work: false, x: "runner-slots", y: "total-cost" });
+    expect(withWork({ ...SPLIT, x: "noise", y: "power" }, false)).toEqual({ ...SPLIT, work: false, x: "noise", y: "power" });
+  });
+});
+
 describe("the hash of the view", () => {
   it("keeps the view state", () => {
-    const view: ViewState = { x: "noise", y: "slot-cost", n: 1000, seed: 42 };
+    const view: ViewState = { x: "noise", y: "slot-cost", n: 1000, seed: 42, work: false };
     expect(viewStateOf(`#${viewHashOf(view)}`)).toEqual(view);
+    const split: ViewState = { x: "work-service", y: "runner-slots", n: 250, seed: 7, work: true };
+    expect(viewHashOf(split)).toContain("vw=1");
+    expect(viewStateOf(`#${viewHashOf(split)}`)).toEqual(split);
+  });
+
+  it("gives a work goal only to a view with the split", () => {
+    expect(viewStateOf("#vx=work-session&vy=power")).toEqual({ ...DEFAULT_VIEW, y: "power" });
+    expect(viewStateOf("#vx=work-session&vy=power&vw=1")).toEqual({ ...DEFAULT_VIEW, x: "work-session", y: "power", work: true });
   });
 
   it("gives the default to each pair that is missing or bad", () => {
