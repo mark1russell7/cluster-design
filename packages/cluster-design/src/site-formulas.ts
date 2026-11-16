@@ -3,6 +3,7 @@
  * plug into the circuits and stand in the rooms. Each program evaluates at a key of the tree of a site: the site, a
  * circuit or a room. The programs of a machine evaluate at each machine in the tree, so a site and a machine agree.
  */
+import { CONTINUOUS_LOAD, loadCurrent, ratedLimit } from "@mark1russell7/electrical";
 import { convert, quantity } from "@mark1russell7/quantity";
 import { app, axes, each, let_, lit, origin, parent, ref, v, type Addr, type Axis, type Expr } from "@mark1russell7/vex";
 import {
@@ -21,8 +22,9 @@ import {
 import type { WorkClass } from "./variables.ts";
 import { countOf, STRICT } from "./program.ts";
 
-/** The name of the variable that holds the continuous load limit of a circuit, as a ratio of its rating. */
-export const CONTINUOUS_LOAD = "continuousLoad";
+// The name of the variable that holds the continuous load limit of a circuit, as a ratio of its rating.
+// Its home is the electrical package, with the formulas of the limit and the current of a circuit.
+export { CONTINUOUS_LOAD };
 
 /** This type is the level of a key in the tree of a site. */
 export type SiteLevel = "site" | "circuit" | "room";
@@ -57,13 +59,13 @@ export const CIRCUIT_LOAD: Expr = app("add", sumOver(circuitMachines, WALL_POWER
 export const CIRCUIT_IDLE_LOAD: Expr = app("add", sumOver(circuitMachines, WALL_IDLE_POWER), ref("otherLoad"));
 
 /** This program gives the most current of a circuit in amperes: its most power divided by its voltage. */
-export const CIRCUIT_CURRENT: Expr = app("divide", CIRCUIT_LOAD, ref("voltage"));
+export const CIRCUIT_CURRENT: Expr = loadCurrent(CIRCUIT_LOAD, ref("voltage"));
 
 /**
  * This program gives the continuous load limit of a circuit in watts: its voltage times the rating of its breaker,
  * times the variable `continuousLoad`. A machine that runs CI jobs for hours is a continuous load.
  */
-export const CIRCUIT_LIMIT: Expr = app("multiply", app("multiply", ref("voltage"), ref("breaker")), v(CONTINUOUS_LOAD));
+export const CIRCUIT_LIMIT: Expr = ratedLimit(ref("voltage"), ref("breaker"));
 
 /** This program gives the plugs of the machines on a circuit: one plug for each power supply. */
 export const CIRCUIT_PLUGS: Expr = sumOver(circuitMachines, countOf("psu"));

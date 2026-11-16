@@ -1,4 +1,11 @@
+import {
+  CONTINUOUS_LOAD as ELECTRICAL_CONTINUOUS_LOAD,
+  DEFAULT_CONTINUOUS_LOAD as ELECTRICAL_DEFAULT_CONTINUOUS_LOAD,
+  loadCurrent,
+  ratedLimit,
+} from "@mark1russell7/electrical";
 import { quantity } from "@mark1russell7/quantity";
+import { ref } from "@mark1russell7/vex";
 import fc from "fast-check";
 import { uniformDouble } from "@mark1russell7/rigor-testkit/arbitrary";
 import { describe, expect, it } from "vitest";
@@ -6,8 +13,8 @@ import type { Machine } from "./machine.ts";
 import { measureDesign } from "./measure.ts";
 import { readCatalog, type Part } from "./parts.ts";
 import { SAMPLE_MACHINE, SAMPLE_PARTS, SAMPLE_SITE } from "./sample.ts";
-import { checkSite, measureSite, type SiteOptions } from "./site-check.ts";
-import { HOURS_PER_MONTH, SITE_MEASURES } from "./site-formulas.ts";
+import { checkSite, DEFAULT_CONTINUOUS_LOAD, measureSite, type SiteOptions } from "./site-check.ts";
+import { CIRCUIT_CURRENT, CIRCUIT_LIMIT, CIRCUIT_LOAD, CONTINUOUS_LOAD, HOURS_PER_MONTH, SITE_MEASURES } from "./site-formulas.ts";
 import { readSite, siteTree, type Site } from "./site.ts";
 
 const read = readCatalog(SAMPLE_PARTS);
@@ -221,6 +228,26 @@ describe("the rules of a site", () => {
         },
       ),
       { seed: 20261113, numRuns: 60 },
+    );
+  });
+});
+
+describe("the circuit math", () => {
+  it("is the math of the electrical package: the limit and the current of a circuit, and the continuous part", () => {
+    expect(CIRCUIT_LIMIT).toEqual(ratedLimit(ref("voltage"), ref("breaker")));
+    expect(CIRCUIT_CURRENT).toEqual(loadCurrent(CIRCUIT_LOAD, ref("voltage")));
+    expect(CONTINUOUS_LOAD).toBe(ELECTRICAL_CONTINUOUS_LOAD);
+    expect(DEFAULT_CONTINUOUS_LOAD).toBe(ELECTRICAL_DEFAULT_CONTINUOUS_LOAD);
+  });
+
+  it("gives the limit of the electrical package for each voltage, breaker and continuous part", () => {
+    fc.assert(
+      fc.property(fc.integer({ min: 100, max: 480 }), fc.integer({ min: 1, max: 60 }), uniformDouble({ min: 0.05, max: 1 }), (voltage, breaker, continuousLoad) => {
+        const site = withCircuit(SAMPLE_SITE, 0, { voltage: quantity(voltage, "V"), breaker: quantity(breaker, "A") });
+        const limit = valuesOf(site, MACHINES, { continuousLoad })["circuit-a:limit"];
+        return typeof limit === "number" && Math.abs(limit - voltage * breaker * continuousLoad) <= 1e-9 * limit;
+      }),
+      { seed: 20261116, numRuns: 60 },
     );
   });
 });
