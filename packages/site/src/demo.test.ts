@@ -13,6 +13,9 @@ import {
   resultOf,
   stateOf,
   TILE_LABELS,
+  WORK_CLASSES,
+  WORK_NAMES,
+  workSentence,
   type DemoState,
 } from "./demo.ts";
 
@@ -51,7 +54,7 @@ describe("the demo", () => {
     expect(headlineOf(resultOf(preset("hot")))).toBe("1 rule breaks");
     expect(headlineOf(resultOf(preset("graphics")))).toBe("2 rules break");
     expect(headlineOf(resultOf(preset("no-case")))).toBe("1 rule breaks, 4 rules have no read");
-    expect(headlineOf(resultOf({ counts: new Map(), psuLoad: 0.8 }))).toMatch(/rules break/);
+    expect(headlineOf(resultOf({ counts: new Map(), psuLoad: 0.8, work: new Map() }))).toMatch(/rules break/);
   });
 
   it("breaks the load rule at a low load limit", () => {
@@ -62,18 +65,22 @@ describe("the demo", () => {
   });
 
   it("makes a machine with one line for each part with a count", () => {
-    const machine = machineOf({ counts: new Map([["cpu-a", 2], ["board-a", 0], ["ssd-m2", 1]]), psuLoad: 0.8 });
+    const machine = machineOf({ counts: new Map([["cpu-a", 2], ["board-a", 0], ["ssd-m2", 1]]), psuLoad: 0.8, work: new Map() });
     expect(machine).toEqual({ id: MACHINE_ID, lines: [{ part: "cpu-a", count: 2 }, { part: "ssd-m2", count: 1 }] });
+    const busy = machineOf({ counts: new Map([["cpu-a", 1]]), psuLoad: 0.8, work: new Map([["session", 3], ["service", 0]]) });
+    expect(busy).toEqual({ id: MACHINE_ID, lines: [{ part: "cpu-a", count: 1 }], work: [{ class: "session", count: 3 }] });
   });
 
   it("keeps a state in the hash of the address", () => {
     for (const { state } of PRESETS) {
       const back = stateOf(hashOf(state));
       expect(back?.psuLoad).toBe(state.psuLoad);
+      expect(back?.work).toEqual(new Map([...state.work].filter(([, count]) => count > 0)));
       expect(machineOf(back ?? state)).toEqual(machineOf(state));
     }
     expect(stateOf("")).toBeUndefined();
-    expect(stateOf("#nothing=3&cpu-a=99&load=20")).toEqual({ counts: new Map([["cpu-a", 8]]), psuLoad: 0.5 });
+    expect(stateOf("#nothing=3&cpu-a=99&load=20")).toEqual({ counts: new Map([["cpu-a", 8]]), psuLoad: 0.5, work: new Map() });
+    expect(stateOf("#cpu-a=1&work.session=99&work.service=-2&work.cpu-a=3&work.nothing=1")?.work).toEqual(new Map([["session", 16], ["service", 0]]));
   });
 
   it("gives each part with its facts, in the classes of the table", () => {
@@ -88,6 +95,36 @@ describe("the demo", () => {
     expect(Object.keys(TILE_LABELS).map((id) => measures.get(id))).toEqual(["43 W", "181 W", "54 W", "34.8 dBA", "16", "64 GiB", "9 TB", "3", "$959"]);
     expect(formatMeasure({ machine: "m", measure: "noise", unit: "dBA", detail: "#NUM!" })).toBe("–");
     expect(formatMeasure({ machine: "m", measure: "storage", unit: "GB", value: 512 })).toBe("512 GB");
+  });
+});
+
+describe("the work next to the CI jobs", () => {
+  const value = (state: DemoState, id: string): number | undefined => resultOf(state).measures.find((entry) => entry.measure === id)?.value;
+
+  it("gives the CI jobs the rest of the machine after the work", () => {
+    const mix = preset("mix");
+    expect(problems(mix)).toEqual({});
+    const ids = ["work-threads", "work-memory", "free-threads", "free-memory", "runner-slots", "capacity-session", "capacity-service"];
+    expect(ids.map((id) => value(mix, id))).toEqual([6, 24, 10, 38, 2, 13, 5]);
+    expect(value(preset("fits"), "runner-slots")).toBe(3);
+  });
+
+  it("breaks the memory rule of the work when the work takes more than the machine less its reserve", () => {
+    expect(problems(preset("full"))).toEqual({ "work-memory": "breaks" });
+    expect(value(preset("full"), "runner-slots")).toBe(0);
+  });
+
+  it("gives a sentence of the share of the work", () => {
+    expect(workSentence(resultOf(preset("fits")))).toBe("No other work. The machine less its reserve has room for 3 CI jobs.");
+    expect(workSentence(resultOf(preset("mix")))).toBe(
+      "The work takes 6 threads and 24 GiB. 10 threads and 38 GiB stay free: room for 2 CI jobs, or 9 more sessions, or 4 more services.",
+    );
+    expect(workSentence(resultOf(preset("full")))).toBe("The work takes 16 threads and 64 GiB. That is more than the machine less its reserve, so no CI job fits.");
+    expect(workSentence({ measures: [] })).toMatch(/no read/);
+  });
+
+  it("has a name for each class of work", () => {
+    expect(WORK_CLASSES.map((entry) => WORK_NAMES[entry.id]?.[1])).toEqual(["sessions", "services"]);
   });
 });
 

@@ -26,7 +26,7 @@ import {
 } from "./design-view.ts";
 import { SAMPLE_SITE_STATE, siteHashOf, siteStateOf, type SiteState } from "./site-demo.ts";
 
-const DEMO: DemoState = { counts: new Map(), psuLoad: 0.8 };
+const DEMO: DemoState = { counts: new Map(), psuLoad: 0.8, work: new Map() };
 const VIEW: ViewState = { ...DEFAULT_VIEW, n: 80, seed: 3 };
 
 function pointsOf(site: SiteState = SAMPLE_SITE_STATE, view: ViewState = VIEW, psuLoad = 0.8): readonly ViewPoint[] {

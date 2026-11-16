@@ -193,6 +193,7 @@ main > section:last-child {
   grid-template-columns: minmax(0, 1fr) minmax(0, 1.1fr);
   grid-template-areas:
     "parts summary"
+    "parts work"
     "parts measures"
     "parts rules";
   align-items: start;
@@ -221,6 +222,17 @@ main > section:last-child {
 
 .measures {
   grid-area: measures;
+}
+
+.work {
+  grid-area: work;
+}
+
+.work-text {
+  margin: 0.5rem 0 0;
+  color: var(--quiet);
+  font-size: 0.85rem;
+  line-height: 1.5;
 }
 
 .tiles {
@@ -919,6 +931,7 @@ main > section:last-child {
     grid-template-columns: minmax(0, 1fr);
     grid-template-areas:
       "summary"
+      "work"
       "measures"
       "parts"
       "rules";

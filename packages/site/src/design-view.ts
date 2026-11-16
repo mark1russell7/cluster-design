@@ -290,5 +290,5 @@ export function viewStateOf(hash: string): ViewState {
  */
 export function builderHashOf(point: ViewPoint, demo: DemoState, site: SiteState, view: ViewState): string {
   const counts = new Map(point.lines.map((line) => [line.part, line.count]));
-  return `${hashOf({ counts, psuLoad: demo.psuLoad })}&${siteHashOf({ ...site, places: point.places })}&${viewHashOf(view)}`;
+  return `${hashOf({ counts, psuLoad: demo.psuLoad, work: demo.work })}&${siteHashOf({ ...site, places: point.places })}&${viewHashOf(view)}`;
 }

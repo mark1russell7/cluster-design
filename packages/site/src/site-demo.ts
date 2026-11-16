@@ -17,7 +17,7 @@ import {
   type Verdict,
 } from "@mark1russell7/cluster-design";
 import { SAMPLE_PRICES } from "@mark1russell7/cluster-design/sample";
-import { CATALOG } from "./demo.ts";
+import { CATALOG, WORK_CLASSES } from "./demo.ts";
 
 /** The most copies of the demo machine in the site. */
 export const MAX_COPIES = 6;
@@ -191,8 +191,9 @@ export const COST_MONTHS = 36;
 export function siteResultOf(machine: Machine, state: SiteState): SiteResult {
   const site = siteOf(state);
   const machines = copiesOf(machine, state);
-  const checked = checkSite(site, machines, CATALOG);
+  const checked = checkSite(site, machines, CATALOG, { work: WORK_CLASSES });
   const measured = measureSite(site, machines, CATALOG, {
+    work: WORK_CLASSES,
     cost: { prices: SAMPLE_PRICES, busy: state.busy },
     measures: [...SITE_MEASURES, ...SITE_COST_MEASURES],
   });
