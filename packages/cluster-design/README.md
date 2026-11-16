@@ -148,9 +148,9 @@ The work lines take their share first, and the CI jobs take the rest. The rules 
 | `work-<id>` | count | The units of the class on the machine. |
 | `capacity-<id>` | count | The units of the class on the machine, plus the units of the class that fit in the free share. |
 
-A work line with a class that the options do not have is a problem of the input. A class with an empty id, an id on two classes, or threads or memory of 0 or less is also a problem. The record of a work line in the tree has the kind `work` and the class `work`. Thus a test of a part class gives false for it.
+A work line with a class that the options do not have is a problem of the input. A class with an empty id, an id on two classes, or threads or memory of 0 or less is also a problem. A demand that is not a whole number of 0 or more is a problem too. The record of a work line in the tree has the kind `work` and the class `work`. Thus a test of a part class gives false for it.
 
-The split of each machine is a parameter. A search of the splits can use `capacity-<id>` and `runner-slots` as its objectives.
+The split of each machine is a parameter. The option `split` of the design space makes it a stage of the search (the part [The split of the work](#the-split-of-the-work)).
 
 ## A site
 
@@ -188,6 +188,9 @@ The option `continuousLoad` sets the continuous load limit of a circuit, as a ra
 | `room-heat` | room | The most heat of the machines in a room is not more than the heat limit of the room. |
 | `room-noise` | room | The most sound level of the machines in a room is not more than the noise limit of the room. |
 | `room-places` | room | The machines in a room are not more than the places of the room. |
+| `demand-<id>` | site | The machines of the site have the demand of the work class, or more. `siteWorkRules` gives one rule for each class with a demand. |
+
+The check adds the rules of the demands by default. The option `rules` gives other rules.
 
 A rule gives the verdict `unread` when it cannot read a value. For example, a machine with no power supply has no power from the wall. Thus its circuit and its room get `unread`, and not `fits`.
 
@@ -225,6 +228,7 @@ A **design space** holds each design that adds copies of one new machine to a si
 | Stage | Options | Param |
 | --- | --- | --- |
 | one stage for each slot of the new machine | the parts of the class of the slot | `count`, when the slot has a range |
+| one stage `work-<id>` for each range of the split | the id of the work class | `count`, the units of the class on each new machine |
 | `copies` | `copies` | `count`, the count of the new machines |
 | `placement` | `fill` and `spread` | none |
 
@@ -276,6 +280,24 @@ A property test over random sites holds two claims. First, a count above the max
 
 When no room or circuit is free, both rules take the first one. The rules of the site then refuse the design. `checkDesignConfig` applies the fit rules to one copy of the new machine and the rules of the site to the whole site. The verdict is `fits` only when each finding fits.
 
+### The split of the work
+
+The option `split` gives the range of the units of each work class on the new machine. Each range is one stage of the space, after the slots. The min of a range can be 0. Thus a search finds the split of the new machine between the work classes and the CI jobs.
+
+```ts
+const work = [
+  { id: "session", threads: 1, memory: 4 },
+  { id: "service", threads: 2, memory: 8 },
+];
+const made = designSpace(catalog, { site: { site, fixed }, work, split: [{ class: "session", min: 0, max: 8 }, { class: "service", min: 0, max: 2 }] });
+```
+
+- `designOf` gives each new machine the work lines of the config. A count of 0 gives no work line.
+- The space keeps the work classes in its field `work`. Thus `checkDesignConfig` and a search read the same classes without the option `work`.
+- A range of a class that the option `work` does not have is a problem. A class with two ranges and a range that is not whole numbers from 0 are problems too.
+- Without a split, the space has no stage of work, and it is the same space as before.
+- The field `demand` of a work class gives the units that the site needs. Its rule `demand-<id>` is a hard constraint of the check and of a search. Thus a search keeps only the splits that hold each demand.
+
 ### A sweep of the designs
 
 `sweepDesigns` evaluates each config of a grid or of a seeded sample of the space. It uses `sweep` of `@mark1russell7/strategy-search`, and gives one plain row for each design.
@@ -301,7 +323,9 @@ swept.value.run.rows.filter((row) => row.front); // the designs on the Pareto fr
 | `idle-cost` | min | `idle-cost`: the cost of the electricity for a month at idle |
 | `noise` | min | `noise` of the loudest room |
 
-The option `objectives` gives other objectives, each with a name, a goal and the id of a measure. A measure of a circuit or a room gives the worst value of its keys. The worst value is the max for the goal `min`, and the min for the goal `max`. The size of a job, the reserve of a machine and the load limits go to the check and to the measures.
+The option `objectives` gives other objectives, each with a name, a goal and the id of a measure. The default measures include `siteWorkMeasures` of the work classes. `workObjectives(work)` gives the objective `work-<id>` with the goal `max` for each class. With `runner-slots`, it gives the front of the work classes and the CI jobs. 
+
+A measure of a circuit or a room gives the worst value of its keys. The worst value is the max for the goal `min`, and the min for the goal `max`. The size of a job, the reserve of a machine and the load limits go to the check and to the measures.
 
 A property test over random samples holds that each row has the verdict of `checkDesignConfig`.
 

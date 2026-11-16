@@ -29,6 +29,8 @@ export const DEFAULT_RESERVE: Share = { threads: 0, memory: 2 };
 export interface WorkClass extends Share {
   /** The id of the class. A work line of a machine names it. */
   readonly id: string;
+  /** The units of the class that the site needs, a whole number of 0 or more. The rule `demand-<id>` of the site holds it. The default is no demand. */
+  readonly demand?: number;
 }
 
 const isAmount = (value: number, least: number, open: boolean): boolean => Number.isFinite(value) && (open ? value > least : value >= least);
@@ -47,7 +49,10 @@ export interface DesignOptions {
   readonly work?: readonly WorkClass[];
 }
 
-/** This function gives the problems of a list of work classes. An empty id, an id on two classes and a share of 0 or less are problems. */
+/**
+ * This function gives the problems of a list of work classes. An empty id, an id on two classes and a share of 0 or less
+ * are problems. A demand that is not a whole number of 0 or more is a problem too.
+ */
 export function workProblems(classes: readonly WorkClass[]): readonly string[] {
   const problems: string[] = [];
   const seen = new Set<string>();
@@ -56,6 +61,7 @@ export function workProblems(classes: readonly WorkClass[]): readonly string[] {
     else if (seen.has(work.id)) problems.push(`The id ${work.id} is on two work classes.`);
     seen.add(work.id);
     if (!isAmount(work.threads, 0, true) || !isAmount(work.memory, 0, true)) problems.push(`The threads and the memory of the work class ${work.id} are not more than 0.`);
+    if (work.demand !== undefined && !(Number.isInteger(work.demand) && work.demand >= 0)) problems.push(`The demand of the work class ${work.id} is not a whole number of 0 or more.`);
   }
   return problems;
 }

@@ -193,6 +193,31 @@ export const SITE_MEASURES: readonly SiteMeasure[] = [
   { id: "machines", sentence: "The machines in the room.", unit: "count", level: "room", program: ROOM_MACHINES },
 ];
 
+/** This function gives the program of the units of a work class on the machines of the site. */
+const siteWorkUnits = (id: string): Expr => sumOver(siteMachines, workUnits(id));
+
+/**
+ * This function gives one rule of the site for each work class with a demand. The rule `demand-<id>` holds that the
+ * machines of the site have the demand in units of the class, or more. The check of a site adds these rules by default.
+ *
+ * @param classes - The classes of work
+ * @returns The rules, one for each class with a demand, in the order of the classes
+ */
+export function siteWorkRules(classes: readonly WorkClass[]): readonly SiteRule[] {
+  return classes.flatMap((work): SiteRule[] =>
+    work.demand === undefined
+      ? []
+      : [
+          {
+            id: `demand-${work.id}`,
+            sentence: `The machines of the site have ${String(work.demand)} units of the work class ${work.id} or more.`,
+            level: "site",
+            program: app("gte", siteWorkUnits(work.id), lit(work.demand)),
+          },
+        ],
+  );
+}
+
 /**
  * This function gives two measures of a site for each class of work. The measure `work-<id>` gives the units of the
  * class on the machines. The measure `capacity-<id>` gives the sum of the capacity of each machine for the class.
@@ -202,7 +227,7 @@ export const SITE_MEASURES: readonly SiteMeasure[] = [
  */
 export function siteWorkMeasures(classes: readonly WorkClass[]): readonly SiteMeasure[] {
   return classes.flatMap((work): SiteMeasure[] => [
-    { id: `work-${work.id}`, sentence: `The units of the work class ${work.id} on the machines.`, unit: "count", level: "site", program: sumOver(siteMachines, workUnits(work.id)) },
+    { id: `work-${work.id}`, sentence: `The units of the work class ${work.id} on the machines.`, unit: "count", level: "site", program: siteWorkUnits(work.id) },
     {
       id: `capacity-${work.id}`,
       sentence: `The units of the work class ${work.id} that the machines run, each machine in its own free share.`,
