@@ -78,13 +78,21 @@ describe("the site of the demo", () => {
   });
 
   it("gives no read, and not a fit, when the machine has no power supply", () => {
-    const empty = machineOf({ counts: new Map(), psuLoad: 0.8 });
+    const empty = machineOf({ counts: new Map(), psuLoad: 0.8, work: new Map() });
     const result = siteResultOf(empty, SAMPLE_SITE_STATE);
     expect(result.verdict).toBe("unread");
     expect(Object.fromEntries(result.findings.filter((f) => f.verdict === "unread").map((f) => [`${f.id}:${f.rule}`, f.verdict]))).toEqual({
       "circuit-a:circuit-load": "unread",
       "room-a:room-heat": "unread",
     });
+  });
+
+  it("checks a site of machines with work lines", () => {
+    const mix = PRESETS.find((entry) => entry.id === "mix");
+    if (mix === undefined) throw new Error("No preset mix");
+    const result = siteResultOf(machineOf(mix.state), SAMPLE_SITE_STATE);
+    expect(result.verdict).toBe("fits");
+    expect(result.findings.filter((finding) => finding.verdict !== "fits")).toEqual([]);
   });
 
   it("checks a site with no machine", () => {

@@ -19,6 +19,8 @@ import {
   type Part,
   type PartClass,
   type Verdict,
+  type WorkClass,
+  workMeasures,
 } from "@mark1russell7/cluster-design";
 import { SAMPLE_MACHINE, SAMPLE_PARTS, SAMPLE_PRICES } from "@mark1russell7/cluster-design/sample";
 
@@ -67,14 +69,29 @@ export function formatMeasure(value: MeasureValue): string {
   return `${String(Math.round(value.value))} ${value.unit}`;
 }
 
-/** This record is the state of the demo: the count of each part, and the load limit of the power supply. */
+/** This record is the state of the demo: the count of each part, the load limit of the power supply and the units of each class of work. */
 export interface DemoState {
   readonly counts: ReadonlyMap<string, number>;
   readonly psuLoad: number;
+  readonly work: ReadonlyMap<string, number>;
 }
 
 /** The most parts of one kind in the demo. */
 export const MAX_COUNT = 8;
+
+/** The classes of work of the demo. A unit of a class takes its threads and its memory before the CI jobs. */
+export const WORK_CLASSES: readonly WorkClass[] = [
+  { id: "session", threads: 1, memory: 4 },
+  { id: "service", threads: 2, memory: 8 },
+];
+
+/** The names of the classes of work, for one unit and for more units. */
+export const WORK_NAMES: Readonly<Record<string, readonly [string, string]>> = { session: ["session", "sessions"], service: ["service", "services"] };
+
+/** The most units of one class of work in the demo. */
+export const MAX_WORK = 16;
+
+const NO_WORK: ReadonlyMap<string, number> = new Map();
 
 const countsOf = (lines: Machine["lines"]): ReadonlyMap<string, number> => new Map(lines.map((line) => [line.part, line.count]));
 
@@ -89,47 +106,63 @@ export interface Preset {
   readonly state: DemoState;
 }
 
-/** These are the presets of the demo. Each preset after the first breaks one or more rules. */
+/** These are the presets of the demo. The first two presets fit. Each other preset breaks one or more rules. */
 export const PRESETS: readonly Preset[] = [
   {
     id: "fits",
     label: "A machine that fits",
     sentence: "The sample machine: each part fits.",
-    state: { counts: countsOf(SAMPLE_MACHINE.lines), psuLoad: DEFAULT_PSU_LOAD },
+    state: { counts: countsOf(SAMPLE_MACHINE.lines), psuLoad: DEFAULT_PSU_LOAD, work: NO_WORK },
+  },
+  {
+    id: "mix",
+    label: "A mix of work",
+    sentence: "4 sessions and 1 service take their share first. The CI jobs get the rest of the machine.",
+    state: { counts: countsOf(SAMPLE_MACHINE.lines), psuLoad: DEFAULT_PSU_LOAD, work: new Map([["session", 4], ["service", 1]]) },
+  },
+  {
+    id: "full",
+    label: "Too much work",
+    sentence: "16 sessions of 4 GiB take 64 GiB, more than the memory less its reserve. No CI job fits.",
+    state: { counts: countsOf(SAMPLE_MACHINE.lines), psuLoad: DEFAULT_PSU_LOAD, work: new Map([["session", 16]]) },
   },
   {
     id: "hot",
     label: "A hot processor",
     sentence: "A processor of 170 W thermal design power, with a cooler of 150 W.",
-    state: { counts: countsOf(change("cpu-a", "cpu-hot")), psuLoad: DEFAULT_PSU_LOAD },
+    state: { counts: countsOf(change("cpu-a", "cpu-hot")), psuLoad: DEFAULT_PSU_LOAD, work: NO_WORK },
   },
   {
     id: "graphics",
     label: "A long graphics card",
     sentence: "A graphics card of 340 mm in a case for 330 mm, on a power supply of 300 W.",
-    state: { counts: countsOf([...change("psu-550", "psu-300"), { part: "gpu-long", count: 1 }]), psuLoad: DEFAULT_PSU_LOAD },
+    state: { counts: countsOf([...change("psu-550", "psu-300"), { part: "gpu-long", count: 1 }]), psuLoad: DEFAULT_PSU_LOAD, work: NO_WORK },
   },
   {
     id: "other-socket",
     label: "The wrong socket",
     sentence: "A processor for the socket S2 on a board with the socket S1, and DDR4 memory on a DDR5 board.",
-    state: { counts: countsOf(change("ram-2x16", "ram-ddr4").map((line) => (line.part === "cpu-a" ? { ...line, part: "cpu-s2" } : line))), psuLoad: DEFAULT_PSU_LOAD },
+    state: { counts: countsOf(change("ram-2x16", "ram-ddr4").map((line) => (line.part === "cpu-a" ? { ...line, part: "cpu-s2" } : line))), psuLoad: DEFAULT_PSU_LOAD, work: NO_WORK },
   },
   {
     id: "no-case",
     label: "No case",
     sentence: "The rules that read the case cannot read it, so they give no read, not a pass.",
-    state: { counts: countsOf(SAMPLE_MACHINE.lines.filter((line) => line.part !== "case-a")), psuLoad: DEFAULT_PSU_LOAD },
+    state: { counts: countsOf(SAMPLE_MACHINE.lines.filter((line) => line.part !== "case-a")), psuLoad: DEFAULT_PSU_LOAD, work: NO_WORK },
   },
 ];
 
-/** This function gives the machine of a state: one line for each part with a count of 1 or more. */
+/** This function gives the machine of a state: one line for each part and one work line for each class, each with a count of 1 or more. */
 export function machineOf(state: DemoState): Machine {
   const lines = SAMPLE_PARTS.flatMap((part) => {
     const count = state.counts.get(part.id) ?? 0;
     return count > 0 ? [{ part: part.id, count }] : [];
   });
-  return { id: MACHINE_ID, lines };
+  const work = WORK_CLASSES.flatMap((entry) => {
+    const count = state.work.get(entry.id) ?? 0;
+    return count > 0 ? [{ class: entry.id, count }] : [];
+  });
+  return work.length > 0 ? { id: MACHINE_ID, lines, work } : { id: MACHINE_ID, lines };
 }
 
 /** This record is the result of the check of the demo machine, its power and the values of its measures. */
@@ -147,11 +180,12 @@ export interface DemoResult {
 /** This function checks the machine of a state with each fit rule, and gives its measures. */
 export function resultOf(state: DemoState): DemoResult {
   const machine = machineOf(state);
-  const checked = checkDesign([machine], CATALOG, { psuLoad: state.psuLoad });
+  const checked = checkDesign([machine], CATALOG, { psuLoad: state.psuLoad, work: WORK_CLASSES });
   const measured = measureDesign([machine], CATALOG, {
     psuLoad: state.psuLoad,
+    work: WORK_CLASSES,
     cost: { prices: SAMPLE_PRICES },
-    measures: [...MACHINE_MEASURES, ...MACHINE_COST_MEASURES],
+    measures: [...MACHINE_MEASURES, ...MACHINE_COST_MEASURES, ...workMeasures(WORK_CLASSES)],
   });
   if (!checked.ok) throw new Error(checked.problems.join(" "));
   if (!measured.ok) throw new Error(measured.problems.join(" "));
@@ -213,24 +247,55 @@ export function partsByClass(): ReadonlyArray<readonly [PartClass, readonly Part
   return PART_CLASS_NAMES.map((name) => [name, SAMPLE_PARTS.filter((part) => part.class === name)] as const);
 }
 
+const units = (count: number, id: string): string => {
+  const [one, many] = WORK_NAMES[id] ?? [id, id];
+  return `${String(count)} more ${count === 1 ? one : many}`;
+};
+
+/**
+ * This function gives the sentence of the work of a result: the share of the work, the free share, and the CI jobs and
+ * the units of each class that fit in the free share.
+ */
+export function workSentence(result: Pick<DemoResult, "measures">): string {
+  const value = (id: string): number | undefined => result.measures.find((entry) => entry.measure === id)?.value;
+  const threads = value("work-threads");
+  const memory = value("work-memory");
+  const freeThreads = value("free-threads");
+  const freeMemory = value("free-memory");
+  const slots = value("runner-slots");
+  if (threads === undefined || memory === undefined || freeThreads === undefined || freeMemory === undefined || slots === undefined) {
+    return "The share of the work has no read: the machine needs a processor and memory.";
+  }
+  const jobs = `${String(slots)} CI ${slots === 1 ? "job" : "jobs"}`;
+  if (threads === 0 && memory === 0) return `No other work. The machine less its reserve has room for ${jobs}.`;
+  const taken = `The work takes ${String(threads)} threads and ${String(memory)} GiB.`;
+  if (freeThreads < 0 || freeMemory < 0) return `${taken} That is more than the machine less its reserve, so no CI job fits.`;
+  const more = WORK_CLASSES.map((entry) => units((value(`capacity-${entry.id}`) ?? 0) - (value(`work-${entry.id}`) ?? 0), entry.id));
+  return `${taken} ${String(freeThreads)} threads and ${String(freeMemory)} GiB stay free: room for ${jobs}, or ${more.join(", or ")}.`;
+}
+
 /** This function writes a state as the hash of the address, so a visitor can share a machine. */
 export function hashOf(state: DemoState): string {
   const parts = [...state.counts].filter(([, count]) => count > 0).map(([id, count]) => `${id}=${String(count)}`);
-  return `#${[...parts, `load=${String(Math.round(state.psuLoad * 100))}`].join("&")}`;
+  const work = [...state.work].filter(([, count]) => count > 0).map(([id, count]) => `work.${id}=${String(count)}`);
+  return `#${[...parts, `load=${String(Math.round(state.psuLoad * 100))}`, ...work].join("&")}`;
 }
 
-/** This function reads a state from the hash of the address. It ignores each part that the catalog does not have. */
+/** This function reads a state from the hash of the address. It ignores each part and each class of work that the demo does not have. */
 export function stateOf(hash: string): DemoState | undefined {
   const text = hash.replace(/^#/, "");
   if (text === "") return undefined;
   const counts = new Map<string, number>();
+  const work = new Map<string, number>();
   let psuLoad = DEFAULT_PSU_LOAD;
   for (const pair of text.split("&")) {
     const [key = "", raw = ""] = pair.split("=");
     const number = Number.parseInt(raw, 10);
     if (!Number.isInteger(number)) continue;
+    const id = key.startsWith("work.") ? key.slice("work.".length) : undefined;
     if (key === "load") psuLoad = Math.min(100, Math.max(50, number)) / 100;
+    else if (id !== undefined && WORK_CLASSES.some((entry) => entry.id === id)) work.set(id, Math.min(MAX_WORK, Math.max(0, number)));
     else if (CATALOG.has(key)) counts.set(key, Math.min(MAX_COUNT, Math.max(0, number)));
   }
-  return { counts, psuLoad };
+  return { counts, psuLoad, work };
 }

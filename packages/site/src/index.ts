@@ -8,12 +8,16 @@ import {
   headlineOf,
   machineOf,
   MAX_COUNT,
+  MAX_WORK,
   partsByClass,
   PRESETS,
   resultOf,
   stateOf,
   TILE_LABELS,
   VERDICT_TEXT,
+  WORK_CLASSES,
+  WORK_NAMES,
+  workSentence,
   type DemoResult,
   type DemoState,
 } from "./demo.ts";
@@ -87,6 +91,36 @@ for (const [name, parts] of partsByClass()) {
     counters.set(part.id, { output, less, more, row });
   }
   partsRoot.append(group);
+}
+
+const workCounters = new Map<string, { readonly output: HTMLOutputElement; readonly less: HTMLButtonElement; readonly more: HTMLButtonElement; readonly row: HTMLElement }>();
+const workRoot = byId("work");
+for (const entry of WORK_CLASSES) {
+  const [, many] = WORK_NAMES[entry.id] ?? [entry.id, entry.id];
+  const name = many.charAt(0).toUpperCase() + many.slice(1);
+  const row = el("div", "part");
+  const text = el("div", "part-text");
+  text.append(el("span", "part-name", name), el("span", "part-facts", `each ${String(entry.threads)} ${entry.threads === 1 ? "thread" : "threads"} · ${String(entry.memory)} GiB`));
+  const stepper = el("div", "stepper");
+  const less = el("button", "step", "−");
+  const more = el("button", "step", "+");
+  const output = el("output", "count");
+  less.type = "button";
+  more.type = "button";
+  less.setAttribute("aria-label", `One less: ${name}`);
+  more.setAttribute("aria-label", `One more: ${name}`);
+  const step = (delta: number) => {
+    const work = new Map(state.work);
+    work.set(entry.id, Math.min(MAX_WORK, Math.max(0, (work.get(entry.id) ?? 0) + delta)));
+    presetId = undefined;
+    update({ ...state, work });
+  };
+  less.addEventListener("click", () => step(-1));
+  more.addEventListener("click", () => step(1));
+  stepper.append(less, output, more);
+  row.append(text, stepper);
+  workRoot.append(row);
+  workCounters.set(entry.id, { output, less, more, row });
 }
 
 const load = byId<HTMLInputElement>("load");
@@ -171,6 +205,14 @@ function draw(result: DemoResult): void {
     counter.more.disabled = count >= MAX_COUNT;
     counter.row.classList.toggle("chosen", count > 0);
   }
+  for (const [id, counter] of workCounters) {
+    const count = state.work.get(id) ?? 0;
+    counter.output.textContent = String(count);
+    counter.less.disabled = count === 0;
+    counter.more.disabled = count >= MAX_WORK;
+    counter.row.classList.toggle("chosen", count > 0);
+  }
+  byId("work-text").textContent = workSentence(result);
   for (const [id, button] of presetButtons) button.setAttribute("aria-pressed", String(id === presetId));
   byId("preset-sentence").textContent = PRESETS.find((preset) => preset.id === presetId)?.sentence ?? "Your own machine.";
 }
