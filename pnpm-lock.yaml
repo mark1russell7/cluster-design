@@ -209,8 +209,8 @@ importers:
   packages/cluster-design:
     dependencies:
       '@mark1russell7/electrical':
-        specifier: ^0.1.0
-        version: 0.1.0
+        specifier: ^0.2.0
+        version: 0.2.0
       '@mark1russell7/quantity':
         specifier: ^0.4.0
         version: 0.4.1(zod@4.6.7)
@@ -538,9 +538,13 @@ packages:
     engines: {node: '>=22'}
     hasBin: true
 
-  '@mark1russell7/electrical@0.1.0':
-    resolution: {integrity: sha512-3NbDH66k+goXOTVI4WAz7XwK3Ben+MGcIhLZd6MBeGzjfs3R53roMN2Gq10n0zj7XU4Gh/wqokjvPO+g+T4Ydw==}
+  '@mark1russell7/electrical@0.2.0':
+    resolution: {integrity: sha512-CmFGG3VN0dl5YdpAFWgm94CvtJWsN0mRN9mbFjmy7JOXWL2Qix0wSgYL0CIYj7ZW+wHzRgIfeJmCmBEE00B4PQ==}
     engines: {node: '>=22'}
+
+  '@mark1russell7/geo@0.5.3':
+    resolution: {integrity: sha512-3NUmhjBQXQadIxbjnfIOMGaRaKroTLtY94CMJxLTFXlItXbAU94cTFsnAPt8bBJoJbHfmf9xbmaNcnRn3MfLsw==}
+    engines: {node: '>=22.12'}
 
   '@mark1russell7/layout-contract@0.10.2':
     resolution: {integrity: sha512-53xgUkaVtkGXEdRZesdxKl1bSel8NCIs/OyKyk56t7VhjgSIIinELGKei8prBL1/cHnjswXMkkDgu/eo6wqmYg==}
@@ -623,8 +627,8 @@ packages:
       ltx:
         optional: true
 
-  '@mark1russell7/room-view@0.1.4':
-    resolution: {integrity: sha512-ouUN1mqjrYEjxwznp5i9YV5y1ifhqF5kktivIXfNLT9DK9bDj0/buyZ4e13JJISgrqYRbuQJUILDJk02VLFQGg==}
+  '@mark1russell7/room-view@0.2.0':
+    resolution: {integrity: sha512-HNd55ODN53pIH/qnLZMhkFrF0QaqpFzsjTv9qP/vg2CQ82uPf8Y3mP+rROIiDSK6YOVc8rII57mHUgnAxoA0Iw==}
     engines: {node: '>=22'}
     peerDependencies:
       three: '>=0.187.0'
@@ -668,6 +672,15 @@ packages:
 
   '@mark1russell7/vex@0.19.1':
     resolution: {integrity: sha512-Hl8IVbyNmhJ7xV2nyTyOgiqANGWSWhmZSdnuucSRnmBj/KSnp0kvSz7MNzcWcI+tV34wfXmTNp6Y3ewDATbXjg==}
+
+  '@mark1russell7/visuals@0.3.1':
+    resolution: {integrity: sha512-syFFEuw2cb1PlAuippo/Up991iDMDLCvfYIT8nU2IR//6Vt+unnn78Gqkw6g0wAsh+TGezhhkM9rDEx3Cpb+9w==}
+    engines: {node: '>=22'}
+    peerDependencies:
+      three: '>=0.187.0'
+    peerDependenciesMeta:
+      three:
+        optional: true
 
   '@napi-rs/wasm-runtime@1.2.6':
     resolution: {integrity: sha512-mRyDmEw9/fCDXCGfL1sbgIw/GUK0PVxRW4YwgPN61F3LQ+fSyoBFarJVzgGyhF6kRzEQZ0FejDqm4WLXSeqQmw==}
@@ -1960,14 +1973,20 @@ snapshots:
 
   '@mark1russell7/cue@2.1.4': {}
 
-  '@mark1russell7/electrical@0.1.0':
+  '@mark1russell7/electrical@0.2.0':
     dependencies:
-      '@mark1russell7/room-view': 0.1.4
+      '@mark1russell7/room-view': 0.2.0
       '@mark1russell7/vex': 0.19.1(zod@4.6.7)
       '@mark1russell7/vex-domains': 0.19.1(zod@4.6.7)
+      '@mark1russell7/visuals': 0.3.1(zod@4.6.7)
       zod: 4.6.7
     transitivePeerDependencies:
       - three
+
+  '@mark1russell7/geo@0.5.3':
+    dependencies:
+      '@mark1russell7/optional': 1.2.0
+      '@mark1russell7/predicates': 0.1.5
 
   '@mark1russell7/layout-contract@0.10.2(zod@4.6.7)':
     dependencies:
@@ -2012,10 +2031,11 @@ snapshots:
       '@mark1russell7/rigor-generators': 0.2.0
       fast-check: 4.10.2
 
-  '@mark1russell7/room-view@0.1.4':
+  '@mark1russell7/room-view@0.2.0':
     dependencies:
       '@mark1russell7/layout-contract': 0.10.2(zod@4.6.7)
       '@mark1russell7/quantity': 0.4.1(zod@4.6.7)
+      '@mark1russell7/visuals': 0.3.1(zod@4.6.7)
       zod: 4.6.7
 
   '@mark1russell7/site-pages@0.7.0':
@@ -2062,6 +2082,13 @@ snapshots:
   '@mark1russell7/vex@0.19.1(zod@4.6.7)':
     dependencies:
       '@mark1russell7/coeval': 0.34.0(zod@4.6.7)
+    transitivePeerDependencies:
+      - zod
+
+  '@mark1russell7/visuals@0.3.1(zod@4.6.7)':
+    dependencies:
+      '@mark1russell7/geo': 0.5.3
+      '@mark1russell7/layout-contract': 0.10.2(zod@4.6.7)
     transitivePeerDependencies:
       - zod
 
