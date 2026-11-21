@@ -183,13 +183,13 @@ importers:
         version: 0.3.2(@swc/core@1.16.22)(dependency-cruiser@18.7.2)
       '@mark1russell7/conventions':
         specifier: ^0.49.0
-        version: 0.49.0
+        version: 0.49.3
       '@mark1russell7/cue':
         specifier: ^2.0.0
         version: 2.1.4
       '@mark1russell7/rigor-statistics':
         specifier: ^0.2.2
-        version: 0.2.16
+        version: 0.2.17
       '@mark1russell7/ste-lint':
         specifier: ^0.4.0
         version: 0.4.0
@@ -228,7 +228,7 @@ importers:
         version: 0.2.0
       '@mark1russell7/strategy-search':
         specifier: ^0.1.1
-        version: 0.1.1
+        version: 0.1.2
       '@mark1russell7/strategy-space':
         specifier: ^0.1.1
         version: 0.1.1
@@ -274,7 +274,7 @@ importers:
         version: link:../cluster-design
       '@mark1russell7/strategy-search':
         specifier: ^0.1.1
-        version: 0.1.1
+        version: 0.1.2
     devDependencies:
       '@mark1russell7/cue':
         specifier: ^2.0.0
@@ -537,8 +537,8 @@ packages:
     resolution: {integrity: sha512-uOqrK6ZYqgbG8DLchTU2FO8DcNeeeLbNAqR8E3YTe/HKK3rk4ZpR0M0GlYG/7ApiWfrFkVhW1rCF6opaeiL16g==}
     engines: {node: '>=22.12'}
 
-  '@mark1russell7/conventions@0.49.0':
-    resolution: {integrity: sha512-nSuJfGKy8ATorRwPbSa7jywQeRFI+9DzDqE3Pd0N/kXIRXTFjzuRcAajcGyTyjjP3wm8eyVL3ItHG3yZt/v/eA==}
+  '@mark1russell7/conventions@0.49.3':
+    resolution: {integrity: sha512-jUATwa6VDq38uQMl5dskeXthQKnmCgmWSDx1rNcgcdrpUfeYDb8qDTDUQ47zhROotxUo8dwyG78rFeCIW/DiEQ==}
     engines: {node: '>=22'}
     hasBin: true
 
@@ -600,12 +600,8 @@ packages:
     resolution: {integrity: sha512-Wh91NJIwxIRN3+a5V2bqUkMhdPcjHI+gVZBCnohf12ZegdSTNqGlpqS2WXYmrRVjasF9EBgm1lC8GQNYpBSg7Q==}
     engines: {node: '>=22'}
 
-  '@mark1russell7/rigor-statistics@0.2.14':
-    resolution: {integrity: sha512-qhBNau4VdFfJyCr087izw/wf6CyKQ51YcN05CMEUS2YECuy7711ag0xjIZACwZSC1/zlRpq4plVbMTFZhCj2eQ==}
-    engines: {node: '>=22'}
-
-  '@mark1russell7/rigor-statistics@0.2.16':
-    resolution: {integrity: sha512-FCyXbHeORy7itn7Yp1TyIOjlsnkeJrZ3tqseXAB5ClymeB9zShjTWneUbLKpvasyQvY99zqGOAePdSmb7NOGQg==}
+  '@mark1russell7/rigor-statistics@0.2.17':
+    resolution: {integrity: sha512-+z/7h7C+ERO2wnM3RgZJ5D+egYPzFezPvWFqePB0DyBUqkD03WOpVPK63+xHmacJvkhtwmNBCKA/Zb3GK1DdnQ==}
     engines: {node: '>=22'}
 
   '@mark1russell7/rigor-testkit@0.2.0':
@@ -663,8 +659,8 @@ packages:
     engines: {node: '>=22'}
     hasBin: true
 
-  '@mark1russell7/strategy-search@0.1.1':
-    resolution: {integrity: sha512-zOISPIDwyw5FO8MhiTKmFYjeRmVFtE6E/aXo7abKS75WUWoo2WnjYCjWCkQ8CkYX3kMH6Os+00QX0sYEBwVSzg==}
+  '@mark1russell7/strategy-search@0.1.2':
+    resolution: {integrity: sha512-xySDH50GJDw6e1NkR60KvdE0SNb+2BZ9n8DqzTcTp4SRI3V12TMDjkSnqs0YEseaxVPAyDWqtkuyJgx7Xz7CCA==}
     engines: {node: '>=22'}
 
   '@mark1russell7/strategy-space@0.0.5':
@@ -1975,7 +1971,7 @@ snapshots:
 
   '@mark1russell7/api-report@0.5.17':
     dependencies:
-      '@mark1russell7/conventions': 0.49.0
+      '@mark1russell7/conventions': 0.49.3
 
   '@mark1russell7/boundaries@0.3.2(@swc/core@1.16.22)(dependency-cruiser@18.7.2)':
     optionalDependencies:
@@ -1997,7 +1993,7 @@ snapshots:
     transitivePeerDependencies:
       - zod
 
-  '@mark1russell7/conventions@0.49.0':
+  '@mark1russell7/conventions@0.49.3':
     dependencies:
       '@mark1russell7/text': 0.0.17
       yaml: 2.9.1
@@ -2061,11 +2057,7 @@ snapshots:
     dependencies:
       '@mark1russell7/rigor-generators': 0.1.18
 
-  '@mark1russell7/rigor-statistics@0.2.14':
-    dependencies:
-      '@mark1russell7/rigor-generators': 0.2.0
-
-  '@mark1russell7/rigor-statistics@0.2.16':
+  '@mark1russell7/rigor-statistics@0.2.17':
     dependencies:
       '@mark1russell7/rigor-generators': 0.2.0
 
@@ -2083,14 +2075,14 @@ snapshots:
 
   '@mark1russell7/site-pages@0.8.1':
     dependencies:
-      '@mark1russell7/rigor-statistics': 0.2.14
+      '@mark1russell7/rigor-statistics': 0.2.17
 
   '@mark1russell7/ste-lint@0.4.0':
     dependencies:
       '@mark1russell7/files': 0.0.4
       typescript: 6.0.3
 
-  '@mark1russell7/strategy-search@0.1.1':
+  '@mark1russell7/strategy-search@0.1.2':
     dependencies:
       '@mark1russell7/rigor-generators': 0.2.0
       '@mark1russell7/strategy-space': 0.1.1
@@ -2103,7 +2095,7 @@ snapshots:
   '@mark1russell7/strategy-space@0.1.1':
     dependencies:
       '@mark1russell7/rigor-generators': 0.2.0
-      '@mark1russell7/rigor-statistics': 0.2.16
+      '@mark1russell7/rigor-statistics': 0.2.17
 
   '@mark1russell7/template-cli@0.1.9':
     dependencies:
