@@ -222,7 +222,7 @@ importers:
         version: 0.3.2
       '@mark1russell7/quantity':
         specifier: ^0.4.0
-        version: 0.4.3(zod@4.6.7)
+        version: 0.4.4(zod@4.6.7)
       '@mark1russell7/rigor-generators':
         specifier: ^0.2.0
         version: 0.2.0
@@ -575,8 +575,8 @@ packages:
     resolution: {integrity: sha512-WXgTOliDm5650i3adkTjAj85Uzp22LD7KQFqwhETlQWG4CK3pDnd4I4ef9YrOAfzik1uTdChVk8RZaqdeP+YxA==}
     engines: {node: '>=22'}
 
-  '@mark1russell7/quantity@0.4.3':
-    resolution: {integrity: sha512-XtD9tiGDit51uR5ATtCHarXCfAS6004slKst+AGcAPVxd1wcIpi+OVlsxb/PIkkr2NOFL/oG3QCF0kdEWHhu/w==}
+  '@mark1russell7/quantity@0.4.4':
+    resolution: {integrity: sha512-gDAAYNqx/HeeOUF5AE0JHUoxZiMctwZZTcdE/q080lZMfCGRjTdy21bY29ZZjeTg7mK5IjVK/ls3bVdMbL408w==}
     engines: {node: '>=22.19'}
     peerDependencies:
       zod: ^4.1.0
@@ -1969,7 +1969,7 @@ snapshots:
 
   '@mark1russell7/algebra@0.8.10(zod@4.6.7)':
     dependencies:
-      '@mark1russell7/quantity': 0.4.3(zod@4.6.7)
+      '@mark1russell7/quantity': 0.4.4(zod@4.6.7)
     optionalDependencies:
       zod: 4.6.7
 
@@ -2045,7 +2045,7 @@ snapshots:
 
   '@mark1russell7/predicates@0.1.5': {}
 
-  '@mark1russell7/quantity@0.4.3(zod@4.6.7)':
+  '@mark1russell7/quantity@0.4.4(zod@4.6.7)':
     dependencies:
       '@mark1russell7/rational': 0.1.2
     optionalDependencies:
@@ -2077,7 +2077,7 @@ snapshots:
   '@mark1russell7/room-view@0.2.2':
     dependencies:
       '@mark1russell7/layout-contract': 0.10.2(zod@4.6.7)
-      '@mark1russell7/quantity': 0.4.3(zod@4.6.7)
+      '@mark1russell7/quantity': 0.4.4(zod@4.6.7)
       '@mark1russell7/visuals': 0.3.9(zod@4.6.7)
       zod: 4.6.7
 
@@ -2120,7 +2120,7 @@ snapshots:
 
   '@mark1russell7/vex-domains@0.19.1(zod@4.6.7)':
     dependencies:
-      '@mark1russell7/quantity': 0.4.3(zod@4.6.7)
+      '@mark1russell7/quantity': 0.4.4(zod@4.6.7)
       '@mark1russell7/vex': 0.19.1(zod@4.6.7)
     transitivePeerDependencies:
       - zod
